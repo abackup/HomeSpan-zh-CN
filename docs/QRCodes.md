@@ -1,68 +1,116 @@
-# Pairing with QR Codes
+<!-- 原文时间：2023.3.19，翻译时间：2023.9.28，校对时间：2024.7.12 -->
 
-Pairing a HomeKit device using its 8-digit *Setup Code* requires you to:
+# 与二维码配对
 
-* Select the specific HomeKit device to pair from a list of unpaired HomeKit devices the Home App finds on your local network
-* Input the *Setup Code* for that device into the Home App.
+使用 8 位*设置代码*配对 HomeKit 设备需要你：
 
-The order of the steps above depends on whether you manually type the *Setup Code*, or scan it from a printed tag.
+* 从“家庭”应用在本地网络上找到的未配对 HomeKit 设备列表中选择要配对的设备
+* 将该设备的*设置代码*输入到“家庭”应用中。
 
-In contrast, pairing a HomeKit device with a **QR Code** requires you to only scan the QR Code.  You do not need to identify the device you want to pair.  The Home App will instead search for it on your local network and, if found, pair with it automatically.
+上述步骤的顺序取决于你是手动键入*设置代码*，还是从打印的标签上扫描它。
 
-This is possible because the QR Code includes a 4-character *Setup ID* that is unique to the device associated with the QR Code.  The QR Code also embeds other paring information about the device, such as its Category (e.g. Light, Fan, Door) and its 8-digit *Setup Code*.
+相比之下，将 HomeKit 设备与**二维码**配对只需要扫描二维码。你无需识别要配对的设备。“家庭”应用将改为在你的本地网络上搜索它，如果找到则会自动与之配对。
 
-HomeSpan supports pairing with QR Codes and uses "HSPN" as its default *Setup ID*.  However, if you have more than one device that you intend on pairing with a QR Code, you'll need to enure each has a unique *Setup ID*.  You can change the *Setup ID* on your device in one of two ways:
+这是可能的，因为二维码包含一个 4 字符的*设置 ID*，它对于与二维码关联的设备是唯一的。二维码还嵌入了有关设备的其他配对信息，例如其类别（例如灯、风扇、门）及其 8 位*设置代码*。
 
-* Store a new code in the device NVS by typing 'O \<code\>' into the HomeSpan [Command Line Interface](https://github.com/HomeSpan/HomeSpan/blob/master/docs/CLI.md); or
-* Specify the QR *Setup ID* directly in your sketch using the method `homeSpan.setQRID(const char *ID)`. 
+HomeSpan 支持与二维码配对，并使用 "HSPN" 作为其默认*设置 ID*。但是，如果你打算将多个设备与二维码配对，则需要确保每个设备都有一个唯一的*设置 ID*。你可以通过以下两种方式之一更改设备上的*设置 ID*：
+
+* 通过在 HomeSpan [命令行界面](./CLI.md) 中键入 "O \<code\>" 将新代码存储在设备 NVS 中；或者
+* 使用 `homeSpan.setQRID(const char *ID)` 方法直接在你的草图中指定 QR *设置 ID*。
   
-The order of preference is as follows:  If your sketch contains a call to `homeSpan.setQRID(const char *ID)`, the specified ID is used.  If not, HomeSpan will instead search the NVS for a stored *Setup ID*.  If not found, HomeSpan defaults to using "HSPN" as the *Setup ID*.
+优先顺序如下：如果你的草图包含对 `homeSpan.setQRID(const char *ID)` 的调用，则使用指定的 ID。如果没有，HomeSpan 将改为在 NVS 中搜索存储的*设置 ID*。如果未找到，HomeSpan 默认使用 "HSPN" 作为*设置 ID*。
   
-Note that if you do not intend on pairing your devices with QR Codes, it is fine for them to all retain the default *Setup ID* of "HSPN" since this ID is only used to initiate the pairing process via a QR code and serves no other purpose.
+请注意，如果你不打算将设备与二维码配对，则它们都可以保留默认的 "HSPN" *设置 ID*，因为此 ID 仅用于通过二维码启动配对过程并提供服务没有其他目的。
 
-### Creating Scannable QR Codes
+### 创建可扫描的二维码
 
-Just as you can create your own scannable tag based on a HomeSpan device's *Setup Code* (see the [HomeSpan User Guide](https://github.com/HomeSpan/HomeSpan/blob/master/docs/UserGuide.md#creating-a-scannable-tag), you can also create your own scannable QR Code for pairing a HomeSpan device.  Perhaps the easiest method is to use Apple's HomeKit QR Code generator including with its [HomeKit Accessory Simulator](https://developer.apple.com/documentation/homekit/testing_your_app_with_the_homekit_accessory_simulator) add-on for Xcode.
+就像你可以根据 HomeSpan 设备的*设置代码*创建自己的可扫描标签一样（请参阅 [用户指南](./UserGuide.md#创建可扫描的二维码), 你还可以创建自己的可扫描二维码来配对 HomeSpan 设备。也许最简单的方法是使用苹果公司的 HomeKit 二维码生成器，包括其 [HomeKit Accessory Simulator](https://developer.apple.com/documentation/homekit/testing_your_app_with_the_homekit_accessory_simulator ) 的附加组件 Xcode。
 
-![QR Code Generator](images/QRCode.png)
+![二维码生成器](images/QRCode.png)
 
-As shown above, the Simulator's QR Code Generator requires the input of the following fields:
+如上图，模拟器的二维码生成器需要输入以下字段：
 
-* **Version**.  Always set this to zero, else the Home App will not recognize the QR Code.
-* **Reserved**.  Always set this to zero, else the Home App will not recognize the QR Code.
-* **Category**.  Set this to match the Category of your HomeSpan device (e.g. Lightbulb, Fan, Door Lock).  Note the Home App only uses this for display purposes when you first scan the QR Code.  The Home App does not actually check that the Category listed in the QR Code matches the Category of the device you are pairing.
-* **Setup Flags**.  These flags provide information on which methods of pairing are supported by a HomeKit device.  HomeSpan only supports IP Pairing, so you check that box and leave the other two blank.  However, it does not seem to matter which boxes (if any) you check since the Home App does not appear to use this information for anything.
-* **Setup Code**.  This is the 8-digit *Setup Code* you set for your device using either the [HomeSpan Command-Line Interface (CLI)](https://github.com/HomeSpan/HomeSpan/blob/master/docs/CLI.md) or [HomeSpan's WiFi Setup Web Page](https://github.com/HomeSpan/HomeSpan/blob/master/docs/UserGuide.md#setting-homespans-wifi-credentials-and-setup-code).  Note the code shown in the above screenshot is the default HomeSpan uses if you do not set your own.
-* **Setup ID**.  This is the 4-character *Setup ID* you set for your HomeSpan device from within your sketch using the method `homeSpan.setQRID(const char *id)`.  If you do not specify a QR Setup ID in your sketch, HomeSpan uses a default value of "HSPN" (as shown in the example above) unless you've updated the default for this device via the [CLI](CLI.md) using the 'Q' command.  Note case matters!  HSPN is not the same as "hspn".
-* **Setup Payload**.  This is the output that results from the above inputs, and is the text that is represented by the QR Code shown.  The Setup Payload for a HomeKit device always begins with "X-HM://", followed by 9 alphanumeric characters, and ending with the *Setup ID* in plain text.  If you've not changed HomeSpan's default *Setup Code* or *Setup ID*, you can pair your device by scanning this graphic with the Home App.  Even easier is to scan it right from your camera - your iPhone will recognize that this is a HomeKit QR Code and open the Home App for you.
+* **版本**。始终将此设置为零，否则“家庭”应用将无法识别二维码。
+* **预订的**。始终将此设置为零，否则“家庭”应用将无法识别二维码。
+* **类别**。将此设置为与你的 HomeSpan 设备的类别相匹配（例如灯泡、风扇、门锁）。请注意，“家庭”应用仅在你首次扫描二维码时将其用于显示目的。“家庭”应用实际上不会检查二维码中列出的类别是否与你正在配对的设备的类别匹配。
+* **设置标志**。这些标志提供有关 HomeKit 设备支持哪些配对方法的信息。HomeSpan 仅支持 IP 配对，因此你选中该框并将其他两个留空。但是，你检查哪个框（如果有）似乎并不重要，因为 家庭 应用似乎没有将此信息用于任何事情。
+* **设置代码**。这是你使用 [命令行界面](./CLI.md) 为你的设备设置的 8 位*设置代码* 或 [HomeSpan 的 WiFi 设置网页](./UserGuide.md#设置-homespan-的-wifi-凭据和设置代码)。请注意，上面屏幕截图中显示的代码是 HomeSpan 使用的默认代码，如果你不设置自己的代码。
+* **设置 ID**。这是你在草图中使用方法 `homeSpan.setQRID(const char *id)` 为 HomeSpan 设备设置的 4 字符 *设置 ID*。如果你未在草图中指定 QR 设置 ID，HomeSpan 将使用默认值 "HSPN"（如上例所示），除非你已通过 [CLI](CLI.md) 更新此设备的默认值使用 "Q" 命令。注意案例很重要！ HSPN 与 "HSPN" 不同。
+* **设置有效负载**。这是由上述输入产生的输出，并且是由显示的二维码表示的文本。HomeKit 设备的设置有效负载 始终以 "X-HM://" 开头，后跟 9 个字母数字字符，并以纯文本形式的*设置 ID*结尾。如果你没有更改 HomeSpan 的默认*设置代码*或*设置 ID*，你可以通过使用“家庭”应用扫描此图形来配对你的设备。更简单的是直接从你的相机扫描它 - 你的 iPhone 会识别出这是一个 HomeKit 二维码并为你打开“家庭”应用。
 
-You probably noticed that the QR Code contains extra graphics, such as Apple's HomeKit logo in the upper left.  This is purely cosmetic and not required by the Home App for pairing.  Similarly, having the device's 8-digit *Setup Code* shown in big numerals in the upper right is also cosmetic and not needed for pairing, though it may be handy if you have problems scanning the QR Code and want to manually type the *Setup Code* into the Home App.
+你可能注意到二维码包含额外的图形，例如左上角的苹果 HomeKit 徽标。这纯粹是装饰性的，“家庭”应用不需要进行配对。同样，在右上角以大数字显示设备的 8 位*设置代码*也是一种装饰，不需要配对，但如果你在扫描二维码时遇到问题并想要手动输入*设置代码*进入“家庭”应用，它可能会很方便代码。
 
-The only portion of the full graphic actually scanned by the Home App is the QR Code itself, which means you can create a HomeKit-compatible QR Code using any generic QR Code generator that allows you to input arbitrary text.  The text you'll need to input to such a QR Code generator is of course the Setup Payload.  There is a relatively straightfoward algorithm you can follow to produce the correct Setup Payload text for each of your HomeSpan devices, but its even easier to let HomeSpan do this for you.
+“家庭”应用实际扫描的完整图形的唯一部分是二维码本身，这意味着你可以使用任何允许你输入任意文本的通用二维码生成器创建与 HomeKit 兼容的二维码。你需要输入到此类二维码生成器的文本当然是设置有效负载。你可以遵循一种相对简单的算法来为你的每个 HomeSpan 设备生成正确的设置有效负载文本，但让 HomeSpan 为你执行此操作更容易。
 
-This is because HomeSpan automatically displays the Setup Payload text needed for a HomeSpan device on the Arduino Serial Monitor whenever you set or change the *Setup Code*.  **Simply copy the Setup Payload text shown on the Serial Monitor into a generic QR Code generator, and viola — you've created a scannable QR Code ready to be used to pair your HomeSpan device.**
+这是因为每当你设置或更改*设置代码*时，HomeSpan 都会在 Arduino 串口监视器上自动显示 HomeSpan 设备所需的设置有效负载文本。**只需将串口监视器上显示的设置有效负载文本复制到通用二维码生成器中，viola — 你已经创建了一个可扫描的二维码，可用于配对 HomeSpan 设备。**
 
-### Setup Payload Algorithm (*optional reading*)
+### 设置有效载荷算法（*可选阅读*）
 
-The Setup Payload for a HomeKit device always begins with "X-HM://", followed by nine base-36 digits that encode all the device's pairing parameters, and ending with the *Setup ID* for the device in plain text.
+HomeKit 设备的设置有效负载 始终以 "X-HM://" 开头，后跟 9 个 base-36 数字，用于编码设备的所有配对参数，并以纯文本形式的设备的 *设置 ID* 结尾。
 
-> Base-36 digits use the characters 0-9 and A-Z (capitals only!) to represent the numbers 0-35 in the same fashion that the hexidecimal digits 0-9 and A-F represent the numbers 0-15.  For example, the decimal number 91 would be represented as 2S in base-36 (91 = 2 * 36 + 19)
+> Base-36 数字使用字符 0-9 和 A-Z（仅限大写！）来表示数字 0-35，其方式与十六进制数字 0-9 和 A-F 表示数字 0-15 的方式相同。例如，十进制数 91 将表示为以 36 为底的 2S (91=2*36+19)
 
-The nine base-36 digits should encode a 45-bit word formed from the following data elements (listed from most- to least-significant bit):
+九个 base-36 数字应编码由以下数据元素组成的 45 位字（从最高有效位到最低有效位列出）：
 
-* Bits 45-43 -  The "Version" field (0-7).  Always set to 0
-* Bits 42-39 -  The "Reserved" field (0-15).  Always set to 0
-* Bits 38-31 -  The device's Accessory Category (0-255)
-* Bit 30 -  Always set to 0
-* Bit 29 -  Set to 1 if the device supports BLTE pairing, else set to 0
-* Bit 28 -  Set to 1 if the device supports IP pairing, else set to 0
-* Bit 27 -  Set to 1 if the device supports NFC pairing, else set to 0
-* Bits 26-0 - The device's 8-digit *Setup Code* (from 0-99999999)
+* 位 45-43 - “版本”字段 (0-7)。始终设置为 0
+* 位 42-39 - “保留”字段 (0-15)。始终设置为 0
+* 位 38-31 - 设备的配件类别 (0-255)
+* 位 30 - 始终设置为 0
+* 位 29 - 如果设备支持 BLTE 配对，则设置为 1，否则设置为 0
+* 位 28 - 如果设备支持 IP 配对设置为 1，否则设置为 0
+* 位 27 - 如果设备支持 NFC 配对，则设置为 1，否则设置为 0
+* 位 26-0 - 设备的 8 位*设置代码*（从 0-99999999）
 
-The result must be 9 digits. If less, pad with leading zeros.
+结果必须是 9 位数字。如果小于，则用前导零填充。
 
 ---
 
-[↩️](../README.md) Back to the Welcome page
+[↩️](../README.md#resources) 返回欢迎页面
 
 
+
+<!--  原文时间：2023.3.19，翻译时间：2024.5.13，校对时间：2024.6.26 -->
+
+
+
+# 无线 (OTA) 更新
+
+HomeSpan 支持无线 (OTA) 更新，它允许你直接从 Arduino IDE *无线*上传草图——无需串口连接。要为你的草图激活此功能，只需在调用 `homeSpan.begin()` 之前调用方法 `homeSpan.enableOTA()`。
+
+在启用 OTA 的情况下运行 HomeSpan 草图时，设备显示为“网络”端口，可以在 Arduino IDE 的 *工具→端口* 菜单下选择该端口。选择后，IDE 将通过 WiFi 将所有上传内容定向到设备，而不是在串口端口上查找。请注意，即使你的设备仍连接到串口端口，你也可以通过 OTA 上传，但 Arduino IDE 目前不支持同时连接多个端口。如果你选择“网络”端口，IDE 将自动关闭串口监视器（如果它是打开的）。要通过“串口”端口恢复上传，只需从 Arduino IDE 的 *工具→端口* 菜单中选择该端口。无论你是否为草图启用了 OTA，始终可以通过串口端口上传。
+
+默认情况下，每当你开始 OTA 上传时，HomeSpan 都需要使用密码。默认 OTA 密码为 "homespan-ota"。在你第一次尝试将草图上传到新连接的设备时，Arduino 会提示你输入此密码。但是，一旦输入特定设备的密码，只要 IDE 运行，Arduino IDE 就会将其保留在内存中，从而使你不必在每次通过 OTA 重新上传草图时再次输入密码。
+
+你可以使用 "O" 命令从 [命令行界面](docs/CLI.md) 更改 HomeSpan 设备的密码。与设备的设置代码类似，HomeSpan 将你指定的 OTA 密码的不可恢复散列版本保存在非易失性存储 (NVS) 中。如果你忘记了你指定的密码，你需要使用 "O" 命令创建一个新密码，或者你可以通过使用 "E" 命令完全擦除 NVS 来恢复默认的 OTA 密码。
+
+还可以通过调用 `homeSpan.enableOTA(const char *pwd)` 从草图中以编程方式更改密码。这不如使用上述方法设置密码安全，因为你的草图将包含纯文本版本，而不是散列版本或密码。请注意，以这种方式设置密码会导致 HomeSpan 忽略但不会更改你使用 "O" 命令保存在 NVS 中的任何密码。
+
+> :exclamation: 虽然不推荐，但你可以在为你的草图启用 OTA 时覆盖密码要求，方法是将 *false* 作为启用方法的参数，如下所示： `homeSpan.enableOTA(false)`。谨慎使用！任何可以通过你的网络访问该设备的人现在都可以上传新草图。
+
+请注意，为了使 OTA 正常运行，你的草图必须使用包含 OTA 分区的分区方案进行编译。分区方案位于 Arduino IDE 的 *工具→Partition Scheme* 菜单下。选择一个表明它支持 OTA 的方案。请注意，标记为“默认”的方案通常包括 OTA 分区。如果不确定，请尝试一下。HomeSpan 会通知你是否这样做。
+
+这是因为如果已为该草图启用 OTA，HomeSpan 会检查该草图是否已使用 OTA 分区编译。如果 OTA 已启用，但 HomeSpan 未找到任何 OTA 分区，它将通过在 WiFi 连接建立后立即发送到串口监视器的警告消息指示它无法启动 OTA 服务器。否则，它会输出一条确认消息，表明 OTA 服务已成功启动。
+
+### OTA 安全加载
+
+HomeSpan 在使用 OTA 上传草图时包括两项额外的安全检查：
+
+1. HomeSpan 检查以确保上传的新草图也是另一个 HomeSpan 草图。如果没有，HomeSpan 将拒绝新的草图，并在新草图上传后但在设备重新启动之前向 Arduino IDE 报告 OTA 错误。相反，HomeSpan 将关闭 OTA 连接并根据现有草图恢复正常操作，而无需重新启动。此安全检查的目的是防止你不小心将非 HomeSpan 草图上传到远程设备上，使你无法在不检索远程设备并通过串口端口连接到你的电脑的情况下重新上传正确的草图。
+
+1. 通过 OTA 成功上传新的 HomeSpan 草图后，HomeSpan 将检查刚刚加载的新 HomeSpan 草图*也*已启用 OTA。此检查在使用新草图重新启动 HomeSpan 后进行。如果 HomeSpan 没有发现 OTA 启用，它会将当前分区标记为无效并重新启动设备，导致设备“回滚”到启用 OTA 的先前版本的草图。此安全检查的目的是确保你不使用 OTA 将新的 HomeSpan 草图上传到远程设备，但未能在新的 HomeSpan 草图中启用 OTA。如果你这样做，你将无法通过 OTA 进行任何进一步更新，而是需要检索远程设备并通过串口端口将其连接到你的电脑。
+
+请注意，这些检查*仅*适用于通过 OTA 上传草图时。只要通过串口端口上传草图，它们就会被忽略。此外，虽然这些安全检查默认启用，但当你首次启用 OTA 时，可以通过将第二个（可选）参数设置为 *false* 来禁用它们： `homeSpan.enableOTA(..., false)`。有关详细信息，请参阅 [API 参考](docs/Reference.md)。
+
+### OTA 提示和技巧
+
+* HomeSpan 用于 OTA 的设备名称与你在调用 `homeSpan.begin()` 时分配的名称相同。如果你打算使用 OTA 维护多个设备，请使用 `homeSpan.begin()` 为它们指定不同的名称，以便在从 Arduino IDE 选择要连接的设备时区分它们。
+
+* 使用 `homeSpan.setSketchVersion()` 方法为你的草图设置版本（有关详细信息，请参阅 [API 参考](docs/Reference.md)）。如果指定，HomeSpan 将包含草图版本作为其 HAP MDNS 广播的一部分。这允许你确定哪个版本的草图正在远程 HomeSpan 设备上运行，即使你无法将其插入串口端口以与 Arduino 串口监视器一起使用。除了草图版本，HomeSpan 还在其 MDNS 广播中包含其他有助于识别设备的字段：用于编译草图的 HomeSpan *library* 的版本号，该字段指示是否为草图，编译时使用的 Arduino-ESP32 库的版本号，以及板的类型（例如 *feather_esp32*）。
+
+* 如果你使用 OTA 上传的草图没有按预期运行，你可以继续修改代码并重新上传。或者，你可以上传正常工作的早期版本。但是，上述安全加载功能无法防止存在重大运行时问题的 HomeSpan 草图，例如导致内核恐慌导致设备无休止的重启循环。如果发生这种情况，HomeSpan 将无法运行 OTA 服务器代码，并且*无法*进行进一步的 OTA 更新。相反，你必须通过串口端口连接设备才能上传新的工作草图。**因此，你应该始终在连接到你电脑的本地设备上对新草图进行全面测试*之前*，然后通过 OTA 将其上传到远程、难以访问的设备。**
+
+* 请注意，尽管 ESP IDF 支持旨在解决上传错误后无休止重启问题的*自动*回滚，但此功能*未*在最新版本的 Arudino-ESP32 库中启用（本帖发布时库版本为 2.0.2）。
+
+---
+
+[↩️](../README.md#resources) 返回欢迎页面
