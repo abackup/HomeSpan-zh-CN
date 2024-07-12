@@ -109,10 +109,10 @@ HomeSpan 库包括许多逐渐复杂的教程草图，带你了解 HomeSpan 的�
 * 使用 `homeSpan.updateDatabase()` 刷新附件数据库（自动更新“家庭”应用）
 * 使用 `homeSpan.autoPoll()` 在后台（以及在第二个内核上，如果可用）实现 HomeSpan 轮询
 
-### [示例 21 - 配件标识符](../examples/21-AccessoryIdentifier%20/21-AccessoryIdentifier.ino)
+### [示例 21 - 配件标识符](../examples/21-AccessoryIdentifier/21-AccessoryIdentifier.ino)
 示例 21 展示了如何使用每个配件所需的 AccessoryInformation 服务中始终存在的标识符特征来创建自定义“识别例程”，该例程可在配对设备时从“家庭”应用中触发。此示例未使用任何新的 HomeSpan 方法。
 
-### [示例 22 - TLV8 特征](../examples/22-TLV8_Characteristics%20/22-TLV8_Characteristics.ino)
+### [示例 22 - TLV8 特征](../examples/22-TLV8_Characteristics/22-TLV8_Characteristics.ino)
 示例 22 演示了如何通过实现 DisplayOrder 特征来创建和利用基于 TLV8 的特征，该特征用于设置电视服务输入源在“家庭”应用中的显示顺序。此示例中涵盖的新 HomeSpan API 主题包括：
 
 * 使用 HomeSpan 的 TLV8 类创建 TLV8 对象
@@ -158,7 +158,7 @@ HomeKit *未认证*电视服务的示例，展示了如何使用不同的特征�
 ### [自定义分区](../examples/Other%20Examples/CustomNVSPartition/CustomNVSPartition.ino)<a name="customnvspartition"></a>
 演示如何通过将 *Partition.csv* 文件添加到草图文件夹来为草图创建自定义分区方案。可用于扩展非易失性存储（NVS）分区的大小，在创建具有许多附件的 HomeSpan 设备时可能需要该分区，当你想将这些附件的特征保存在 NVS 中时
 
-### [外部引用](../examples/Other%20Examples/ExternalReference%20/ExternalReference.ino)
+### [外部引用](../examples/Other%20Examples/ExternalReference/ExternalReference.ino)
 演示如何从这些服务外部访问服务的特征（例如在 Arduino 的 `loop()` 中访问）。在此草图中，我们重新创建了示例 5 中的两个 LED，并在 Arduino `loop()` 部分添加一个新功能，用于检查两个 LED 是否同时打开，如果是，则自动关闭
 
 ---
