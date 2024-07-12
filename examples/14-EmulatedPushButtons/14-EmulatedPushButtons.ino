@@ -1,36 +1,28 @@
 /*********************************************************************************
- *  MIT License
+ *  MIT 许可证
  *  
- *  Copyright (c) 2020-2024 Gregg E. Berman
+ *  Copyright (c) 2020-2022 Gregg E. Berman
  *  
  *  https://github.com/HomeSpan/HomeSpan
  *  
- *  Permission is hereby granted, free of charge, to any person obtaining a copy
- *  of this software and associated documentation files (the "Software"), to deal
- *  in the Software without restriction, including without limitation the rights
- *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- *  copies of the Software, and to permit persons to whom the Software is
- *  furnished to do so, subject to the following conditions:
+ *  特此授予获得此软件和相关文档文件（“软件”）副本的任何人免费许可，以无限制方式处理软件，
+ *  包括但不限于使用、复制、修改、合并、发布、分发、再许可和/或销售软件副本的权利，并允许
+ *  向其提供软件的人员这样做，但须遵守以下条件：
  *  
- *  The above copyright notice and this permission notice shall be included in all
- *  copies or substantial portions of the Software.
+ *  上述版权声明和本许可声明均应包含在软件的所有副本或重要部分中。
  *  
- *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- *  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- *  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- *  SOFTWARE.
+ *  软件按“原样”提供，不作任何明示或暗示的保证，包括但不限于适销性、特定用途的适用性和不
+ *  侵权性的保证。在任何情况下，作者或版权持有者均不对因软件或使用或其他处理软件而引起的
+ *  或与之相关的任何索赔、损害或其他责任承担责任，无论是合同行为、侵权行为还是其他行为。
  *  
  ********************************************************************************/
  
 ////////////////////////////////////////////////////////////
 //                                                        //
-//    HomeSpan: A HomeKit implementation for the ESP32    //
+//              HomeSpan：ESP32 的 HomeKit 实现           //
 //    ------------------------------------------------    //
 //                                                        //
-// Example 14: Emulated PushButtons                       //
+//                  示例 14：模拟按钮                      //
 //                                                        //
 ////////////////////////////////////////////////////////////
 
@@ -39,60 +31,50 @@
 
 void setup() {
 
-   // Though HomeKit and the HomeKit Accessory Protocol (HAP) Specification provide a very flexible framework
-   // for creating iOS- and MacOS-controlled devices, they do not contain every possible desired feature.
-   //
-   // One very common Characteristic HomeKit does not seem to contain is a simple pushbutton, like the type you
-   // would find on a remote control.  Unlike switches that can be "on" or "off", a pushbutton has no state.
-   // Rather, a pushbutton performs some action when it's pushed, and that's all it does until it's pushed
-   // again.
-   //
-   // Though HomeKit does not contain such a Characteristic, it's easy to emulate in HomeSpan.  To do so, simply
-   // define a Service with a boolen Characteristic (such as the On Characteristic), and create an update()
-   // method to peform the operations to be executed when the "pushbutton" is "pressed" (i.e. set to true).
-   // 
-   // You could stop there and have something in HomeKit that acts like a pushbutton, but it won't look like a
-   // pushbutton because every time you press the tile for your device in HomeKit, the Controller will toggle
-   // between showing it's on and showing it's off.  Pressing a tile that shows the status is already ON, and will
-   // change to OFF, when you actually want to re-trigger some sort of "on" action is not very satisfying.
-   //
-   // Ideally, we'd like HomeKit to acknowledge you've pressed the tile for the device by lighting up, sending
-   // a request to update(), AND THEN resetting itself automatically to the "off" position a second or two later.
-   // This would indeed emulate a light-up pushbutton.
-   //
-   // Fortunately, it is easy to emulate this in HomeSpan through the use of a Service's loop() function. Simply
-   // code a derived Service as you normally would with its own update() method, and implement a loop() method
-   // that "resets" one or more Characteristics after a set period of time.  This is similar to what we did in the
-   // with loop() methods in the prior two examples, except a lot simpler since the only logic is to set the value
-   // of a Characteristic to "off" after a few seconds using timeVal() and setVal().
-   //
-   // Example 14 demonstrates this by implementing a "pushbutton" Service to blink an LED three times.  By itself, this
-   // is not very useful.  But it is a good model for showing how to implement an IR LED that sends a Volume-Up command to
-   // a TV; or an RF Transmitter to control to some remote device, like a ceiling fan.
-   //
-   // All the functionality is wrapped up in a newly-defined "DEV_Blinker" Service, which can be found in DEV_Blinker.h.
-   // This new Service is a copy of the DEV_LED service from Example 9, with modifications to make it into a generic
-   // blinking LED.  As usual, changes and new lines between this Example 14, and original Example 9, are notably commented.
-  
+   // 虽然 HomeKit 和 HomeKit 附件协议 (HAP) 规范为创建 iOS 和 MacOS 控制的设备提供了一个非常灵活的框架，但它们并不包含所有可能的功能。
+
+   // HomeKit 似乎不包含一个非常常见的特性，那就是简单的按钮，就像您在遥控器上看到的那种按钮。与可以“打开”或“关闭”的开关不同，按钮没有状态。
+   // 相反，按钮在被按下时会执行一些操作，而且在再次按下之前，它只会执行这些操作。
+
+   // 虽然 HomeKit 不包含这样的特性，但很容易在 HomeSpan 中模拟。为此，只需定义一个具有布尔特性的服务（例如 On 特性），
+   // 并创建一个 update() 方法来执行在“按钮”被“按下”（即设置为 true）时要执行的操作。
+
+   // 您可以停在那里，在 HomeKit 中让某个东西像按钮一样起作用，但它看起来不像按钮，因为每次您按下 HomeKit 中设备的图块时，
+   // 控制器都会在显示开启和关闭之间切换。当您实际上想要重新触发某种“开启”操作时，按下显示状态已经为开启的图块，并将更改为关闭，
+   // 这种做法并不令人满意。
+ 
+   // 理想情况下，我们希望 HomeKit 通过点亮、向 update() 发送请求，然后在一两秒后自动重置为“关闭”位置来确认您已按下设备的图块。
+   // 这确实会模拟一个点亮的按钮。
+
+   // 幸运的是，通过使用服务的 loop() 函数，很容易在 HomeSpan 中模拟这一点。只需像平常一样使用其自己的 update() 方法编写派生服务，
+   // 并实现一个 loop() 方法，在设定的时间段后“重置”一个或多个特性。这类似于我们在前两个示例中使用 loop() 方法所做的操作，
+   // 但要简单得多，因为唯一的逻辑是使用 timeVal() 和 setVal() 在几秒钟后将特性的值设置为“关闭”。
+
+   // 示例 14 通过实现“按钮”服务来演示此操作，以使 LED 闪烁三次。就其本身而言，这并不是很有用。但它是一个很好的模型，
+   // 可以展示如何实现向电视发送调高音量命令的 IR LED；或实现控制某些远程设备（如吊扇）的 RF 发射器。
+   
+   // 所有功能都包含在新定义的“DEV_Blinker”服务中，可在 DEV_Blinker.h 中找到。此新服务是示例 9 中 DEV_LED 服务的副本，
+   // 经过修改使其成为通用的闪烁 LED。与往常一样，此示例 14 与原始示例 9 之间的更改和新行都带有明显的注释。
+
   Serial.begin(115200);
 
   homeSpan.begin(Category::Bridges,"HomeSpan Bridge");
   
-  // Defines the Bridge Accessory
+  // 定义桥接附件
  
   new SpanAccessory();  
     new Service::AccessoryInformation();
       new Characteristic::Identify(); 
   
-  // *** NEW *** defines an LED Blinker Accessory attached to pin 16 which blinks 3 times
+  // *** 新 *** 定义连接到引脚 16 的 LED 闪光灯配件，该配件闪烁 3 次
 
   new SpanAccessory();                                                          
     new Service::AccessoryInformation();
       new Characteristic::Identify(); 
       new Characteristic::Name("LED Blinker");
-    new DEV_Blinker(16,3);                                                      // DEV_Blinker takes two arguments - pin, and number of times to blink
+    new DEV_Blinker(16,3);                                                      // DEV_Blinker 接受两个参数 - 引脚和闪烁次数
 
-} // end of setup()
+} // setup() 结束
 
 //////////////////////////////////////
 
@@ -100,4 +82,4 @@ void loop(){
   
   homeSpan.poll();
   
-} // end of loop()
+} // loop() 结束
