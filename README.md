@@ -1,194 +1,106 @@
-# Welcome!
+ <!--原文时间：2024.7.4，翻译时间：2024.7.4，校对时间：2024.7.10；文件版本号：1.9.0 -->
 
-Welcome to HomeSpan - a robust and extremely easy-to-use Arduino library for creating your own [ESP32-based](https://www.espressif.com/en/products/modules/esp32) HomeKit devices entirely within the [Arduino IDE](http://www.arduino.cc).
+个人翻译的 [HomeSpan](https://github.com/HomeSpan/HomeSpan)（家庭空间），喜欢的请去 [原地址](https://github.com/HomeSpan/HomeSpan) 查看。
 
-HomeSpan provides a microcontroller-focused implementation of Apple's HomeKit Accessory Protocol Specification Release R2 (HAP-R2) designed specifically for the Espressif ESP32 microcontroller running within the Arduino IDE.  HomeSpan pairs directly to HomeKit via your home WiFi network without the need for any external bridges or components.  With HomeSpan you can use the full power of the ESP32's I/O functionality to create custom control software and/or hardware to automatically operate external devices from the Home App on your iPhone, iPad, or Mac, or with Siri.
+# 欢迎！
 
-HomeSpan requires version 2 of the [Arduino-ESP32 Board Manager](https://github.com/espressif/arduino-esp32).  HomeSpan can be run on the original ESP32 as well as Espressif's ESP32-S2, ESP32-C3, and ESP32-S3 chips.
 
-HomeSpan is currently NOT compatible with version 3.X of the Arduino-ESP32 Board Manager, since version 3 contains many breaking changes and is not backwards-compatible with version 2.X of the Arduino-ESP32 Board Manager.  At present, HomeSpan can only be compiled under version 2.X of the Board Manager. 
+欢迎使用 HomeSpan - 一个强大且极易使用的 Arduino 库，用于完全在 [Arduino IDE](http://www.arduino.cc) 内创建你自己的基于 [ESP32](https://www.espressif.com/en/products/modules/esp32) 的 HomeKit 设备。
 
-> [!NOTE]
-> Apple's new HomeKit architecture [requires the use of a Home Hub](https://support.apple.com/en-us/HT207057) (either a HomePod or Apple TV) for full and proper operation of any HomeKit device, including those based on HomeSpan.  Without a Home Hub, HomeSpan cannot send notifications to the Home App - things like pushbuttons and temperature sensors will not be able to transmit updates to the Home App.  Use of HomeSpan without a Home Hub is NOT recommended.
+HomeSpan 提供以微控制器为中心的苹果 HomeKit 配件协议规范版本 R2 ([HAP-R2](../master/docs/HAP-R2.pdf)) 的实现，专门为在 Arduino IDE 中运行的乐鑫 ESP32 微控制器而设计。HomeSpan 通过家庭 WiFi 直接与 HomeKit 配对，无需任何外部网桥或组件。通过 HomeSpan，你可以使用 ESP32 I/O 的全部功能来创建自定义控制软件和/或硬件，以通过 iPhone、iPad 或 Mac 上的“家庭”应用或 Siri 自动操作外部设备。
 
-### HomeSpan Highlights
+HomeSpan 需要 [Arduino-ESP32 开发板管理](https://github.com/espressif/arduino-esp32)  的 2 版本。HomeSpan 可以在原版的乐鑫 ESP32 以及 ESP32-S2、ESP32-C3 和 ESP32-S3 芯片上运行。
 
-* Provides a natural, intuitive, and **very** easy-to-use framework
-* Utilizes a unique *Service-Centric* approach to creating HomeKit devices
-* Takes full advantage of the widely-popular Arduino IDE
-* 100% HAP-R2 compliance
-* Dozens of integrated HomeKit Services
-* Operates in either Accessory or Bridge mode
-* Supports pairing with Setup Codes or QR Codes
+HomeSpan 目前与 Arduino-ESP32 开发板管理的 3.X 版本不兼容，因为版本 3 包含许多重大更改，并且不向后兼容 Arduino-ESP32开发板管理的版本 2.X。目前 HomeSpan 只能在开发板管理的 2.X 版本下编译。
 
-### For the HomeSpan Developer
+> [!NOTE] 
+苹果公司的新 HomeKit 架构 [需要使用家庭中心](https://support.apple.com/en-us/HT207057)（HomePod 或 Apple TV）才可用于任何 HomeKit 设备的完整地和正确地操作，包括基于 HomeSpan 的设备。如果没有家庭中心，HomeSpan 将无法向“家庭”应用发送通知——按钮和温度传感器等将无法向“家庭”应用发送更新。不建议在没有家庭中心的情况下使用 HomeSpan。
 
-* Extensive use of the Arduino Serial Monitor
-  * Real-time, easy-to-understand diagnostics
-  * Complete transparency to every underlying HomeKit action, data request, and data response
-  * Command-line interface with a variety of info, debugging, and configuration commands
-* Built-in database validation to ensure your configuration meets all HAP requirements
-* Dedicated classes that utilize the ESP32's 16-channel PWM peripheral for easy control of:
-  * LED Brightness (including auto-fading)
-  * Servo Motors
-* Integrated Push Button and Toggle Switch functionality supporting single, double, and long presses of:
-  * Physical pushbuttons that connect an ESP32 pin to either ground or VCC
-  * Touch pads/sensors connected to an ESP32 pin (for ESP32 devices that support touch pads)
-* Integrated access to the ESP32's on-chip Remote Control peripheral for easy generation of IR and RF signals
-* Dedicated classes to control one- and two-wire addressable RGB and RGBW LEDs and LED strips
-* Dedicated classes to control stepper motors that can run smoothly in the background without interfering with HomeSpan
-* Dedicated class that faciliates seamless point-to-point communication between ESP32 devices using ESP-NOW
-* Integrated Web Log for user-defined log messages
-* Extensively-commented Tutorial Sketches taking you from the very basics of HomeSpan through advanced HomeKit topics
-* Additional examples and projects showcasing real-world implementations of HomeSpan
-* A complete set of documentation explaining every aspect of the HomeSpan API
+### HomeSpan 亮点
 
-### For the HomeSpan End-User
+* 提供自然、直观且**非常**易于使用的框架
+* 利用独特*以服务为中心*的方法创建 HomeKit 设备
+* 充分利用广受欢迎的 Arduino IDE
+* 100% 符合 HAP-R2 标准
+* 数十种集成 HomeKit 服务
+* 在附件模式或桥接模式下运行
+* 支持与设置码或二维码配对
 
-* Embedded WiFi Access Point and Web Interface to allow end-users (non-developers) to:
-  * Set up Homespan with their own home WiFi Credentials
-  * Create their own HomeKit Pairing Setup Code
-* Status LED and Control Button to allow end-users to:
-  * Force-unpair the device from HomeKit
-  * Perform a Factory Reset
-  * Launch the WiFi Access Point
-* A standalone, detailed End-User Guide
+### 对于 HomeSpan 开发人员
 
-## ❗Latest Update - HomeSpan 1.9.1 (07/03/2024)
+* Arduino 串口监视器的广泛使用
+  * 实时、易于理解的诊断
+  * 对每个底层 HomeKit 操作、数据请求和数据响应完全透明
+  * 具有各种信息、调试和配置命令的命令行界面
+* 内置数据库验证，确保你的配置满足所有 HAP 要求
+* 利用 ESP32 的 16 通道 PWM 外设的专用类，可轻松控制：
+  * LED 亮度（包括自动淡化）
+  * 伺服电机
+* 集成按钮和拨动开关功能，支持单击、双击和长按：
+  * 将 ESP32 引脚连接到地或 VCC 的物理按钮
+  * 连接到 ESP32 引脚的触摸板/传感器（用于支持触摸板的 ESP32 设备）
+* 集成访问 ESP32 的片上远程控制外设，可轻松生成红外和射频信号
+* 控制单线和双线可寻址 RGB 和 RGBW LED 和 LED 灯带的专用类
+* 专门用于控制步进电机的类，可以在后台平稳运行，而不会干扰 HomeSpan 设备
+* 使用 ESP-NOW 在 ESP32 设备之间实现无缝点对点通信的专用类
+* 用于用户定义的日志消息的集成网络日志
+* 大量注释的教程草图将带你从 HomeSpan 的基础知识到高级 HomeKit 主题
+* 展示 HomeSpan 实际实现的其他示例和项目
+* 一套完整的文档，全面解释了 HomeSpan 的各种 API 
 
-* **HomeSpan now supports *Tag-Length-Value ("TLV8")* Characteristics!**
+### 对于 HomeSpan 最终用户
 
-  * adds new, fully-integrated `TLV8()` class library for the creation and management of TLV8 objects
-  * includes methods to handle standard byte-stream VALUES as well as strings, numerical values, zero-length tags, and sub-TLVs
-  * utilizes standard C++ iterators for easy access to reading and writing TLV8 records
-  * adds new `Characteristic` methods `getTLV()`, `getNewTLV()`, and `setTLV()`
-  * adds new `CUSTOM_CHAR_TLV8()` that allows for easy creation of custom TLV8 Characteristics
-  * includes new [Tutorial Example 22 - TLV8 Characteristics](examples/22-TLV8_Characteristics) demonstrating use of the `TLV8()` class and TLV8 Characteristics
-  * see the new [TLV8 Characteristics](docs/TLV8.md) page for complete details and documentation 
-     
-* **New *DisplayOrder* TLV8 Characteristic**
-  
-  * utlizes HomeSpan's new `TLV8()` library
-  * allows you to specify the exact order in which the Input Sources for a Television Service are displayed in the Home App
-  * see [Tutorial Example 22 - TLV8 Characteristics](examples/22-TLV8_Characteristics) for details
- 
-* **New *AccessoryIdentifier* Tutorial**
+* 嵌入式 WiFi 接入点和网络界面，允许最终用户（非开发人员）：
+  * 使用自己的家庭 WiFi 凭据设置 HomeSpan
+  * 创建自己的 HomeKit 配对设置代码
+* 状态指示灯和控制按钮，允许最终用户：
+  * 强制解除设备与 HomeKit 的配对
+  * 执行恢复出厂设置
+  * 启动 WiFi 接入点
+* 独立、详细的最终用户指南
 
-  * demonstrates how to trigger an Accessory's Identifier Characteristic, optionally used to help identify a device during initial pairing
-  * see [Tutorial Example 21 - AccessoryIdentifier](examples/21-AccessoryIdentifier)
+# HomeSpan 资源<a name="resources"></a>
 
-* **Added support for customizing Pixel chips**
+HomeSpan 包括以下文档：
 
-  * new constructor `Pixel(uint8_t pin, [pixelType_t pixelType])` allows your to set the order in which colors are transmitted to the pixel chip, where *pixelType* is one of the following:
-    * PixelType::RGB, PixelType::RBG, PixelType::BRG, PixelType::BGR, PixelType::GBR, PixelType::GRB
-    * PixelType::RGBW, PixelType::RBGW, PixelType::BRGW, PixelType::BGRW, PixelType::GBRW, PixelType::GRBW* 
-  * deprecated previous constructor `Pixel(uint8_t pin, boolean isRGBW)`
-    * this constructor will continue to work, but you will receive a warning during compilation that it has been deprecated
-    * users should switch to the new constructor to avoid potential compatibility issues with future versions of HomeSpan
-  * added new method `boolean isRGBW()`
-    * returns *true* if Pixel was constructed as RGBW, else *false* if constructed as RGB only (i.e. no white LED)
-  * added new [PixelTester](examples/Other%20Examples/PixelTester) sketch (found under *Other Examples*) to aid in determining the *pixelType* for any LED Strip
-  * see the [Adressable RGB LEDs](docs/Pixels.md) page for details
-    
-* **New ability to read and set the IIDs of Services and Characteristics**
+* [HomeSpan 入门](docs/GettingStarted.md) - 设置开发 HomeSpan 设备所需的软件和硬件
+* [HomeSpan API 概述](docs/Overview.md) - HomeSpan API 概述，包括开发第一个 HomeSpan 草图的分步指南
+* [HomeSpan 教程](docs/Tutorials.md) - HomeSpan 的草图指南
+* [HomeSpan 服务和特征](docs/ServiceList.md) - HomeSpan 支持的所有 HAP 服务和特征的列表
+* [HomeSpan 配件类别](docs/Categories.md) - HomeSpan 定义的所有 HAP 配件类别的列表
+* [HomeSpan 命令行界面](docs/CLI.md) - 配置 HomeSpan 设备的 WiFi 凭据，修改其 HomeKit 设置代码，监控和更新其状态，并从 Arduino IDE 串口监视器访问详细的实时设备诊断
+* [HomeSpan 用户指南](docs/UserGuide.md) - 有关如何配置已编程的 HomeSpan 设备的 WiFi 凭据、修改其 HomeKit 设置代码以及将设备与 HomeKit 配对的交钥匙式说明。不需要电脑！
+* [HomeSpan API 参考](docs/Reference.md) - HomeSpan 库 API 的完整指南
+* [HomeSpan 二维码](docs/QRCodes.md) - 创建并使用二维码来配对 HomeSpan 设备
+* [HomeSpan OTA](docs/OTA.md) - 直接从 Arduino IDE 无线更新草图，无需串口连接
+* [HomeSpan PWM](docs/PWM.md) - 使用 ESP32 的片载 PWM 外设集成控制标准 LED 和伺服电机
+* [HomeSpan 射频控制](docs/RMT.md) - 使用 ESP32 的片载 RMT 外设，轻松生成射频和红外遥控信号
+* [HomeSpan 灯带](docs/Pixels.md) - 可寻址的单线和双线 RGB 和 RGBW LED 和 LED 灯带的集成控制
+* [HomeSpan 控制步进电机](docs/Stepper.md) - 步进电机集成控制，包括 PWM 微步进
+* [HomeSpan Span 热点](docs/NOW.md) - 使用 ESP-NOW 促进 ESP32 设备之间的点对点双向通信
+* [HomeSpan 电视服务](docs/TVServices.md) - 如何使用 HomeKit 未记录的电视服务和特征
+* [HomeSpan 消息记录](docs/Logging.md) - 如何生成在 Arduino 串口监视器上显示的日志消息，以及可选地发布到集成的网络日志页面
+* [HomeSpan TLV8 特征](docs/TLV8.md) - 用于创建 TLV8 对象以与基于 TLV8 的特征一起使用的类和方法
+* [HomeSpan 设备克隆](docs/Cloning.md) - 将损坏的设备无缝更换为新设备，而无需重新配对和丢失 HomeKit 自动化
+* [HomeSpan 项目](https://github.com/topics/homespan) - HomePan 库的实际应用
+* [HomeSpan 常见问题解答](docs/FAQ.md) - 常见问题解答
+* [常见问题的解决方案](docs/Solutions.md) - 解决使用/编译 HomeSpan 时的一些常见问题
+* [HomeSpan 推荐草图](https://github.com/abackup/HomeSpanReferenceSketches-Chinese) - 一系列独立的参考草图，展示了一些更复杂的 HomeKit 服务，如恒温器和灌溉系统
 
-  * adds new `SpanService` method `getIID()` that returns the IID of a Service
-  * adds new `SpanCharacteristic` method `getIID()` that returns the IID of a Characteristic
-  * adds new `homeSpan` method `resetIID(int newIID)` that resets the IID count for the current Accessory 
-  * see the [API Reference](docs/Reference.md) for details
-  
-* **New ability to read Controller pairing data (for advanced use-cases only)**
+请注意，所有文档都是受版本控制的，并与每个分支相关联。*master* 分支通常指向最新版本。当可用时，该 *dev* 分支将包含正在开发的代码。
 
-  * adds new `homeSpan` methods `controllerListBegin()` and `controllerListEnd()` that returns iterators to HomeSpan's internal linked-list of Controller data records
-  * adds new methods to read each Controller's pairing data:
-    * `getID()` - returns a pointer to the 36-byte Device ID of the controller
-    * `getLTPK()` - a pointer to the 32-byte Long-Term Public Key of the controller
-    * `isAdmin()` - returns true if the controller has admin permission, else returns false
-  * adds new `homeSpan` method `setControllerCallback()` to set optional callback function that HomeSpan calls whenever a controller is added, removed, or updated
-  * see the [API Reference](docs/Reference.md) for details
- 
-* **HomeSpan now supports the *write-response ("WR")* protocol**
-  * added automated handling of the HomeKits's *write-response ("WR")* protocol*
-    * not needed for any Characteristics that are currently supported by HomeSpan, but useful for experimentation and work with Custom Characteristics
-  * added extra checks when using `setVal()`
-    * a warning message is output on the Serial Monitor if `setVal()` is called to change the value of a Characteristic from within the `update()` method at the same time the Home App is sending an update request for that value
-    * does not apply if `setVal()` is called from within `update()` to change the value of a Characteristic in response to a *write-response* request from the Home App
-   
-* **Converted the `getLinks()` SpanService method to a template function**
-  * allows user to automatically cast the elements of the returned vector into any specific Service type
-  * also adds an optional parameter to restrict the elements of the returned vector to match a specified HomeSpan Service
-  * see the [API Reference](docs/Reference.md) for details
- 
-* **New ability to halt the pulse generation for a ServoPin**
-  * calling `set(NAN)` for a ServoPin halts the pulse generation, which (for most analog servos) allows the motor to be freely rotated
-  * calling `set(position)`, where *position* equal the desired number of degrees, restarts the pulse generation and sets the servo position accordingly
-   
-* **Refactored client/slot management to save memory and prepare for future integration of Ethernet support**
-  * fixed-array of Client/Socket connections replaced by dynamic linked-list
-  * serial interface now only shows active client connections (rather than a fixed list of client slots)
-  * **deprecated** `homeSpan.reserveSocketConnections()` since it is no longer needed
-        
-* **Fixed bug introduced in 1.9.0 that prevented `homeSpan.setPairingCode()` from saving (and subsequently using) the request Setup Pairing Code**
-  * this method now operates silently, unless an invalid pairing code is provided, in which case an error is reported to the Serial Monitor and *the sketch is halted*
-  * the process for setting the Pairing Code using the CLI 'S' command or via the Access Point are unchanged - confirmation messages are still output to the Serial Monitor and errors do *not* cause the sketch to halt
+# 外部资源
 
-* **Fixed memory leak introduced in 1.9.0 that would fail to free a small temporary memory block created when verifying a new connection**
-  * had no practical impact when using a Home Hub since Home Kit only creates a few permanent connections
-  * had significant impact when not using a Home Hub in cases where the Home App repeatedly drops and re-establishes connections, resulting in slow erosion of heap memory and then out-of-memory failure of the device after a few days (note use of HomeSpan without a Home Hub is not formally supported)
+除了 HomeSpan 资源之外，刚接触 HomeKit 编程的开发人员可能会发现苹果公司的 HomeKit 配件协议规范非商业版本 R2 ([HAP-R2](../master/docs/HAP-R2.pdf)) 的第 8 章和第 9 章非常有用。不幸的是，苹果公司不再提供这份文件（也许是因为它最后一次更新是在 2019 年 7 月，现在已经有些过时了）。但是，你可以在网络上的其他地方找到此文档的副本。请注意，苹果并未将 HAP-R2 文档替换为用于非商业用途的任何其他版本，并且苹果公司的开源 [HomeKit ADK](https://github.com/apple/HomeKitADK) 仅反映了原始的 HAP-R2 规格（而不是用于商业设备的 HomeKit 中提供的所有最新服务和特征）。
 
-* **Fixed latent bug in SpanPoint** 
-  * HomeSpan would crash when printing **SpanPoint** configuration information to the Serial Monitor (the 'i' CLI command) if any of the instances of SpanPoint had *receiveSize=0*
-  * this bug never surfaced before since all the **SpanPoint examples** were based on receiving data and therefore had a non-zero *receiveSize*
- 
-* **Deleted `homeSpan.setMaxConnections()`, which had been *deprecated* many versions ago**
+ --- 
 
-* **Deleted stand-alone `SpanRange` structure, which had been *deprecated* many versions ago**
-  * this has no impact on standard use of the Characteristic method `setRange()`
-      
-See [Releases](https://github.com/HomeSpan/HomeSpan/releases) for details on all changes and bug fixes included in this update.
+### 反馈或问题？
 
-# HomeSpan Resources
+请将 HomeSpan 的错误报告或其他问题发布到 [Issues](https://github.com/HomeSpan/HomeSpan/issues) 页面。请将有关 HomeSpan 的所有其他问题（使用、功能、规格、示例等）或你对新功能的任何想法、建议或有关 HomeSpan 或 HomeKit 的任何反馈发布到 [Discussion](https://github.com/HomeSpan/HomeSpan/discussions) 页面。对于与特定 HomeSpan 问题或与功能无关的更一般的问题或反馈，你可以直接 [homespan@icloud.com](mailto:homespan@icloud.com) 给我发电子邮件。
 
-HomeSpan includes the following documentation:
+### 关于作者
 
-* [Getting Started with HomeSpan](docs/GettingStarted.md) - setting up the software and the hardware needed to develop HomeSpan devices
-* [HomeSpan API Overview](docs/Overview.md) - an overview of the HomeSpan API, including a step-by-step guide to developing your first HomeSpan Sketch
-* [HomeSpan Tutorials](docs/Tutorials.md) - a guide to HomeSpan's tutorial-sketches
-* [HomeSpan Services and Characteristics](docs/ServiceList.md) - a list of all HAP Services and Characterstics supported by HomeSpan
-* [HomeSpan Accessory Categories](docs/Categories.md) - a list of all HAP Accessory Categories defined by HomeSpan
-* [HomeSpan Command-Line Interface (CLI)](docs/CLI.md) - configure a HomeSpan device's WiFi Credentials, modify its HomeKit Setup Code, monitor and update its status, and access detailed, real-time device diagnostics from the Arduino IDE Serial Monitor
-* [HomeSpan User Guide](docs/UserGuide.md) - turnkey instructions on how to configure an already-programmed HomeSpan device's WiFi Credentials, modify its HomeKit Setup Code, and pair the device to HomeKit.  No computer needed!
-* [HomeSpan API Reference](docs/Reference.md) - a complete guide to the HomeSpan Library API
-* [HomeSpan QR Codes](docs/QRCodes.md) - create and use QR Codes for pairing HomeSpan devices
-* [HomeSpan OTA](docs/OTA.md) - update your sketches Over-the-Air directly from the Arduino IDE without a serial connection
-* [HomeSpan PWM](docs/PWM.md) - integrated control of standard LEDs and Servo Motors using the ESP32's on-chip PWM peripheral
-* [HomeSpan RFControl](docs/RMT.md) - easy generation of RF and IR Remote Control signals using the ESP32's on-chip RMT peripheral
-* [HomeSpan Pixels](docs/Pixels.md) - integrated control of addressable one- and two-wire RGB and RGBW LEDs and LED strips
-* [HomeSpan Stepper Motor Control](docs/Stepper.md) - integrated control of stepper motors, including PWM microstepping
-* [HomeSpan SpanPoint](docs/NOW.md) - facilitates point-to-point, bi-directional communication between ESP32 Devices using ESP-NOW
-* [HomeSpan Television Services](docs/TVServices.md) - how to use HomeKit's undocumented Television Services and Characteristics
-* [HomeSpan Message Logging](docs/Logging.md) - how to generate log messages for display on the Arduino Serial Monitor as well as optionally posted to an integrated Web Log page
-* [HomeSpan TLV8 Characteristics](docs/TLV8.md) - classes and methods for creating TLV8 objects to use with TLV8-based Characteristics
-* [HomeSpan Device Cloning](docs/Cloning.md) - seamlessly swap a broken device for a new one without needing to re-pair and lose HomeKit automations
-* [HomeSpan Projects](https://github.com/topics/homespan) - real-world applications of the HomeSpan Library
-* [HomeSpan FAQ](docs/FAQ.md) - answers to frequently-asked questions
-* [Solutions to Common Problems](docs/Solutions.md) - resolutions to some common problems when using/compiling HomeSpan
-* [HomeSpan Reference Sketches](https://github.com/HomeSpan/HomeSpanReferenceSketches) - a collection of self-contained Reference Sketches showcasing some of the more complex HomeKit Services, such as Thermostats and Irrigation Systems
+HomeSpan 由 Gregg Berman 开发并继续维护和支持。它最初是为了解决无法用 Siri 操作射频控制的厨房通风罩的麻烦问题。我希望你会发现它很有用，而且使用起来很有趣。
 
-Note that all documentation is version-controlled and tied to each branch.  The *master* branch generally points to the latest release.  The *dev* branch, when available, will contain code under active development.
-
-# External Resources
-
-In addition to HomeSpan resources, developers who are new to HomeKit programming may find useful Chapters 8 and 9 of Apple's HomeKit Accessory Protocol Specification, Non-Commercial Version, Release R2 (HAP-R2). This document is unfortunately no longer available from Apple (perhaps because it was last updated July, 2019, and is now somewhat out-of-date).  However, you may be able find copies of this document elsewhere on the web.  Note Apple has not replaced the HAP-R2 document with any other versions for non-commercial use, and Apple's open-source [HomeKit ADK](https://github.com/apple/HomeKitADK) only reflects the original HAP-R2 specs (rather than all the latest Services and Characteristics available in HomeKit for commercial devices).
-
----
-
-### Feedback or Questions?
-
-Please post bug reports or other problems with HomeSpan to the [Issues Board](https://github.com/HomeSpan/HomeSpan/issues).  Please post all other questions about HomeSpan (use, functionality, specs, examples, etc.) or any ideas or recommendations you may have for new functionality, or any general feedback about HomeSpan or HomeKit, to the [Discussion Board](https://github.com/HomeSpan/HomeSpan/discussions).  For more general questions or feedback not related to a specific HomeSpan issue or function, you can email me directly at [homespan@icloud.com](mailto:homespan@icloud.com).
-
-### About the Author
-
-HomeSpan was developed and continues to be maintained and supported by Gregg Berman.  It was originally conceived to solve the pesky problem of not being able to operate an RF-controlled kitchen vent hood with Siri.  I hope you find it useful as well as fun to use.
-
-This is my second large-scale open-source project --- my first was the design of an open-source sytem for operating model railroads using nothing more than an Arduino Uno and Arduino Motor Shield to generate digital command and control (DCC) signals.  Though I have not been involved with the model railroading hobby for many years, videos showcasing my original system (dubbed DCC++), along with detailed tutorials of how it works, are still available on the [DCC++ YouTube Channel](https://www.youtube.com/@dcc2840/videos). 
+这是我的第二个大型开源项目——我的第一个项目是设计一个开源系统，用于操作模型铁路，仅使用 Arduino Uno 和 Arduino Motor Shield 来生成数字命令和控制 (DCC) 信号。虽然我已经多年没有参与模型铁路爱好的建设，但展示我的原始系统（称为 DCC++）的视频，以及它如何工作的详细教程，仍然可以在 [DCC++ YouTube 频道](https://www.youtube.com/@dcc2840/videos) 上找到。
