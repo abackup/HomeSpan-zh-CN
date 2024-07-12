@@ -4,7 +4,6 @@
 # 要与 8MB Flash 一起使用，请将 app0 和 app1 分别增加 2048K，使其变为 3968K。
 # 要与 16MB Flash 一起使用，请将 app0 和 app1 分别增加 6144K，使其变为 8064K
 #
-
 unused_nvs,data,nvs,,20K,
 otadata,data,ota,,8K,
 app0,app,ota_0,,1920K,
