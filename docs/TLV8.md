@@ -1,235 +1,239 @@
-# TLV8 Characteristics
+<!--  原文时间：2023.6.27，翻译时间：2024.7.6，校对时间：2024.7.12  -->
 
-Most HomeKit Characteristics store a single numerical value or simple string. However, HomeKit supports two additional storage formats - a simple list of bytes (the **DATA** format) and a structured list of tags and values (the **TLV8** format).  The DATA format is not used by any Apple-defined Characterstics but it is included in HomeSpan for use when creating Custom Characteristics for non-Apple applications.
+# TLV8 特性
 
-In contrast, the TLV8 format is used extensively by HomeKit during the initial pairing process as well as whenever a new secure (verified) connection is established between HomeKit and a HomeSpan device.  There are also a variety of Apple-defined Characteristics that use the TLV8 format to store and transmit multiple sets of values, each represented as byte-arrays of arbitrary length.
+大多数 HomeKit 特性存储单个数值或简单字符串。但是，HomeKit 支持另外两种存储格式——简单的字节列表（**DATA** 格式）和结构化的标签和值列表（**TLV8** 格式）。任何 Apple 定义的特性都不使用 DATA 格式，但它包含在 HomeSpan 中，用于为非 Apple 应用程序创建自定义特性。
 
-## Overview of TLV8 Format
+相比之下，HomeKit 在初始配对过程中以及在 HomeKit 和 HomeSpan 设备之间建立新的安全（已验证）连接时广泛使用 TLV8 格式。还有各种 Apple 定义的特性使用 TLV8 格式来存储和传输多组值，每组值都表示为任意长度的字节数组。
 
-The TLV8 format itself is quite simple.  A TLV8 object comprises one or more TLV8 *records*, where the first byte in a record represents an identifying TAG (from 0-255), the second byte represents the LENGTH of the value, and the remaining LENGTH-bytes represent the VALUE itself, which is always in the form of a *byte-array* (i.e. an array of 0 or more *uint8_t* elements).  Notable points about the TLV8 format are as follows:
+## TLV8 格式概述
 
-* since the LENGTH is stored only as a single byte, VALUES requiring more than 255 bytes must be represented as sequential TLV8 records *with the same TAG*
-* it is fine (and in fact common) for a TLV8 object to include multiple records with the same TAG, except that they must be *separated by a record with a different TAG*, otherwise the parser reading the data will concatenate the VALUES from sequential records having the same TAG into a single record (as per above)
-* records representing a zero-LENGTH VALUE are allowed, and consist of only two bytes: a TAG and a zero (indicating a zero-length VALUE).  TAGS with a zero-LENGTH VALUE are often used to separate multiple records having the same TAG
-* if the VALUE's byte-array is supposed to represent an single, unsigned integer, it should be arranged in little endian format (i.e. least-significant byte first) and padded with trailing zeros as needed to bring the total LENGTH of the VALUE to either 1, 2, 4, or 8 bytes (representing uint8_t, uint16_t, uint32_t, and uint64_t values)
-* if the VALUE's byte-array is supposed to represent a string, it should not include the terminating null since the LENGTH tells you have many characters are in the string
-* the bytes that make up a VALUE can themselves represent a separate, complete TLV8 object.  There is no limit on the number of "sub-TLVs" that can be recursively nested in a "parent" TLV8 object
-* a parser reading TLV8 records should silently ignore any TAG it is not expecting.  It may be an error to omit a TAG that the parser requires, but it will be not an error to include a TAG it does not recognize
-* it is **not** possible to unambigously determine whether the VALUE byte-array in a TLV8 record is supposed to represent an unsigned integer, a string, an arbitrary series of bytes, a sub-TLV object, or something else entirely.  The only identifying information for any given TLV8 record is its TAG number, which ranges from 0-255.  There is no general schema or TLV8 protocol that maps TAG types to VALUE types.  Rather, the TAG numbers are arbitrary and users must consult the documentation for each Characteristic to learn what TAG numbers are expected, and what their VALUEs are supposed to represent for that specific Characteristic
-* since HomeKit data transmissions are often represented in JSON, and JSON is a text-only format, HomeKit requires that TLV8 records are first encoded in base-64 when transmitting JSON to and from Controllers to Accessories.
+TLV8 格式本身非常简单。TLV8 对象包含一个或多个 TLV8 *记录*，其中记录中的第一个字节表示标识标签（从 0 到 255），第二个字节表示值的长度，其余的长度字节表示值本身，它始终采用*字节数组*的形式（即 0 个或更多 *uint8_t* 元素的数组）。关于 TLV8 格式的值得注意的点如下：
 
-Fortunately, HomeSpan includes a dedicated TLV8 library (see below) that automatically takes care of many of the above points, which enables you to read, create, and process TLV8 data without worrying about parsing TLV8 records with more than 255 bytes, converting numerical values to little-endian, or encoding/decoding records into base-64.
+* 由于长度仅存储为单个字节，因此需要超过 255 个字节的值必须表示为具有相同标记的连续 TLV8 记录
+* TLV8 对象可以包含具有相同标记的多个记录（实际上很常见），但它们必须*由具有不同标记的记录分隔*，否则读取数据的解析器会将具有相同标记的连续记录中的值连接成单个记录（如上所述）
+* 允许表示零长度值的记录，并且仅由两个字节组成：一个标记和一个零（表示零长度值）。具有零长度值的标签通常用于分隔具有相同标签的多个记录
+* 如果该值的字节数组应该表示单个无符号整数，则应按小端格式排列（即最低有效字节在前），并根据需要用尾随零填充，以使该值的总长度为 1、2、4 或 8 个字节（表示 uint8_t、uint16_t、uint32_t 和 uint64_t 值）
+* 如果该值的字节数组应该表示一个字符串，则它不应包含终止空值，因为长度会告诉您字符串中有多少个字符
+* 组成一个值的字节本身可以表示一个单独的完整 TLV8 对象。可以递归嵌套在“父” TLV8 对象中的“子” TLV 数量没有限制
+* 读取 TLV8 记录的解析器应默默忽略任何不期望的 TAG。忽略解析器所需的 TAG 可能是一个错误，但包含它无法识别的 TAG 则不是错误
+* **不可能**明确地确定 TLV8 记录中的 VALUE 字节数组是否应该表示无符号整数、字符串、任意字节序列、“子” TLV 对象或其他完全不同的东西。任何给定 TLV8 记录的唯一识别信息是其 TAG 编号，范围为 0-255。没有将 TAG 类型映射到 VALUE 类型的通用架构或 TLV8 协议。相反，TAG 编号是任意的，用户必须查阅每个特性的文档，以了解预期的 TAG 编号以及它们的值应该代表该特定特性的什么
+* 由于 HomeKit 数据传输通常以 JSON 表示，而 JSON 是一种纯文本格式，因此 HomeKit 要求在将 JSON 传输到控制器和从控制器传输到附件时，首先以 base-64 编码 TLV8 记录。
+
+幸运的是，HomeSpan 包含一个专用的 TLV8 库（见下文），可以自动处理上述许多问题，使您能够读取、创建和处理 TLV8 数据，而不必担心解析超过 255 字节的 TLV8 记录、将数值转换为小端，或将记录编码/解码为 base-64。
 
 ## *TLV8()*
 
-Creating an instance of HomeSpan's TLV8 **class** using the above constructor builds an empty TLV8 object into which you can add and process TLV8 records.  TLV8 objects are instantiated as standard C++ linked-list containers derived from `std::list<tlv8_t>`, where *tlv8_t* is an opaque structure used to store individual TLV8 records.[^opaque]
+使用上述构造函数创建 HomeSpan 的 TLV8 **类**实例会构建一个空的 TLV8 对象，您可以在其中添加和处理 TLV8 记录。TLV8 对象被实例化为从 `std::list<tlv8_t>` 派生的标准 C++ 链接列表容器，其中 *tlv8_t* 是一个用于存储单个 TLV8 记录的不透明结构。[^opaque]
 
-Also, as shown below, many of the TLV8 methods utilize linked-list *constant* iterators.  These are represented by the typedef *TLV8_itc*.[^iterators] 
+此外，如下所示，许多 TLV8 方法都使用链接列表*常量*迭代器。这些迭代器由 typedef *TLV8_itc* 表示。[^iterators]
 
-[^opaque]:The *tlv8_t* structure is opaque because in general you will not have to create or interact directly with the structure or its data.  Note that in addition to the above TLV8-specific methods, you can use any `std::list` method with a TLV8 object if desired.
+[^opaque]:*tlv8_t* 结构是不透明的，因为通常您不必创建或直接与结构或其数据交互。请注意，除了上述特定于 TLV8 的方法之外，您还可以根据需要将任何 `std::list` 方法与 TLV8 对象一起使用。
 
-[^iterators]:You do not need expert knowledge of C++ containers and iterators in order to use the TLV8 library, but a basic understanding of containers and iterators will make the library much easier to learn and enjoyable to use.
+[^iterators]:您不需要具备 C++ 容器和迭代器的专业知识即可使用 TLV8 库，但对容器和迭代器的基本了解将使该库更易于学习和使用。
 
-The method for adding a generic TLV8 record to a TLV8 object is as follows:
+T将通用 TLV8 记录添加到 TLV8 对象的方法如下：
 
 * `TLV8_itc add(uint8_t tag, size_t len, const uint8_t *val)`
 
-  * where *tag* is the TAG identifier for the record to add and *val* is a pointer to a byte-array containing *len* elements
-  * example: `TLV8 myTLV; uint8_t v[]={0x01, 0x05, 0xE3, 0x4C}; tlv.add(1, sizeof(v), v);
-  * setting *val* to NULL reserves *len* bytes of space for the TLV8 record within the TLV8 object, but does not copy any data
-  * this method returns a TLV8 constant iterator to the resulting TLV8 record so you can reference the record at a later time if needed
+  * 其中 *tag* 是要添加的记录的 TAG 标识符，*val* 是指向包含 *len* 个元素的字节数组的指针
+  * 示例：`TLV8 myTLV; uint8_t v[]={0x01, 0x05, 0xE3, 0x4C}; tlv.add(1, sizeof(v), v);`
+  * 将 *val* 设置为 NULL 会为 TLV8 对象内的 TLV8 记录保留 *len* 个字节的空间，但不会复制任何数据
+  * 此方法将 TLV8 常量迭代器返回到生成的 TLV8 记录，以便您可以在以后需要时引用该记录
 
-In addition to the above generic method suitable for any type of data, the following methods make it easier to add TLV8 records with specific, frequently-used types of data:
+除了上述适用于任何类型数据的通用方法之外，以下方法可以更轻松地添加具有特定、常用数据类型的 TLV8 记录：
 
 * `TLV8_itc add(uint8_t tag, uintXX_t val)`
-  * adds a TLV8 record containing a single, unsigned numeric value, *val* (i.e. uint8_t, uint16_t, uint32_t, or uint64_t)
-    
+  * 添加包含单个无符号数值 *val*（即 uint8_t、uint16_t、uint32_t 或 uint64_t）的 TLV8 记录
+
 * `TLV8_itc add(uint8_t tag, const char *val)`
-  * adds a TLV8 record containing all the non-null bytes of a null-terminated character string, *val*
-    
+  * 添加包含以空字符结尾的字符串的所有非空字节的 TLV8 记录， *val*
+
 * `TLV8_itc add(uint8_t tag, TLV8 &subTLV)`
-  * adds a TLV8 record containing all the bytes of an entire TLV8 object, *subTLV*
-    
+  * 添加包含整个 TLV8 对象 *subTLV* 的所有字节的 TLV8 记录
+
 * `TLV8_itc add(uint8_t tag)`
-  * adds a zero-length TLV8 record containing nothing but a TAG identifer
+  * 添加仅包含 TAG 标识符的零长度 TLV8 记录
 
-Note that if you *add* consecutive records with the same TAG identifier, the TLV8 library will concatenate their data and combine into a single record.  For example, `myTLV.add(1,13); myTLV.add(1,300)` will be combined to produce a single 3-byte recording containing the data 0x0D2C01, where the first byte represents from the number 13 and the second two bytes represent the number 300.  This may have been your desired outcome, but likely not what you wanted to happen.
+请注意，如果您 *添加* 具有相同 TAG 标识符的连续记录，TLV8 库将连接它们的数据并合并为单个记录。例如，`myTLV.add(1,13); myTLV.add(1,300)` 将合并以生成单个 3 字节记录，其中包含数据 0x0D2C01，其中第一个字节代表数字 13，后两个字节代表数字 300。这可能是您想要的结果，但可能不是您想要的结果。
 
-Instead, to create two distinct records with the same tag value, simply interpose a zero-length record with a different TAG identifier between the two as a "separator" like this: `myTLV.add(1,13); myTLV.add(255); myTLV.add(1,300);`  Here we used a TAG identifer of 255 to represent the separator, but that choice is arbitrary, unless that TAG happens to be used by the Characteristic for something else (TAG identifiers of 0 or 255 are commonly used as separators).
+相反，要创建两个具有相同标记值的不同记录，只需在两者之间插入一个具有不同标记标识符的零长度记录作为“分隔符”，如下所示：`myTLV.add(1,13); myTLV.add(255); myTLV.add(1,300);` 这里我们使用 255 的标记标识符来表示分隔符，但这种选择是任意的，除非该标记恰好被特征用于其他用途（0 或 255 的标记标识符通常用作分隔符）。
 
-The method for finding a TLV8 record within a TLV8 object that contains a specific TAG identifer is as follows:
+在包含特定标记标识符的 TLV8 对象中查找 TLV8 记录的方法如下：
 
 * `TLV8_itc find(uint8_t tag)`
 
-  * where *tag* is the TAG identifier you are seeking
-  * returns a TLV8 constant iterator to *first* record that matches; returns *end()* if no records match
- 
-To restrict the search range to a limited set of records, add optional starting and ending iterators *it1* and *it2*:
+  * 其中 *tag* 是您要查找的 TAG 标识符
+
+  * 返回 TLV8 常量迭代器，指向匹配的*第一个*记录；如果没有匹配的记录，则返回 *end()*
+
+要将搜索范围限制为有限的一组记录，请添加可选的起始和结束迭代器 *it1* 和 *it2*：
 
 * `TLV8_itc find(uint8_t tag [, TLV8_itc it1 [, TLV8_itc it2]])`
-  
-  * returns a TLV8 constant iterator to the *first* record within the range of constant iterators from *it1* to *it2* that matches the specified *tag*
-  * search range is inclusive of *it1* but exclusive of *it2*
-  * returns *it2* if no records match
-  * if *it2* is unspecified, default is *end()*; if *it1* is unspecified, default is *begin()*
-  * note `myTLV.find(tag)` is equivalent to `myTLV.find(tag, myTLV.begin(), myTLV.end())`
- 
-Use of the C++ `auto` keyword is generally the best way to save the TVL8_itc iterator that is returned from the `find()` and `add()` methods.  For example, `auto myIT = myTLV.find(6)` sets *myIT* to a constant iterator pointing to the first TLV8 record in *myTLV* that has a TAG identifer of 6.
 
-The method for finding the LENGTH of the data VALUE stored in a particular TLV8 record is as follows:
+  * 返回 TLV8 常量迭代器，指向从 *it1* 到 *it2* 的常量迭代器范围内与指定 *tag* 匹配的*第一个*记录
+
+  * 搜索范围包括 *it1* 但不包括 *it2*
+
+  * 如果没有匹配的记录，则返回 *it2*
+
+  * 如果未指定 *it2*，则默认为 *end()*；如果未指定 *it1*，则默认为 *begin()*
+  * 注意 `myTLV.find(tag)` 相当于 `myTLV.find(tag, myTLV.begin(), myTLV.end())`
+
+使用 C++ `auto` 关键字通常是保存从 `find()` 和 `add()` 方法返回的 TVL8_itc 迭代器的最佳方式。例如，`auto myIT = myTLV.find(6)` 将 *myIT* 设置为指向 *myTLV* 中第一个 TAG 标识符为 6 的 TLV8 记录的常量迭代器。
+
+查找存储在特定 TLV8 记录中的数据值的长度的方法如下：
 
 * `int len(TLV8_itc it)`
-  * where *it* is an constant iterator pointing to a specific TLV8 record
-  * returns the length of the data VALUE stored in the associated record, which may be zero for a zero-LENGTH record
-  * returns -1 if *it* points to the *end()* of the TLV8 object
+  * 其中 *it* 是指向特定 TLV8 记录的常量迭代器
+  * 返回存储在关联记录中的数据值的长度，对于零长度记录，该长度可能为零
+  * 如果 *it* 指向 TLV8 对象的 *end()*，则返回 -1
 
-A typical use of the `len()` method is to simultaneously check whether a TLV8 object contains a particular TAG identifier, and that the LENGTH of the TAG matches an expected value.  For example, if a certain Characteristic requires a TLV8 record with a TAG identifer of 6 to contain a 32-byte registration number, you can perform the following check:
+`len()` 方法的典型用途是同时检查 TLV8 对象是否包含特定 TAG 标识符，以及 TAG 的长度是否与预期值匹配。例如，如果某个特性要求 TAG 标识符为 6 的 TLV8 记录包含 32 字节的注册号，则可以执行以下检查：
 
 ```C++
 auto myIT = myTLV.find(6);
 if(myTLV.len(myIT)!=32)
-  Serial.printf("Error: TAG 6 is either missing or of improper length\n");
-else 
-  Serial.printf("TAG 6 containing 32 bytes of data has been found\n");
+Serial.printf("Error: TAG 6 is either missing or of impor length\n");
+else
+Serial.printf("TAG 6 containing 32 bytes of data has been found\n");
 ```
 
-The method for printing all of the records in a TLV8 object to the Serial Monitor is as follows:
+将 TLV8 对象中的所有记录打印到串行监视器的方法如下：
 
 * `void print()`
-  
-  * prints all TLV8 records, one per line, to the Serial Monitor
-  * format of the output is: TAG(LENGTH) VALUE [NUMERIC], where
-    * TAG = the TAG identifer (0-255)
-    * LENGTH = length of the VALUE byte-array (may be zero)
-    * VALUE = a sequential list, in hexadecimal, of all the bytes in the VALUE byte-array (only displayed if LENGTH>0)
-    * NUMERIC = an unsigned-integer interpretation of the bytes in VALUE, assuming little-endian ordering
-      * this decimal value is only displayed if LENGTH<=8
-      * if LENGTH=0, the word "null" is displayed instead
-     
-To restrict the the printing range to a limited set of records, add optional starting and ending constant iterators *it1* and *it2*:
+
+  * 将所有 TLV8 记录（每行一个）打印到串行监视器
+  * 输出格式为：TAG(LENGTH) VALUE [NUMERIC]，其中
+    * TAG = TAG 标识符（0-255）
+    * LENGTH = VALUE 字节数组的长度（可能为零）
+    * VALUE = VALUE 字节数组中所有字节的十六进制顺序列表（仅当 LENGTH>0 时显示）
+    * NUMERIC = VALUE 中字节的无符号整数解释，假设为小端顺序
+      * 仅当 LENGTH<=8 时才显示此十进制值
+      * 如果 LENGTH=0，则显示单词“null”
+
+要将打印范围限制为一组有限的记录，添加可选的起始和结束常量迭代器 *it1* 和 *it2*：
 
 * `void print(TLV8_itc it1 [, TLV8_itc it2])`
-  
-  * prints all TLV8 records between constant iterators *it1* and *it2*
-  * print range is inclusive of *it1* but exclusive of *it2*
-  * if *it2* is unspecified, prints only the record pointed to by *it1*
-  * note `myTLV.print()` is equivalent to `myTLV.print(myTLV.begin(), myTLV.end())`
 
-The output generated by `print()` can contain some very long lines, especially if the VALUE of some of the TLV8 records represents other complete TLV8 objects (known as sub-TLVs or "nested" TLVs).  To recursively print all sub-TLV objects, use the following method:
+  * 打印常量迭代器 *it1* 和 *it2* 之间的所有 TLV8 记录
+  * 打印范围包括 *it1* 但不包括 *it2*
+  * 如果未指定 *it2*，则仅打印 *it1* 指向的记录
+  * 注意 `myTLV.print()` 等同于 `myTLV.print(myTLV.begin(), myTLV.end())`
+
+`print()` 生成的输出可能包含一些非常长的行，特别是当某些 TLV8 记录的 VALUE 代表其他完整的 TLV8 对象（称为子 TLV 或“嵌套”TLV）时。要递归打印所有子 TLV 对象，请使用以下方法：
 
 * `void printAll()`
-  
-  * recursively prints all TLV8 records, one per line, to the Serial Monitor
-  * inspects each TLV8 record and tries to parse as if the record represented a sub-TLV object
-    * if parsing is successful, prints the record and then calls `printAll()` on the sub-TLV
-    * if not, prints the record and ends this branch of the recursion
-  * the format of each line is the same as that of `print()` except that TAG displays the full path of all TAGs through the branch
-  * note that the output can be very voluminous if your TLV8 object contains many levels of nested sub-TLVs
-  * warning: some care is required when interpretating the output[^subTLVs]
-  
-[^subTLVs]:The `printAll()` method assumes that any VALUE that is consistent with the format of a sub-TLV must be a sub-TLV, even if its just a simple numeric value.  For example, `add(10,65536)` yields a record with a TAG identifer of 10 and a 4-byte VALUE of 0x00000100.  The `printAll()` method will display this record along with NUMERIC=65536, but it will also then interpret (and thus display) this VALUE as a sub-TLV containing one zero-length record with TAG identifier=0 and another zero-length record with TAG identifer=1, since the VALUE can be successfully parsed as such.
 
-TLV8 objects manage all of their internal memory requirements, and free up all resources and memory when they go out of scope or are otherwise deleted.  However, if you need to "erase" all the contents of a TLV8 object but stil retain the object so you can re-fill with new data, use the following method:
+  * 递归打印所有 TLV8 记录（每行一个）到串行监视器
+  * 检查每个 TLV8 记录并尝试解析，就好像记录代表子 TLV 对象一样
+    * 如果解析成功，则打印记录，然后在子 TLV 上调用 `printAll()`
+    * 如果不成功，则打印记录并结束此递归分支
+  * 每行的格式与 `print()` 的格式相同，只是 TAG 显示分支中所有 TAG 的完整路径
+  * 请注意，如果您的 TLV8 对象包含多层嵌套子 TLV，则输出可能非常庞大
+  * 警告：解释输出时需要小心[^subTLVs]
+
+[^subTLVs]:`printAll()` 方法假定任何与子 TLV 格式一致的值都必须是子 TLV，即使它只是一个简单的数值。例如，`add(10,65536)` 生成一个 TAG 标识符为 10 且 4 字节 VALUE 为 0x00000100 的记录。`printAll()` 方法将与 NUMERIC=65536 一起显示此记录，但它随后还会将此 VALUE 解释（并因此显示）为子 TLV，其中包含一个零长度记录（TAG 标识符=0）和另一个零长度记录（TAG 标识符=1），因为 VALUE 可以成功解析为这样。
+
+TLV8 对象管理其所有内部内存需求，并在超出范围或以其他方式被删除时释放所有资源和内存。但是，如果您需要“擦除” TLV8 对象的所有内容但仍保留该对象以便重新填充新数据，请使用以下方法：
 
 * `void wipe()`
-  * erases all TLV8 records and frees all associated memory
-  * leaves an empty TLV8 object ready for re-use
+  * 擦除所有 TLV8 记录并释放所有相关内存
+  * 留下一个空的 TLV8 对象以供重复使用
  
 ## *TLV8_itc()*  
   
-Objects of type *TLV8_itc* are constant iterators that point to specific *tlv8_t* records in a TLV8 object (or to *end()*).  TLV8 iterators are used to access, read from, and write to, the data elements in any given TLV8 record, and are thus a critical part of the TLV8 library.  However, if you are using the TLV8 library correctly you should rarely, if ever, need to directly instantiate a *TLV8_itc* using its constructor.  Instead, simply use the C++ `auto` keyword as noted above.
+*TLV8_itc* 类型的对象是指向 TLV8 对象中特定 *tlv8_t* 记录（或 *end()*）的常量迭代器。TLV8 迭代器用于访问、读取和写入任何给定 TLV8 记录中的数据元素，因此是 TLV8 库的重要组成部分。但是，如果您正确使用 TLV8 库，则很少（如果有的话）需要直接使用其构造函数实例化 *TLV8_itc*。相反，只需使用上面提到的 C++ `auto` 关键字即可。
 
-TLV8_itc iterators can be dereferenced to work with data in an individual TLV8 record using the follow methods:
+可以使用以下方法取消引用 TLV8_itc 迭代器来处理单个 TLV8 记录中的数据：
 
 * `uint8_t getTag()`
-  
-  * returns the TAG identifier (0-255) of the TLV8 record
-  * example: `uint8_t tag = myIT->getTag()` or, equivalently, `uint8_t tag = (*myIT).getTag()`
+
+  * 返回 TLV8 记录的 TAG 标识符 (0-255)
+  * 示例：`uint8_t tag = myIT->getTag()` 或等效地，`uint8_t tag = (*myIT).getTag()`
 
 * `size_t getLen()`
-  
-  * returns the LENGTH of the VALUE byte-array of the TLV8 record
-  * example: `size_t len = myIT->getLen()` or, equivalently, `size_t len = (*myIT).getLen()`
-    
+
+  * 返回 TLV8 记录的 VALUE 字节数组的长度
+  * 示例：`size_t len = myIT->getLen()` 或等效地，`size_t len = (*myIT).getLen()`
+
 * `uint8_t *get()`
-  
-  * returns `uint8_t *` pointing to the first element of the VALUE byte-array of the TLV8 record
-  * for zero-LENGTH TLV8 records, the return value is NULL
-  * example: `uint8_t *v = myIT->get();` or, equivalently, `uint8_t *v = (*myIT).get();`
-  * the `(uint8_t *)` casting operator has been overloaded so you can also obtain this same `uint8_t *` pointer by simply dereferencing the iterator
-    * example: `auto myIT = myTLV.find(6); uint8_t *v = *myIT;`
-    * note this only works if the compiler can determine the need to auto-cast into a `uint8_t *` pointer based on the context of the code
+
+  * 返回指向 TLV8 记录的 VALUE 字节数组的第一个元素的 `uint8_t *`
+  * 对于零长度的 TLV8 记录，返回值为 NULL
+  *例如：`uint8_t *v = myIT->get();` 或者，等效地，`uint8_t *v = (*myIT).get();`
+  * `(uint8_t *)` 转换运算符已重载，因此您也可以通过简单地取消引用迭代器来获取相同的 `uint8_t *` 指针
+    * 例如：`auto myIT = myTLV.find(6); uint8_t *v = *myIT;`
+    * 注意，这仅在编译器可以根据代码上下文确定是否需要自动转换为 `uint8_t *` 指针时才有效
 
 * `uint8_t get()[i]`
-  * returns the *i<sup>th</sup>* element of the VALUE byte-array
-  * example: `uint8_t n = myIT->get()[i]` or, equivalently, `uint8_t n = (*myIT).get()[i]`
-  * the subscript operator has also been overloaded so you can obtain the *i<sup>th</sup>* element by simply dereferencing the iterator
-    * example: `uint8_t n = (*myIT)[i]`
-  * note there is no range-checking so make sure *i* does not try to reference an element beyond the end of the VALUE byte-array
+  * 返回 VALUE 字节数组的第 *i 个元素
+  * 示例：`uint8_t n = myIT->get()[i]` 或者，等效地，`uint8_t n = (*myIT).get()[i]`
+  * 下标运算符也已重载，因此您只需取消引用迭代器即可获得第 *i 个元素
+    * 示例：`uint8_t n = (*myIT)[i]`
+  * 注意，没有范围检查，因此请确保 *i* 不会尝试引用 VALUE 字节数组末尾以外的元素
 
 * `T getVal<class T>()`
-  * this template function returns a single numeric value of type *T* on the assumption that the VALUE byte-array is storing an unsigned integer in little endian format
-  * *T* can be *uint8_t*, *uint16_t*, *uint32_t*, or *uint64_t* (if unspecified *T* defaults to *uint32_t*)
-  * example: `auto myIT = myTLV.add(50,60000); uint16_t n = myIT->getVal<uint16_t>();`
-  * this method returns the correct numeric value as long as sizeof(*T*) >= LENGTH of the byte-array. For example:
-    * setting *T=uint64_t* with a VALUE byte-array containing 2 bytes returns the *correct* numeric value
-    * setting *T=uint16_t* with a VALUE byte-array containing 4 bytes return an *incorrect* numeric value
-  * this function returns zero for all zero-LENGTH TLV8 records 
+  * 此模板函数返回一个类型为 *T* 的数值，前提是 VALUE 字节数组存储的是小端格式的无符号整数
+  * *T* 可以是 *uint8_t*、*uint16_t*、*uint32_t* 或 *uint64_t*（如果未指定 *T*，则默认为 *uint32_t*）
+  * 示例：`auto myIT = myTLV.add(50,60000); uint16_t n = myIT->getVal<uint16_t>();`
+  * 只要 sizeof(*T*) >= 字节数组的长度，此方法就会返回正确的数值。例如：
+    * 使用包含 2 个字节的 VALUE 字节数组设置 *T=uint64_t* 会返回 *正确* 的数值
+    * 使用包含 4 个字节的 VALUE 字节数组设置 *T=uint16_t* 会返回 *不正确* 的数值
+  * 此函数对所有零长度 TLV8 记录返回零
 
-### A detailed example using the above methods
+### 使用上述方法的详细示例
 
-The following code:
+以下代码：
 
 ```C++
-TLV8 myTLV;   // instantiates an empty TLV8 object
+TLV8 myTLV;   // 实例化一个空的 TLV8 对象
 
-myTLV.add(1,8700);                       // add a TLV8 record with TAG=1 and VALUE=8700
-auto it_A = myTLV.add(2,180);            // add a TLV8 record with TAG=2 and VALUE=180, and save the iterator that is returned
+myTLV.add(1,8700);                       // 添加 TAG=1 且 VALUE=8700 的 TLV8 记录
+auto it_A = myTLV.add(2,180);           // 添加TAG=2、VALUE=180的TLV8记录，并保存返回的迭代器
 
-uint8_t v[32];                           // create a 32-byte array, v, and fill it with some data
+uint8_t v[32];                           // 创建一个 32 字节数组 v，并用一些数据填充它
 for(int i=0;i<32;i++)
   v[i]=i;
   
-myTLV.add(200,32,v);                     // add a TLV8 record with TAG=200 and copy all 32 bytes of array v into its VALUE
+myTLV.add(200,32,v);                     // 添加 TAG=200 的 TLV8 记录，并将数组 v 的所有 32 个字节复制到其 VALUE 中
 
-myTLV.add(50,60000);                     // add a TLV8 record with TAG=50 and VALUE=60000
-myTLV.add(255);                          // add a zero-length TLV8 record with TAG=255 to act as separator
-myTLV.add(50,120000);                    // add a TLV8 record with TAG=50 and VALUE=120000
-myTLV.add(255);                          // add a zero-length TLV8 record with TAG=255 to act as separator
+myTLV.add(50,60000);                     // 添加 TAG=50 和 VALUE=60000 的 TLV8 记录
+myTLV.add(255);                          // 添加一个长度为零且 TAG=255 的 TLV8 记录作为分隔符
+myTLV.add(50,120000);                    // 添加 TAG=50 且 VALUE=120000 的 TLV8 记录
+myTLV.add(255);                           // 添加一个长度为零且 TAG=255 的 TLV8 记录作为分隔符
 myTLV.add(50,180000);                    // add a TLV8 record with TAG=50 and VALUE=180000
-myTLV.add(255);                          // add a zero-length TLV8 record with TAG=255 to act as separator
-auto it_B = myTLV.add(50,240000);        // add a TLV8 record with TAG=50 and VALUE=240000, and save the iterator that is returned
+myTLV.add(255);                           // 添加一个长度为零且 TAG=255 的 TLV8 记录作为分隔符
+auto it_B = myTLV.add(50,240000);        // 添加TAG=50、VALUE=240000的TLV8记录，并保存返回的迭代器
 
-auto it_C = myTLV.find(50);                   // find an iterator to the first TLV8 record with TAG=50;
-auto it_D = myTLV.find(50,std::next(it_C));   // find an iterator to the first TLV8 record with TAG=50 that occurs AFTER it_C;
+auto it_C = myTLV.find(50);                  // 找到指向第一个 TAG=50 的 TLV8 记录的迭代器；
+auto it_D = myTLV.find(50,std::next(it_C));   // 找到在 it_C 之后出现的第一个 TAG=50 的 TLV8 记录的迭代器；
 
-auto it_E = myTLV.find(200);             // find an iterator to first TLV8 record with TAG=200;
-
+auto it_E = myTLV.find(200);             // 找到第一个 TAG=200 的 TLV8 记录的迭代器；
 Serial.printf("results of myTLV.print():\n\n");
 
-myTLV.print();                           // print the contents of myTLV to the Serial Monitor
-
+myTLV.print();                          // 将 myTLV 的内容打印到串行监视器
 Serial.printf("\n");
 
-// print content of it_A:
+// 打印 it_A 的内容：
 
 Serial.printf("it_A: TAG=%d, LENGTH=%d, Value=%d\n", it_A->getTag(), it_A->getLen(), it_A->getVal());
 
-// print content of it_B using alternative syntax:
+// 使用替代语法打印 it_B 的内容：
 
 Serial.printf("it_B: TAG=%d, LENGTH=%d, Value=%d\n", (*it_B).getTag(), (*it_B).getLen(), (*it_B).getVal());
 
-// print contents of it_C and it_D, based on previous find() above:
+// 根据上面的 find() 打印 it_C 和 it_D 的内容：
 
 Serial.printf("it_C TAG=%d, LENGTH=%d, Value=%d\n", (*it_C).getTag(), (*it_C).getLen(), (*it_C).getVal());
 Serial.printf("it_D TAG=%d, LENGTH=%d, Value=%d\n", (*it_D).getTag(), (*it_D).getLen(), (*it_D).getVal());
 
-// you can also use the results of find() directly without saving as a separate iterator, though this is computationally inefficient:
+// 您也可以直接使用 find() 的结果，而无需保存为单独的迭代器，尽管这在计算上效率低下：
 
-if(myTLV.find(1)!=myTLV.end())      // check for match
+if(myTLV.find(1)!=myTLV.end())     // 检查匹配
   Serial.printf("Found: TAG=%d, LENGTH=%d, Value=%d\n", myTLV.find(1)->getTag(), myTLV.find(1)->getLen(), myTLV.find(1)->getVal());
 
-// sum up all the bytes in it_E:
+// 对 it_E 中的所有字节求和：
 
 int sum=0;
 for(int i=0; i < it_E->getLen(); i++)
@@ -237,17 +241,17 @@ for(int i=0; i < it_E->getLen(); i++)
 
 Serial.printf("it_E TAG=%d, LENGTH=%d, Sum of all bytes = %d\n", (*it_E).getTag(), (*it_E).getLen(), sum);
 
-// create a "blank" TLV8 record with TAG=90 and space for 16 bytes:
+// 创建一个“空白”TLV8 记录，其 TAG=90 且空间为 16 字节：
 
 auto it_F = myTLV.add(90,16,NULL);
 
-// copy the first 16 bytes of it_E into it_F and print the record:
+// 将 it_E 的前 16 个字节复制到 it_F 中并打印记录：
 
 memcpy(*it_F,*it_E,16);
 myTLV.print(it_F);
 ```
 
-produces the following output:
+产生以下输出：
 
 ```C++
 results of myTLV.print():
@@ -272,42 +276,40 @@ it_E TAG=200, LENGTH=32, Sum of all bytes = 496
 90(16) 000102030405060708090A0B0C0D0E0F
 ```
 
-## Reading and Writing TLV8 Characteristics
+## 读取和写入 TLV8 特性
 
-As fully documented in the [API Reference](Reference.md), the following *SpanCharacteristic* methods are used to read and write TLV8 objects to TLV8 Characteristics:
+如 [API 参考](Reference.md) 中完整记录的那样，以下 *SpanCharacteristic* 方法用于读取和写入 TLV8 对象到 TLV8 特性：
 
 * `getTLV(TLV8 &tlv)`
 * `getNewTLV(TLV8 &tlv)`
 * `setTLV(TLV8 &tlv)`
 
-These are analagous to the `getVal()`, `getNewVal()` and `setVal()` methods used for numerical-based Characteristics. 
+这些方法类似于用于基于数值的特性的 `getVal()`、`getNewVal()` 和 `setVal()` 方法。
 
-Note that using the above methods *do not* require you to create a separate byte-array that splits records into chunks of 255 bytes, nor does it require you to encode or decode anything into base-64.  Rather, you directly read and write to and from the Characteristic into a TLV8 object.[^getString]
+请注意，使用上述方法*不*需要您创建一个单独的字节数组来将记录拆分为 255 个字节的块，也不需要您将任何内容编码或解码为 base-64。相反，您可以直接将特征读取和写入 TLV8 对象。[^getString]
 
-For a detailed example of how TLV8 Characteristics are used in practice, see [Tutorial Example 22 - TLV8_Characteristics](../examples/22-TLV8_Characteristics) demonstrating how the **DisplayOrder** TLV8 Charactersitic can be used to set the order in which Input Sources for a TV Service are displayed in the Home App. 
+有关 TLV8 特征在实践中的详细示例，请参阅教程 [示例 22 - TLV8_特征](../examples/22-TLV8_Characteristics%20/22-TLV8_Characteristics.ino)，其中演示了如何使用 **DisplayOrder** TLV8 特征来设置电视服务输入源在“家庭”应用中的显示顺序。
 
-[^getString]:Since TLV8 Characteristics are stored as base-64 encoded strings, you can always use `getString()` to read the base-64 text, or `getData()` to decode the string into the full byte-array that represents the entire TLV8 object, if you desire. Also, if you really don't want to use HomeSpan's TLV8 library to produce TLV8 objects, but instead prefer to use your own methods to create a TLV8-compliant byte-array, you can do so and then use `setData()` to save the byte-array you produced to the TLV8 Characteristic, which will perform the base-64 encoding for you. Or, if you want to additionally perform your own base-64 encoding (why?), you can do so and then simply use `setString()` to save the resulting encoded text to the TLV8 Characteristic.
+[^getString]:由于 TLV8 特征存储为 base-64 编码字符串，因此如果您愿意，您可以始终使用 `getString()` 读取 base-64 文本，或使用 `getData()` 将字符串解码为代表整个 TLV8 对象的完整字节数组。此外，如果您确实不想使用 HomeSpan 的 TLV8 库来生成 TLV8 对象，而是更喜欢使用自己的方法来创建符合 TLV8 的字节数组，您可以这样做，然后使用 `setData()` 将您生成的字节数组保存到 TLV8 特性中，它将为您执行 base-64 编码。或者，如果您还想执行自己的 base-64 编码（为什么？），您可以这样做，然后只需使用 `setString()` 将生成的编码文本保存到 TLV8 特性中。
 
-### Write-Response Requests
+### 写入响应请求
 
-For most Characteristics, when the Home App sends HomeSpan a request to update a value, it is instructing HomeSpan to perform some sort of action, such as "change the brightness of a lightbulb to 30%" or "change the target state of the door to open."  The only feedback the Home App expects to receive in response to such requests is basically an "OK" or "NOT OKAY" message, which is the purpose of the boolean return value in the `update()` method for every Service.
+对于大多数特性，当“家庭”应用向 HomeSpan 发送更新值的请求时，它会指示 HomeSpan 执行某种操作，例如“将灯泡的亮度更改为 30%”或“将门的目标状态更改为打开”。“家庭”应用期望收到的唯一响应此类请求的反馈基本上是 "OK" 或 "NOT OKAY"消息，这是每个服务的 `update()` 方法中布尔返回值的目的。
 
-However, sometimes the Home App sends HomeSpan a request for information, rather than a direct instruction to perform a task.  In such instances, rather than sending back just an OK/NOT-OKAY message, the Home App expects the Accessory device to update the value of the Characteristic *not* with the new value that the Home App sent, but rather with the information it requested.  It then expects this information to be transmitted back to the Home App at the conclusion of the update.  
+但是，有时“家庭”应用会向 HomeSpan 发送信息请求，而不是执行任务的直接指令。在这种情况下，“家庭”应用不会只发回 OK/NOT-OKAY 消息，而是期望配件设备使用“家庭”应用发送的新值而不是新值来更新特性的值。然后，它期望在更新结束时将此信息传回“家庭”应用。
 
-This procedure is known as a "Write-Response Request", and it is the primary purpose for having TLV8 Characteristics, since TLV8 objects are ideal for storing structured information. 
+此过程称为“写入响应请求”，它是拥有 TLV8 特性的主要目的，因为 TLV8 对象非常适合存储结构化信息。
 
-Though the procedure is complex, HomeSpan handles all of the protocol details.  You only need to focus on reading the TLV8 Characteristic and updating it with the required TLV8 response as follows:
+虽然该过程很复杂，但 HomeSpan 处理了所有协议细节。您只需专注于读取 TLV8 特性并使用所需的 TLV8 响应对其进行更新，如下所示：
 
-* first, from within the `update()` loop of the applicable Service, check to see if the Home App has requested an update to the TLV8&nbsp;Characteristic;
-* if so, create a new TLV8 object and use `getNewTLV()` to load the contents of the updated Characteristic into that TLV8 object;
-* then, use the TLV8 library methods described above to read through the TAGS and VALUES in the TLV8 object to determine what data the Home App is conveying and what information it wants returned (based on the specs for the Characteristic);
-* next, create a *second* TLV8 object and use the TLV8 library methods above to create the appropriate TAGS and VALUES needed to respond to the information request (again, based on the on the specs for the Characteristic);
-* finally, use `setVal()` to update the TLV8 Characteristic with the second TLV8 object
+* 首先，从适用服务的 `update()` 循环中，检查“家庭”应用是否已请求更新 TLV8&nbsp;特性；
+* 如果是，则创建一个新的 TLV8 对象并使用 `getNewTLV()` 将更新的特性的内容加载到该 TLV8 对象中；
+* 然后，使用上面描述的 TLV8 库方法读取 TLV8 对象中的标签和值，以确定“家庭”应用正在传达哪些数据以及它希望返回哪些信息（基于特性的规范）；
+* 接下来，创建 *第二个* TLV8 对象并使用上面的 TLV8 库方法创建响应信息请求所需的适当标签和值（同样，基于特性的规范）；
+* 最后，使用 `setVal()` 用第二个 TLV8 对象更新 TLV8 特性
 
-HomeSpan will automatically send the new TLV8 data you placed in the TLV8 Characterstic back to the Home App in its response at the conclusion of the `update()` loop. 
+HomeSpan 将在 `update()` 循环结束时自动将您放置在 TLV8 特性中的新 TLV8 数据发送回“家庭”应用的响应中。
 
 ---
 
-[↩️](../README.md) Back to the Welcome page
-
-
+[↩️](../README.md#resources) 返回欢迎页面
