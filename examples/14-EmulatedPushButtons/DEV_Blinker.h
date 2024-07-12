@@ -1,85 +1,75 @@
-
 ////////////////////////////////////
-//   DEVICE-SPECIFIC LED SERVICES //
+//       设备专用 LED 服务        //
 ////////////////////////////////////
 
-// NOTE: This example is constructed only for the purpose of demonstrating how to
-// emulate a pushbutton in HomeSpan.  The length of the blinking routine is MUCH longer
-// than HomeSpan should spend on an update().  To see how this effects HomeKit, try changing
-// the number of blinks to 50, or keep it at 3 and increase the delay times in update() so
-// that the blink routine takes 10 seconds or more. When activated, HomeKit will think the
-// device has become non-responsive if it does not receive a return message from update() within
-// a certain period of time.
+// 注意：此示例仅用于演示如何在 HomeSpan 中模拟按钮。闪烁例程的长度比 HomeSpan 在 update() 上花费的时间长得多。
+// 要查看这对 HomeKit 的影响，请尝试将闪烁次数更改为 50，或将其保持在 3 次并增加 update() 中的延迟时间，
+// 以便闪烁例程需要 10 秒或更长时间。激活后，如果设备在一定时间内未收到来自 update() 的返回消息，HomeKit 会认为设备已无响应。
 
-// In practice, pushbuton emulation is used for very short routines, such as driving
-// an IR LED or an RF transmitter to send a code to a remote device.
+// 实际上，按钮模拟用于非常短的例程，例如驱动红外 LED 或 RF 发射器将代码发送到远程设备。
 
-// New and changed lines in comparison with Example 9 are noted as "NEW!"
+// 与示例 9 相比，新增和更改的行标记为“新！”
 
-struct DEV_Blinker : Service::LightBulb {           // LED Blinker
+struct DEV_Blinker : Service::LightBulb {           // LED 闪光灯
 
-  int ledPin;                                       // pin number defined for this LED
-  int nBlinks;                                      // NEW! number of times to blink
+  int ledPin;                                       // 为此 LED 定义的引脚编号
+  int nBlinks;                                      // 新功能！闪烁次数
   
-  SpanCharacteristic *power;                        // reference to the On Characteristic
+  SpanCharacteristic *power;                        // 引用 On 特性
   
-  DEV_Blinker(int ledPin, int nBlinks) : Service::LightBulb(){       // constructor() method
+  DEV_Blinker(int ledPin, int nBlinks) : Service::LightBulb(){       // 构造函数（）方法
 
     power=new Characteristic::On();                 
         
     this->ledPin=ledPin;                            
-    this->nBlinks=nBlinks;                           // NEW! number of blinks
+    this->nBlinks=nBlinks;                          // 新功能！闪烁次数
     pinMode(ledPin,OUTPUT);                         
     
-    Serial.print("Configuring LED Blinker: Pin=");   // initialization message
+    Serial.print("Configuring LED Blinker: Pin=");   // 初始化消息
     Serial.print(ledPin);
-    Serial.print("  Blinks=");                       // NEW! add output message for number of blinks
+    Serial.print("  Blinks=");                       // 新功能！添加闪烁次数的输出消息
     Serial.print(nBlinks);
     Serial.print("\n");
 
-  } // end constructor
+  } // 结束构造函数
 
-  boolean update(){                              // update() method
+  boolean update(){                              // update() 方法
 
-    // NEW! Instead of turning on or off the LED according to newValue, we blink it for
-    // the number of times specified, and leave it in the off position when finished.
-    // This line is deleted...
+    // 新功能！我们不再根据 newValue 打开或关闭 LED，而是按照指定的次数闪烁，并在完成后将其保持在关闭位置。此行已删除...
     
     // digitalWrite(ledPin,power->getNewVal());      
 
-    // and is replaced by...
+    // 并被替换为...
 
-    if(power->getNewVal()){                       // check to ensure HomeKit is requesting we "turn on" this device (else ignore)
+    if(power->getNewVal()){                       // 检查以确保 HomeKit 请求我们“打开”此设备（否则忽略）
 
       LOG1("Activating the LED Blinker on pin=");
       LOG1(ledPin);
       LOG1("\n");
 
-      for(int i=0;i<nBlinks;i++){                     // loop over number of blinks specified
-        digitalWrite(ledPin,HIGH);                    // turn pin on
-        delay(100);                                   // wait 100 ms
-        digitalWrite(ledPin,LOW);                     // turn pin off
-        delay(250);                                   // wait 250 ms
+      for(int i=0;i<nBlinks;i++){                     // 循环指定闪烁次数
+        digitalWrite(ledPin,HIGH);                    // 打开引脚
+        delay(100);                                   // 等待 100 毫秒
+        digitalWrite(ledPin,LOW);                     // 关闭引脚
+        delay(250);                                   // 等待 250 毫秒
       }
       
-    } // if newVal=true
+    } // 如果 newVal=true
 
-    // Note that the delays above of 100ms and 250ms are for illustrative purposes only
-    // (and so you can see the LED blink). In practice, if you were controlling an IR LED
-    // or an RF transmitter, the whole signal would likely transmit in 10ms total.
+    // 请注意，上述 100 毫秒和 250 毫秒的延迟仅用于说明目的（因此您可以看到 LED 闪烁）。
+   // 实际上，如果您控制的是红外 LED 或 RF 发射器，则整个信号可能总共需要 10 毫秒才能传输完毕。
     
-    return(true);                               // return true
+    return(true);                               // 返回 true
   
-  } // update
+  } //  更新
 
-  // NEW! Here we implement a very simple loop() method that checks to see if the power Characteristic
-  // is "on" for at least 3 seconds.  If so, it resets the value to "off" (false).
+  // 新功能！我们在这里实现一个非常简单的 loop() 方法，该方法检查电源特性是否至少处于“开启”状态 3 秒。如果是，则将值重置为“关闭”（false）。
 
   void loop(){
 
-    if(power->getVal() && power->timeVal()>3000){   // check that power is true, and that time since last modification is greater than 3 seconds 
-      LOG1("Resetting Blinking LED Control\n");     // log message  
-      power->setVal(false);                         // set power to false
+    if(power->getVal() && power->timeVal()>3000){   // 检查 power 是否正确，以及自上次修改以来的时间是否大于 3 秒
+      LOG1("Resetting Blinking LED Control\n");     // 记录消息
+      power->setVal(false);                         // 将 power 设置为 false
     }      
     
   } // loop
@@ -87,3 +77,10 @@ struct DEV_Blinker : Service::LightBulb {           // LED Blinker
 };
       
 //////////////////////////////////
+
+// HomeKit 错误说明：在开发此示例期间，发现了 HomeKit 中存在一个明显的错误。
+
+// 如果您有一个具有三个或更多服务的配件，并且该配件从设备收到通知消息，并且 HomeKit 界面已打开以在 HomeKit 应用中显示此
+// 服务图块的详细控件，那么出于某种原因，HomeKit 会将 update() 请求发送回设备，要求将特性设置为刚从事件通知中收到的值。
+
+// HomeKit 不应该发送更新请求来响应事件通知。
