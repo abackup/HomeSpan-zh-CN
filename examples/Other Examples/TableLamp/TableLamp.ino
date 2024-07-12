@@ -1,72 +1,64 @@
 /*********************************************************************************
- *  MIT License
+ *  MIT 许可证
  *  
- *  Copyright (c) 2020-2022 Gregg E. Berman
+ *  Copyright (c) 2020-2024 Gregg E. Berman
  *  
  *  https://github.com/HomeSpan/HomeSpan
  *  
- *  Permission is hereby granted, free of charge, to any person obtaining a copy
- *  of this software and associated documentation files (the "Software"), to deal
- *  in the Software without restriction, including without limitation the rights
- *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- *  copies of the Software, and to permit persons to whom the Software is
- *  furnished to do so, subject to the following conditions:
+ *  特此授予获得此软件和相关文档文件（“软件”）副本的任何人免费许可，以无限制方式处理软件，
+ *  包括但不限于使用、复制、修改、合并、发布、分发、再许可和/或销售软件副本的权利，并允许
+ *  向其提供软件的人员这样做，但须遵守以下条件：
  *  
- *  The above copyright notice and this permission notice shall be included in all
- *  copies or substantial portions of the Software.
+ *  上述版权声明和本许可声明均应包含在软件的所有副本或重要部分中。
  *  
- *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- *  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- *  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- *  SOFTWARE.
+ *  软件按“原样”提供，不作任何明示或暗示的保证，包括但不限于适销性、特定用途的适用性和不
+ *  侵权性的保证。在任何情况下，作者或版权持有者均不对因软件或使用或其他处理软件而引起的
+ *  或与之相关的任何索赔、损害或其他责任承担责任，无论是合同行为、侵权行为还是其他行为。
  *  
  ********************************************************************************/
 
-#include "HomeSpan.h"         // include the HomeSpan library
+#include "HomeSpan.h"         // 包括 HomeSpan 库
 
 struct TableLamp : Service::LightBulb{
 
-  int lampPin;                               // store the pin number connected to a hypothetical relay that turns the Table Lamp on/off
-  SpanCharacteristic *lampPower;             // store a reference to the On Characteristic
+  int lampPin;                               // 存储连接到假设的继电器的引脚号，该继电器可以打开/关闭台灯
+  SpanCharacteristic *lampPower;             // 存储对 On Characteristic 的引用
   
-  TableLamp(int lampPin) : Service::LightBulb(){       // constructor() method for TableLamp defined with one parameter.  Note we also call the constructor() method for the LightBulb Service.
+  TableLamp(int lampPin) : Service::LightBulb(){       // TableLamp 的构造函数() 方法使用一个参数定义。请注意，我们还调用了 LightBulb 服务的构造函数() 方法。
 
-    lampPower=new Characteristic::On();      // instantiate the On Characteristic and save it as lampPower
-    this->lampPin=lampPin;                   // save the pin number for the hypothetical relay
-    pinMode(lampPin,OUTPUT);                 // configure the pin as an output using the standard Arduino pinMode function                       
+    lampPower=new Characteristic::On();      // 实例化 On Characteristic 并将其保存为 lampPower
+    this->lampPin=lampPin;                   // 保存假设继电器的引脚号
+    pinMode(lampPin,OUTPUT);                 // 使用标准 Arduino pinMode 函数将引脚配置为输出
     
-  } // end constructor()
+  } // 结束 constructor()
   
-  boolean update(){                          // update() method
+  boolean update(){                          // update() 方法
 
-    digitalWrite(lampPin,lampPower->getNewVal());      // use standard Arduino digitalWrite function to change the ledPin to either high or low based on the value requested by HomeKit
+    digitalWrite(lampPin,lampPower->getNewVal());      // 使用标准 Arduino digitalWrite 函数根据 HomeKit 请求的值将 ledPin 更改为高或低
    
-    return(true);                            // return true to let HomeKit (and the Home App Client) know the update was successful
+    return(true);                            // 返回 true 让 HomeKit（和“家庭”应用Client）知道更新成功
   
-  } // end update()
+  } // 结束 update()
   
 };
 
 void setup() {     
  
-  Serial.begin(115200);       // start the Serial interface
+  Serial.begin(115200);       //启动串行接口
   
-  homeSpan.begin();           // initialize HomeSpan
+  homeSpan.begin();           // 初始化HomeSpan
 
-  new SpanAccessory();           // Table Lamp Accessory
+  new SpanAccessory();           // 台灯配件
   
-    new Service::AccessoryInformation();            // HAP requires every Accessory to implement an AccessoryInformation Service  
-      new Characteristic::Identify();               // HAP requires the Accessory Information Service to include the Identify Characteristic
+    new Service::AccessoryInformation();            // HAP 要求每个配件都实现配件信息服务
+      new Characteristic::Identify();               // HAP 要求附件信息服务包含识别特征
         
-    new TableLamp(17);                              // instantiate the TableLamp Service (defined below) with lampPin set to 17
+    new TableLamp(17);                              // 实例化 TableLamp 服务（定义如下），并将 lampPin 设置为 17
   
-} // end of setup()
+} // 结束 setup()
 
 void loop(){
 
  homeSpan.poll(); 
 
-} // end of loop()
+} // 结束 loop()
