@@ -1,45 +1,34 @@
 /*********************************************************************************
- *  MIT License
+ *  MIT 许可证
  *  
  *  Copyright (c) 2020-2024 Gregg E. Berman
  *  
  *  https://github.com/HomeSpan/HomeSpan
  *  
- *  Permission is hereby granted, free of charge, to any person obtaining a copy
- *  of this software and associated documentation files (the "Software"), to deal
- *  in the Software without restriction, including without limitation the rights
- *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- *  copies of the Software, and to permit persons to whom the Software is
- *  furnished to do so, subject to the following conditions:
+ *  特此授予获得此软件和相关文档文件（“软件”）副本的任何人免费许可，以无限制方式处理软件，
+ *  包括但不限于使用、复制、修改、合并、发布、分发、再许可和/或销售软件副本的权利，并允许
+ *  向其提供软件的人员这样做，但须遵守以下条件：
  *  
- *  The above copyright notice and this permission notice shall be included in all
- *  copies or substantial portions of the Software.
+ *  上述版权声明和本许可声明均应包含在软件的所有副本或重要部分中。
  *  
- *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- *  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- *  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- *  SOFTWARE.
+ *  软件按“原样”提供，不作任何明示或暗示的保证，包括但不限于适销性、特定用途的适用性和不
+ *  侵权性的保证。在任何情况下，作者或版权持有者均不对因软件或使用或其他处理软件而引起的
+ *  或与之相关的任何索赔、损害或其他责任承担责任，无论是合同行为、侵权行为还是其他行为。
  *  
  ********************************************************************************/
 
-// Sometimes you need to access Characteristics from outside of the Service structure
-// in which they were created so you can read and/or modify them in other parts of
-// a sketch, such as from within the main Arduino loop().
+// 有时您需要从创建特性的服务结构外部访问特性，以便您可以在草图的其他部分（例如在主 Arduino 循环() 中）读取和/或修改它们。
 
-// This sketch is basically the same as Tutorial Example 5, in which we created
-// two working LEDs attached to pins 16, and 17.  However, in this sketch we will 
-// create global pointers to the LED Services that we can then use in the main loop() to 
-// do something unique.
+// 此草图与教程示例 5 基本相同，其中我们创建了两个连接到引脚 16 和 17 的工作 LED。但是，在此草图中，我们将创建指向 LED 服务的全局指针，
+// 然后我们可以在主循环() 中使用这些指针来执行一些独特的操作。
 
 #include "HomeSpan.h" 
 
 //////////////////////////////////////
 
-// First we define our DEV_LED Service exactly the same as in Tutorial Example 5.
-// This Service contains a single Characteristic named "power" of type Chacracteristic::On
+// 首先，我们定义 DEV_LED 服务，与教程示例 5 中完全相同。
+// 此服务包含一个名为“power”、类型为 Chacracteristic::On 的特性
+
 
 struct DEV_LED : Service::LightBulb {
 
@@ -62,15 +51,12 @@ struct DEV_LED : Service::LightBulb {
    
 //////////////////////////////////////
 
-// Next we create two pointers to the DEV_LED Service.  These are created
-// outside of any class or function so they are globally-scoped and can be
-// accessed from anywhere else in this sketch.
+// 接下来，我们创建两个指向 DEV_LED 服务的指针。它们是在任何类或函数之外创建的，因此它们是全局范围的，可以从此草图中的任何其他位置访问。
 
-// Note that there are just POINTERS to DEV_LED objects.  The objects themselves
-// are not yet created.
+// 请注意，只有指向 DEV_LED 对象的指针。对象本身尚未创建。
 
-DEV_LED *led16;     // pointer to a DEV_LED structure to be used below to reference a DEV_LED object assigned to pin 16
-DEV_LED *led17;     // pointer to a DEV_LED structure to be used below to reference a DEV_LED object assigned to pin 17
+DEV_LED *led16;     // 指向下面要使用的 DEV_LED 结构的指针，用于引用分配给引脚 16 的 DEV_LED 对象
+DEV_LED *led17;     // 指向下面要使用的 DEV_LED 结构的指针，用于引用分配给引脚 17 的 DEV_LED 对象
 
 //////////////////////////////////////
 
@@ -83,13 +69,13 @@ void setup() {
   new SpanAccessory();  
     new Service::AccessoryInformation(); 
       new Characteristic::Identify();                
-    led16=new DEV_LED(16);                  // this is the key step - we SAVE the pointer returned by 'new DEV_LED(16)' in the global variable led16 created above
+    led16=new DEV_LED(16);                  // 这是关键的一步 - 我们将“new DEV_LED(16)”返回的指针保存在上面创建的全局变量 led16 中
 
 
   new SpanAccessory();   
     new Service::AccessoryInformation();    
       new Characteristic::Identify();                       
-    led17=new DEV_LED(17);                  // also save the pointer to the second LED object using the global variable led17 created above
+    led17=new DEV_LED(17);                  // 还使用上面创建的全局变量 led17 保存指向第二个 LED 对象的指针
 
 }
 
@@ -99,14 +85,14 @@ void loop(){
   
   homeSpan.poll();
 
-// Because the pointers led16 and led17 were created in the global scope, they will still exist even after setup() is completed.
-// This means we can use them to access the Characteristics within each of those Services.
+//因为指针 led16 和 led17 是在全局范围内创建的，所以即使在 setup() 完成后它们仍然存在。
+// 这意味着我们可以使用它们来访问每个服务中的特性。
 
-// Here we access the power Characteristic of both Services and check to see if they are BOTH on, and if so,
-// we turn them both off and print a "power overload" message.
+// 在这里，我们访问两个服务的电源特性，并检查它们是否都处于打开状态，如果是，我们将它们都关闭并打印“电源过载”消息。
 
-// Note how you can use all the same methods, such as getVal() and setVal(), just as you would do in the Service itself.
-// Caution: always use getVal(), not getNewVal(), which is only formally defined from within the Service update() method.
+// 请注意，您可以使用所有相同的方法，例如 getVal() 和 setVal()，就像在服务本身中一样。
+// 注意：始终使用 getVal()，而不是 getNewVal()，后者仅在服务 update() 方法中正式定义。
+
 
   if(led16->power->getVal() && led17->power->getVal()){
     Serial.printf("Power overload!  Can't have both LED's on at the same time.  Turn off both LEDs...\n");
