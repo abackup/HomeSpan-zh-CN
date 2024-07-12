@@ -1,38 +1,30 @@
 /*********************************************************************************
- *  MIT License
+ *  MIT 许可证
  *  
- *  Copyright (c) 2020-2024 Gregg E. Berman
+ *  Copyright (c) 2020-2022 Gregg E. Berman
  *  
  *  https://github.com/HomeSpan/HomeSpan
  *  
- *  Permission is hereby granted, free of charge, to any person obtaining a copy
- *  of this software and associated documentation files (the "Software"), to deal
- *  in the Software without restriction, including without limitation the rights
- *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- *  copies of the Software, and to permit persons to whom the Software is
- *  furnished to do so, subject to the following conditions:
+ *  特此授予获得此软件和相关文档文件（“软件”）副本的任何人免费许可，以无限制方式处理软件，
+ *  包括但不限于使用、复制、修改、合并、发布、分发、再许可和/或销售软件副本的权利，并允许
+ *  向其提供软件的人员这样做，但须遵守以下条件：
  *  
- *  The above copyright notice and this permission notice shall be included in all
- *  copies or substantial portions of the Software.
+ *  上述版权声明和本许可声明均应包含在软件的所有副本或重要部分中。
  *  
- *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- *  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- *  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- *  SOFTWARE.
+ *  软件按“原样”提供，不作任何明示或暗示的保证，包括但不限于适销性、特定用途的适用性和不
+ *  侵权性的保证。在任何情况下，作者或版权持有者均不对因软件或使用或其他处理软件而引起的
+ *  或与之相关的任何索赔、损害或其他责任承担责任，无论是合同行为、侵权行为还是其他行为。
  *  
  ********************************************************************************/
  
 ////////////////////////////////////////////////////////////
 //                                                        //
-//    HomeSpan: A HomeKit implementation for the ESP32    //
+//              HomeSpan：ESP32 的 HomeKit 实现           //
 //    ------------------------------------------------    //
 //                                                        //
-// Example 6: One working on/off LED and one working     //
-//            dimmable LED, both based on the LightBulb   //
-//            Service                                     //
+//         示例 6：一个可工作的开/关 LED 和一个可工作       // 
+//                的可调光 LED，均基于 LightBulb 服务      //
+//                                                        //
 //                                                        //
 ////////////////////////////////////////////////////////////
 
@@ -42,19 +34,17 @@
 
 void setup() {
 
-  // Example 6 changes Example 5 so that LED #2 is now dimmable, instead of just on/off.  This requires us to create a new
-  // derived Service we will name "DEV_DimmableLED"  Instead of creating a new file to store this definition, we will simply
-  // tack it on to the end of the DEV_LED.h file that includes the code we created in Example 5 to control an on/off LED.
-  // Grouping similar-style Services in one ".h" file makes it easier to organize your custom devices.
+  // 示例 6 更改了示例 5，使 LED #2 现在是可调光的，而不仅仅是开/关。这要求我们创建一个新的派生服务，我们将命名为“DEV_DimmableLED”。
+  // 我们不会创建新文件来存储此定义，而是将其添加到 DEV_LED.h 文件的末尾，该文件包含我们在示例 5 中创建的用于控制开/关 LED 的代码。
+  // 将类似风格的服务分组到一个“.h”文件中可以更轻松地组织您的自定义设备。
 
-  // As usual, all previous comments have been deleted and only new changes from the previous example are shown.
+  // 与往常一样，所有以前的评论都已删除，仅显示上一个示例中的新更改。
 
-  // NOTE: The Arduino/ESP32 code base does not include the function analogWrite() which is typically used to create a PWM
-  // output to drive the brightness of an LED.  Instead, the ESP32 code base itself includes a set of functions to create PWM output
-  // and the ESP32 chip has built-in PWM functionality specifically for this purpose.
-  
-  // HomeSpan wraps all of this PWM functionality into a single integrated class called LedPin, making it very easy to define
-  // dimmable LED pins and set the PWM level (i.e. duty cycle) from 0-100%.  Use of this LedPin class is shown in DEV_DimmableLED.
+  // 注意：Arduino/ESP32 代码库不包含通常用于创建 PWM 输出以驱动 LED 亮度的 analogWrite() 函数。相反，ESP32 代码库本身包含一组用于
+  // 创建 PWM 输出的函数，ESP32 芯片具有专门用于此目的的内置 PWM 功能。
+
+  // HomeSpan 将所有这些 PWM 功能封装到一个名为 LedPin 的集成类中，这样就可以非常轻松地定义可调光 LED 引脚并将 PWM 级别（即占空比）
+  // 设置为 0-100%。DEV_DimmableLED 中显示了此 LedPin 类的使用。
   
   Serial.begin(115200);
 
@@ -65,16 +55,16 @@ void setup() {
     new Service::AccessoryInformation(); 
       new Characteristic::Identify();                
 
-    new DEV_LED(16);                // create an on/off LED attached to pin 16 (same as in Example 5)
+    new DEV_LED(16);                // 创建一个连接到引脚 16 的开/关 LED（与示例 5 相同）
 
   new SpanAccessory(); 
   
     new Service::AccessoryInformation();    
       new Characteristic::Identify();                       
   
-    new DEV_DimmableLED(17);        // NEW! create a dimmable (PWM-driven) LED attached to pin 17.  See new code at end of DEV_LED.h
+    new DEV_DimmableLED(17);        // 新功能！创建一个连接到引脚 17 的可调光（PWM 驱动）LED。请参阅 DEV_LED.h 末尾的新代码
 
-} // end of setup()
+} // setup() 结束
 
 //////////////////////////////////////
 
@@ -82,4 +72,4 @@ void loop(){
   
   homeSpan.poll();
   
-} // end of loop()
+} // loop() 结束
