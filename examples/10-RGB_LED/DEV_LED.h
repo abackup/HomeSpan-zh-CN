@@ -1,26 +1,25 @@
-
 ////////////////////////////////////
-//   DEVICE-SPECIFIC LED SERVICES //
+//       设备专用 LED 服务        //
 ////////////////////////////////////
 
-struct DEV_LED : Service::LightBulb {               // ON/OFF LED
+struct DEV_LED : Service::LightBulb {               // 开/关 LED
 
-  int ledPin;                                       // pin number defined for this LED
-  SpanCharacteristic *power;                        // reference to the On Characteristic
+  int ledPin;                                       // 为此 LED 定义的引脚编号
+  SpanCharacteristic *power;                        // 引用 On 特性
   
-  DEV_LED(int ledPin) : Service::LightBulb(){       // constructor() method
+  DEV_LED(int ledPin) : Service::LightBulb(){       // 构造函数（）方法
 
     power=new Characteristic::On();                 
     this->ledPin=ledPin;                            
     pinMode(ledPin,OUTPUT);                         
     
-    Serial.print("Configuring On/Off LED: Pin=");   // initialization message
+    Serial.print("Configuring On/Off LED: Pin=");   // 初始化消息
     Serial.print(ledPin);
     Serial.print("\n");
 
-  } // end constructor
+  } // 结束构造函数
 
-  boolean update(){                              // update() method
+  boolean update(){                              // update() 方法
 
     LOG1("Updating On/Off LED on pin=");
     LOG1(ledPin);
@@ -32,35 +31,35 @@ struct DEV_LED : Service::LightBulb {               // ON/OFF LED
 
     digitalWrite(ledPin,power->getNewVal());      
    
-    return(true);                               // return true
+    return(true);                               // 返回 true
   
-  } // update
+  } //  更新
 };
       
 //////////////////////////////////
 
-struct DEV_DimmableLED : Service::LightBulb {       // Dimmable LED
+struct DEV_DimmableLED : Service::LightBulb {       // 可调光 LED
 
-  LedPin *ledPin;                                   // reference to Led Pin
-  SpanCharacteristic *power;                        // reference to the On Characteristic
-  SpanCharacteristic *level;                        // reference to the Brightness Characteristic
+  LedPin *ledPin;                                   // 引用 Led Pin
+  SpanCharacteristic *power;                        // 引用 On 特性
+  SpanCharacteristic *level;                        // 参考亮度特征
   
-  DEV_DimmableLED(int pin) : Service::LightBulb(){       // constructor() method
+  DEV_DimmableLED(int pin) : Service::LightBulb(){       // 构造函数（）方法
 
     power=new Characteristic::On();     
                 
-    level=new Characteristic::Brightness(50);       // Brightness Characteristic with an initial value of 50%
-    level->setRange(5,100,1);                       // sets the range of the Brightness to be from a min of 5%, to a max of 100%, in steps of 1%
+    level=new Characteristic::Brightness(50);       // 亮度特性初始值为 50%
+    level->setRange(5,100,1);                       // 将亮度范围设置为最小 5% 到最大 100%，步长为 1%
 
-    this->ledPin=new LedPin(pin);                   // configures a PWM LED for output to the specified pin
+    this->ledPin=new LedPin(pin);                   // 配置 PWM LED 以输出至指定引脚
 
-    Serial.print("Configuring Dimmable LED: Pin="); // initialization message
+    Serial.print("Configuring Dimmable LED: Pin="); // 初始化消息
     Serial.print(ledPin->getPin());
     Serial.print("\n");
     
-  } // end constructor
+  } // 结束构造函数
 
-  boolean update(){                              // update() method
+  boolean update(){                              // update() 方法
 
     LOG1("Updating Dimmable LED on pin=");
     LOG1(ledPin->getPin());
@@ -83,48 +82,48 @@ struct DEV_DimmableLED : Service::LightBulb {       // Dimmable LED
     
     ledPin->set(power->getNewVal()*level->getNewVal());    
    
-    return(true);                               // return true
+    return(true);                               // 返回 true
   
-  } // update
+  } //  更新
 };
       
 //////////////////////////////////
 
-struct DEV_RgbLED : Service::LightBulb {       // RGB LED (Command Cathode)
+struct DEV_RgbLED : Service::LightBulb {       // RGB LED（命令阴极）
 
   LedPin *redPin, *greenPin, *bluePin;
   
-  SpanCharacteristic *power;                   // reference to the On Characteristic
-  SpanCharacteristic *H;                       // reference to the Hue Characteristic
-  SpanCharacteristic *S;                       // reference to the Saturation Characteristic
-  SpanCharacteristic *V;                       // reference to the Brightness Characteristic
+  SpanCharacteristic *power;                   // 引用 On 特性
+  SpanCharacteristic *H;                       // 参考色调特征
+  SpanCharacteristic *S;                       // 参考饱和特性
+  SpanCharacteristic *V;                       // 参考亮度特征
   
-  DEV_RgbLED(int red_pin, int green_pin, int blue_pin) : Service::LightBulb(){       // constructor() method
+  DEV_RgbLED(int red_pin, int green_pin, int blue_pin) : Service::LightBulb(){       // 构造函数（）方法
 
     power=new Characteristic::On();                    
-    H=new Characteristic::Hue(0);              // instantiate the Hue Characteristic with an initial value of 0 out of 360
-    S=new Characteristic::Saturation(0);       // instantiate the Saturation Characteristic with an initial value of 0%
-    V=new Characteristic::Brightness(100);     // instantiate the Brightness Characteristic with an initial value of 100%
-    V->setRange(5,100,1);                      // sets the range of the Brightness to be from a min of 5%, to a max of 100%, in steps of 1%
+    H=new Characteristic::Hue(0);              // 实例化色调特征，初始值为 360 中的 0
+    S=new Characteristic::Saturation(0);       // 实例化饱和度特性，初始值为 0%
+    V=new Characteristic::Brightness(100);     // 实例化亮度特征，初始值为 100%
+    V->setRange(5,100,1);                      // 将亮度范围设置为最小 5% 到最大 100%，步长为 1%
     
-    this->redPin=new LedPin(red_pin);        // configures a PWM LED for output to the RED pin
-    this->greenPin=new LedPin(green_pin);    // configures a PWM LED for output to the GREEN pin
-    this->bluePin=new LedPin(blue_pin);      // configures a PWM LED for output to the BLUE pin
+    this->redPin=new LedPin(red_pin);        // 配置 PWM LED 以输出至红色引脚
+    this->greenPin=new LedPin(green_pin);    // 配置 PWM LED 以输出至绿色引脚
+    this->bluePin=new LedPin(blue_pin);      // 配置 PWM LED 以输出至蓝色引脚
  
     char cBuf[128];
     sprintf(cBuf,"Configuring RGB LED: Pins=(%d,%d,%d)\n",redPin->getPin(),greenPin->getPin(),bluePin->getPin());
     Serial.print(cBuf);
     
-  } // end constructor
+  } // 结束构造函数
 
-  boolean update(){                         // update() method
+  boolean update(){                         // update() 方法
 
     boolean p;
     float v, h, s, r, g, b;
 
-    h=H->getVal<float>();                      // get and store all current values.  Note the use of the <float> template to properly read the values
+    h=H->getVal<float>();                      // 获取并存储所有当前值。请注意使用 <float> 模板来正确读取值
     s=S->getVal<float>();
-    v=V->getVal<float>();                      // though H and S are defined as FLOAT in HAP, V (which is brightness) is defined as INT, but will be re-cast appropriately
+    v=V->getVal<float>();                      // 虽然 HAP 中的 H 和 S 定义为 FLOAT，但 V（亮度）定义为 INT，但会进行适当的重新转换
     p=power->getVal();
 
     char cBuf[128];
@@ -163,28 +162,27 @@ struct DEV_RgbLED : Service::LightBulb {       // RGB LED (Command Cathode)
     }
     LOG1(cBuf);
 
-    // Here we call a static function of LedPin that converts HSV to RGB.
-    // Parameters must all be floats in range of H[0,360], S[0,1], and V[0,1]
-    // R, G, B, returned [0,1] range as well
+    // 这里我们调用 LedPin 的一个静态函数，将 HSV 转换为 RGB。
+    // 参数必须全部是 H[0,360]、S[0,1] 和 V[0,1] R、G、B 范围内的浮点数，也返回 [0,1] 范围
 
-    LedPin::HSVtoRGB(h,s/100.0,v/100.0,&r,&g,&b);   // since HomeKit provides S and V in percent, scale down by 100
+    LedPin::HSVtoRGB(h,s/100.0,v/100.0,&r,&g,&b);   // 由于 HomeKit 以百分比提供 S 和 V，因此缩小 100
 
     int R, G, B;
 
-    R=p*r*100;                                      // since LedPin uses percent, scale back up by 100, and multiple by status fo power (either 0 or 1)
+    R=p*r*100;                                      // 由于 LedPin 使用百分比，因此按比例增加 100，并按电源状态乘以 0 或 1
     G=p*g*100;
     B=p*b*100;
 
     sprintf(cBuf,"RGB=(%d,%d,%d)\n",R,G,B);
     LOG1(cBuf);
 
-    redPin->set(R);                      // update each ledPin with new values
+    redPin->set(R);                      // 使用新值更新每个 ledPin
     greenPin->set(G);    
     bluePin->set(B);    
       
-    return(true);                               // return true
+    return(true);                               // 返回 true
   
-  } // update
+  } //  更新
 };
       
 //////////////////////////////////
