@@ -1,36 +1,28 @@
 /*********************************************************************************
- *  MIT License
+ *  MIT 许可证
  *  
- *  Copyright (c) 2020-2024 Gregg E. Berman
+ *  Copyright (c) 2020-2022 Gregg E. Berman
  *  
  *  https://github.com/HomeSpan/HomeSpan
  *  
- *  Permission is hereby granted, free of charge, to any person obtaining a copy
- *  of this software and associated documentation files (the "Software"), to deal
- *  in the Software without restriction, including without limitation the rights
- *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- *  copies of the Software, and to permit persons to whom the Software is
- *  furnished to do so, subject to the following conditions:
+ *  特此授予获得此软件和相关文档文件（“软件”）副本的任何人免费许可，以无限制方式处理软件，
+ *  包括但不限于使用、复制、修改、合并、发布、分发、再许可和/或销售软件副本的权利，并允许
+ *  向其提供软件的人员这样做，但须遵守以下条件：
  *  
- *  The above copyright notice and this permission notice shall be included in all
- *  copies or substantial portions of the Software.
+ *  上述版权声明和本许可声明均应包含在软件的所有副本或重要部分中。
  *  
- *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- *  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- *  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- *  SOFTWARE.
+ *  软件按“原样”提供，不作任何明示或暗示的保证，包括但不限于适销性、特定用途的适用性和不
+ *  侵权性的保证。在任何情况下，作者或版权持有者均不对因软件或使用或其他处理软件而引起的
+ *  或与之相关的任何索赔、损害或其他责任承担责任，无论是合同行为、侵权行为还是其他行为。
  *  
  ********************************************************************************/
  
 ////////////////////////////////////////////////////////////
 //                                                        //
-//    HomeSpan: A HomeKit implementation for the ESP32    //
+//              HomeSpan：ESP32 的 HomeKit 实现           //
 //    ------------------------------------------------    //
 //                                                        //
-// Example 9: Logging messages to the Serial Monitor      //
+//            示例 9：将消息记录到串口监视器                //
 //                                                        //
 //                                                        //
 ////////////////////////////////////////////////////////////
@@ -40,43 +32,37 @@
 
 void setup() {
 
-  // HomeSpan sends a variety of messages to the Serial Monitor of the Arduino IDE whenever the device is connected
-  // to a computer.  Message output can be performed either by the usual Serial.print() or Serial.printf() functions,
-  // or by one of three user macros: LOG0(), LOG1() and LOG2().  These three macros output messages to the Serial Monitor
-  // depending on HomeSpan's Log Level setting:
-  
-  //    at a setting of 0, only LOG0() message are output; LOG1() and LOG2() messages are ignored
-  //    at a setting of 1, both LOG0() and LOG1() messages are output; LOG2() messages are ignored
-  //    at a setting of 2, all LOG0(), LOG1(), and LOG2() messages are output
-  
-  // Example 9 illustrates how to add such log messages.  The code is identical to Example 8 (without comments), except
-  // that LOG0() and LOG1() messages have been added to DEV_LED.h.  The LOG0() messages will always be
-  // output to the Arduino Serial Monitor.  The LOG1() messages will only be output if the Log Level is set to 1 or 2.
+  // 每当设备连接到计算机时，HomeSpan 都会向 Arduino IDE 的串口监视器发送各种消息。消息输出可以通过常用的 Serial.print() 
+  // 或 Serial.printf() 函数执行，也可以通过三个用户宏之一执行：LOG0()、LOG1() 和 LOG2()。这三个宏根据 HomeSpan 的日志
+  // 级别设置将消息输出到串口监视器：
 
-  // The setLogLevel() method of homeSpan can used to change the log level as follows:
-  
-  //    homeSpan.setLogLevel(0)     - sets Log Level to 0
-  //    homeSpan.setLogLevel(1)     - sets Log Level to 1
-  //    homeSpan.setLogLevel(2)     - sets Log Level to 2
+  // 设置为 0 时，仅输出 LOG0() 消息；LOG1() 和 LOG2() 消息被忽略
+  // 设置为 1 时，LOG0() 和 LOG1() 消息都会输出；LOG2() 消息会被忽略
+  // 设置为 2 时，LOG0()、LOG1() 和 LOG2() 消息都会输出
 
-  // The method should be called BEFORE homeSpan.begin() - see below for proper use.  Note that the Log Level
-  // can also be changed dynamically during runtime via the HomeSpan CLI by typing 'L0', 'L1', or 'L2' into the Serial Monitor
+  // 示例 9 说明了如何添加此类日志消息。代码与示例 8 相同（没有注释），只是 LOG0() 和 LOG1() 消息已添加到 DEV_LED.h。
+  //  LOG0() 消息将始终输出到 Arduino 串口监视器。仅当日志级别设置为 1 或 2 时，才会输出 LOG1() 消息。
 
-  // There are two forms of the LOG0(), LOG1(), and LOG2() macros.  The first form takes only a single argument and outputs
-  // messsges using the Serial.print(var) function.  This allows you to output any single variable or text message, but does not allow you
-  // to control the format, or to output more than one variable at a time.  The second form take multiple arguments, where the first
-  // is a standard C++ formatting string, and any remaining arguments are consumed according to the format string.  This form
-  // utilizes the variadic Serial.printf(char *fmt [,var1, var2...]) function.
-  
-  // RECOMMENDATION: Since a HomeSpan ESP32 is meant to be physically connected to real-world devices, you may find
-  // yourself with numerous ESP32s each configured with a different set of Accessories.  To aid in identification
-  // you may want to add LOG0() statements containing some sort of initialization message to the constructors for
-  // each derived Service, such as DEV_LED.  Doing so allows HomeSpan to "report" on its configuration upon start-up.  See
-  // DEV_LED for examples.
+  // homeSpan 的 setLogLevel() 方法可用于更改日志级别，如下所示：
+
+  // homeSpan.setLogLevel(0) - 将日志级别设置为 0
+  // homeSpan.setLogLevel(1) - 将日志级别设置为 1
+  // homeSpan.setLogLevel(2) - 将日志级别设置为 2
+
+  // 该方法应在 homeSpan.begin() 之前调用 - 请参阅下文以了解正确用法。请注意，还可以通过 HomeSpan CLI 在运行时动态更改日志级别，
+  // 方法是在串口监视器中键入“L0”、“L1”或“L2”
+
+  // LOG0()、LOG1() 和 LOG2() 宏有两种形式。第一种形式只接受一个参数，并使用 Serial.print(var) 函数输出消息。这允许您输出任何
+  // 单个变量或文本消息，但不允许您控制格式或一次输出多个变量。第二种形式采用多个参数，其中第一个是标准 C++ 格式字符串，
+  // 其余参数根据格式字符串使用。此形式使用可变参数 Serial.printf(char *fmt [,var1, var2...]) 函数。
+
+  // 建议：由于 HomeSpan ESP32 旨在物理连接到现实世界的设备，因此您可能会发现自己拥有许多 ESP32，每个都配置了一组不同的附件。
+  // 为了帮助识别，您可能需要将包含某种初始化消息的 LOG0() 语句添加到每个派生服务的构造函数中，例如 DEV_LED。这样做允许 HomeSpan 
+  // 在启动时“报告”其配置。有关示例，请参阅 DEV_LED。
   
   Serial.begin(115200);
 
-  homeSpan.setLogLevel(1);                                // NEW - Sets Log Level to 1, which causes LOG1() messages to be output
+  homeSpan.setLogLevel(1);                                // NEW - 将日志级别设置为 1，这将导致输出 LOG1() 消息
 
   homeSpan.begin(Category::Bridges,"HomeSpan Bridge");
   
@@ -96,7 +82,7 @@ void setup() {
       new Characteristic::Name("Dimmable LED");  
     new DEV_DimmableLED(17);                                                                                     
 
-} // end of setup()
+} // setup() 结束
 
 //////////////////////////////////////
 
@@ -104,4 +90,4 @@ void loop(){
   
   homeSpan.poll();
   
-} // end of loop()
+} // loop() 结束
