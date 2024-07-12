@@ -1,55 +1,51 @@
-# Stepper Motor Modes
+<!--  原文时间：2023.7.1,翻译时间：2024.5.7，校对时间：2024.7.12  -->
 
-A typical stepper motor has two sets of coils, *A* and *B*.  Applying a current to one or both coils creates a magnetic field that fixes the motor's position.  Any changes to the direction and/or magnitude of the current flowing through the coils causes the motor to "step" to a new fixed position.  By repeatedly changing the current flow according to a specific pattern the motor can be made to continuously step clockwise or counterclockwise.  The specific pattern chosen, known as the *step mode* in the **StepperControl** class, determines the size of the step and overall performance of the motor.  The speed at which changes to the current flow are made determines the speed at which the motor rotates.  The modes supported by **StepperControl** are described below.
+# 步进电机模式
 
-## FULL STEP TWO PHASE MODE (without PWM)
+一个典型的步进电机有两组线圈，*A* 和 *B*。向一个或两个线圈施加电流会产生固定电机位置的磁场。流经线圈的电流的方向和/或大小的任何变化都会导致电动机“步进”到新的固定位置。通过根据特定模式重复地改变电流，可以使电动机连续地顺时针或逆时针步进。所选择的特定模式（在 **StepperControl** 类中称为*步进模式*）决定了步进的大小和电机的整体性能。电流变化的速度决定了电机旋转的速度。支持 **StepperControl** 的模式如下所述。
 
-In this mode, a constant current is applied to both coils *A* and *B*. The motor is stepped by alternatively flipping the direction of the current flow in each coil as follows:
+## 全步长两相模式（无 PWM）
+
+在此模式下，向线圈 *A* 和 *B* 施加恒定电流。通过交替翻转每个线圈中的电流方向来步进电机，如下所示：
 
 <img width="250" alt="image" src="https://github.com/HomeSpan/HomeSpan/assets/68477936/8bea7031-7325-4ded-8ebd-5554d8f1e13d"><br>
 
-Note that though the pattern repeats after four steps, it is not symmetrical -  running the pattern from left to right causes the motor to rotate in one direction, whereas running the pattern from right to left will cause it to rotate in the opposite direction.  Many stepper motors are constructed to have 200 full steps, which means you need to repeat the above pattern 25 times to cause the motor to complete a single revolution.
+请注意，尽管模式在四个步骤后重复，但它不是对称的——从左到右运行模式会导致电机沿一个方向旋转，而从右到左运行模式会导致电机沿相反方向旋转。许多步进电机被构造为具有 200 个完整的步骤，这意味着你需要重复上述模式 25 次才能使电机完成一次旋转。
 
-Since in this mode each coil has only two possible states (i.e. the direction of the current flow), only one digital signal per coil is required to implement the stepping pattern.  However, fully flipping the direction of the current flow in a coil changes the magnetic fields very rapidly, which creates a rather clunky motion when stepping the motor.
+由于在该模式中，每个线圈仅具有两个可能的状态（即电流的方向），因此每个线圈仅需要一个数字信号来实现步进模式。然而，完全翻转线圈中的电流方向会非常迅速地改变磁场，这会在步进电机时产生相当笨拙的运动。
 
-## FULL STEP ONE PHASE MODE (without PWM)
+## 全步一相模式（无 PWM）
 
-In this mode, a constant current is alternatively applied to either *A* **or** *B*, while also flipping its direction as follows:
+在此模式下，恒定电流交替施加到其中之一 *A* *或者* *B*，同时还按如下方式翻转其方向：
 
 <img width="250" alt="image" src="https://github.com/HomeSpan/HomeSpan/assets/68477936/cbf2fea5-072e-4fef-9231-504bb483b0c0"><br>
 
-This mode uses only half the power as the FULL STEP TWO PHASE mode since current only flows through one coil at a time.  Also, though the step size is the same, the transtition from one step to another is not as harsh since the current to each coil transtions from one direction to zero before flipping to the other direction.  However, since in this mode each coil has three possible states for current flow (positive, negative, and off), two digital signals per coil are required to implement the stepping pattern.
+由于电流一次仅流过一个线圈，因此该模式仅使用全步两相模式一半的功率。此外，尽管步长相同，但由于每个线圈的电流在翻转到另一个方向之前从一个方向转换到零，因此从一个步到另一个步的转换并不苛刻。然而，由于在该模式下，每个线圈具有三种可能的电流状态（正、负和关），因此每个线圈需要两个数字信号来实现步进模式。
 
-## HALF STEP MODE (without PWM)
+## 半步模式（无 PWM）
 
-Though the the step sizes for the two modes above are the same, the set of positions they represent as the motor rotates are out of sync by 1/2 step.  This means that by interleaving the four steps of the two modes together, we can create the following 8-step pattern where the step size is *half* that of a full step:
+尽管上述两种模式的步长是相同的，但当电机旋转时，它们所代表的一组位置不同步 1/2 步。这意味着，通过将两种模式的四个步骤交错在一起，我们可以创建以下 8 步模式，其中步长为*半*个完整步骤的步长：
       
 <img width="400" alt="image" src="https://github.com/HomeSpan/HomeSpan/assets/68477936/ec317c77-fbd9-4641-9d50-d822b477c9ec"><br>
 
-The advantage of this mode is that the motor moves much more smoothly, and can be stopped in half-step increments for more precise control.  However, it takes twice as many steps for the motor to complete a full rotation (and thus moves twice as slow given the same delay between steps).
+这种模式的优点是电机移动更加平稳，并且可以以半步增量停止，以便进行更精确的控制。然而，电机需要两倍的步数才能完成一次完整的旋转（因此，在步数之间的延迟相同的情况下，移动速度要慢两倍）。
 
-One other disadvantage of this mode is that in four of the steps both coils are powered, whereas in the other four only one coil is powered.  This results in uneven motor torque as the motor rotates, as well as different holding torques depending on which step the motor lies when stopped.  Depending on your specific application (raising a shade, closing a door, etc.) this may or may not be of concern.
+这种模式的另一个缺点是，在四个步骤中，两个线圈都被供电，而在另外四个步骤中，只有一个线圈被供电。当电机旋转时，这会导致不均匀的电机扭矩，以及不同的保持扭矩，这取决于电机停止时所处的步骤。根据你的具体应用（拉起窗帘、关门等），这可能是也可能不是问题。
 
-## QUARTER STEP and EIGHTH STEP MODES (including PWM versions of the above modes)
+## 四分之一步和八分之一步模式（包括上述模式的 PWM 版本）
 
-In the above modes, current to each coil is either "fully on" in one direction, fully on in the other direction, or completely off.  As a result, there is a trade-off between step granularity and smoothness of rotation versus power and torque consistency.  The solution to this problem is to drive the current in each coil with a PWM signal (or an equivalent limiting mechanism) that allows the *magnitude* of the current flow to be controlled in addition to its direction.
+在上述模式中，每个线圈的电流要么在一个方向上“完全开启”，要么在另一个方向上完全开启，要么完全关闭。因此，在步进粒度和旋转平滑度与功率和扭矩一致性之间存在折衷。该问题的解决方案是用 PWM 信号（或等效的限制机制）来驱动每个线圈中的电流，该 PWM 信号除了允许控制电流的方向之外，还允许控制电流*震级*的方向。
 
-Typically this is done by setting the magnitude of the current in each coil based on sinusoidal patterns offset by 90° as follows:
+通常，这是通过基于偏移 90° 的正弦模式设置每个线圈中的电流幅度来实现的，如下所示：
 
 <img width="505" alt="image" src="https://github.com/HomeSpan/HomeSpan/assets/68477936/75a6176b-b5b4-4b85-a394-a4d6e1f9bf3d"><br>
 
-Here, the blue dots perfectly replicate the steps of the FULL STEP ONE PHASE mode (e.g. positive/off/negative/off for coil *A*), the red dots replicate the steps of the FULL STEP TWO PHASE MODE, and the combined set of both the red blue and red dots taken together replicate the steps of the HALF STEP mode.   Each non-PWM mode above can therefore be replicated using a single set of PWM-based sinusoidal curves, but with one important difference: the PWM method yields the same power for every step in every mode, avoiding the problems of inconsistent torque described above for the non-PWM modes.  This is because power is typically proportional to the *square* of the magnitude of the current running through a coil; coil *A* follows a cosine curve; coil *B* follows a sine curve; and and $cos^2+sin^2=1$, which is a constant.
+这里，蓝点完美地复制了全步一相模式的步骤（例如，线圈 *A* 的正/关/负/关），红点复制了全步二相模式的步骤，并且红点和蓝点的组合集一起复制了半步模式的步骤。因此，上述每个非 PWM 模式都可以使用单组基于 PWM 的正弦曲线来复制，但有一个重要的区别：PWM 方法在每个模式中的每一步都产生相同的功率，避免了上述非 PWM 模式的不一致转矩的问题。这是因为功率通常与*正方形*流过线圈的电流的大小成比例；线圈 *A* 遵循余弦曲线；线圈 *B* 遵循正弦曲线；和 $cos^2+sin^2=1$，这是一个常数。
 
-It is generally preferable to use the PWM method when running a motor in any of the three modes above, rather than running with just a constant current applied to each coil, provided that PWM signals are available.  Fortunately, many stepper motor driver boards contain a built-in PWM module.  And if they don't, you can have **StepperControl**  generate the required PWM signals using the ESP32's built-in PWM peripheral.
+如果 PWM 信号可用，当以上述三种模式中的任何一种运行电机时，通常优选使用 PWM 方法，而不是仅以施加到每个线圈的恒定电流运行。幸运的是，许多步进电机驱动器板包含内置的 PWM 模块。如果没有，你可以使用 ESP32 的内置 PWM 外设生成 **StepperControl** 所需的 PWM 信号。
 
-In addition to providing better motor performance, the PWM method also provides for even more granular stepping modes by adding "microsteps" to the step pattern.  For example, adding 8 additional steps between the half-steps, as indicated on the curves by the 8 black diamonds placed between the blue and red dots, yields a QUARTER STEP mode.  This mode is twice as "smooth" as the HALF STEP mode, but requires twice as many steps for the motor to complete a full rotation.  Halving the steps even further (not shown on the diagram) yields the EIGHTH STEP mode where each cycle contains 32 individual stepping points.  **StepperControl** supports both the QUARTER STEP and EIGHTH STEP modes, though you can easily extend this further by adding modes with 64 or 128 steps per cycle.  For motors designed to operate a window shade, such granularity is generally not needed, and too fine a granularity can cause misteps depending on the specific characteristics of the motor.
+除了提供更好的电机性能之外，PWM 方法还通过将“微步”添加到步进模式来提供更精细的步进模式。例如，在半步之间添加 8 个额外的步骤，如在曲线上由放置在蓝点和红点之间的 8 个黑色菱形所指示的，产生四分之一步模式。该模式的“平滑度”是半步模式的两倍，但电机需要两倍的步数才能完成一次完整的旋转。将步骤进一步减半（图中未显示）产生第八步模式，其中每个循环包含 32 个单独的步进点。**StepperControl** 支持四分之一步和八分之一步模式，但你可以通过添加每周期 64 或 128 步的模式来轻松地进一步扩展。对于设计用于操作窗帘的电机，通常不需要这样的粒度，并且根据电机的具体特性，太细的粒度会导致错误。
 
 ---
 
-[↩️](Stepper.md) Back to the Stepper Motor Control page
-
-
-
-
-
-
+[↩️](Stepper.md) 返回控制步进电机页面
