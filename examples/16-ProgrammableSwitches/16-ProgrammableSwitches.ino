@@ -1,36 +1,28 @@
 /*********************************************************************************
- *  MIT License
+ *  MIT 许可证
  *  
- *  Copyright (c) 2020-2024 Gregg E. Berman
+ *  Copyright (c) 2020-2022 Gregg E. Berman
  *  
  *  https://github.com/HomeSpan/HomeSpan
  *  
- *  Permission is hereby granted, free of charge, to any person obtaining a copy
- *  of this software and associated documentation files (the "Software"), to deal
- *  in the Software without restriction, including without limitation the rights
- *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- *  copies of the Software, and to permit persons to whom the Software is
- *  furnished to do so, subject to the following conditions:
+ *  特此授予获得此软件和相关文档文件（“软件”）副本的任何人免费许可，以无限制方式处理软件，
+ *  包括但不限于使用、复制、修改、合并、发布、分发、再许可和/或销售软件副本的权利，并允许
+ *  向其提供软件的人员这样做，但须遵守以下条件：
  *  
- *  The above copyright notice and this permission notice shall be included in all
- *  copies or substantial portions of the Software.
+ *  上述版权声明和本许可声明均应包含在软件的所有副本或重要部分中。
  *  
- *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- *  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- *  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- *  SOFTWARE.
+ *  软件按“原样”提供，不作任何明示或暗示的保证，包括但不限于适销性、特定用途的适用性和不
+ *  侵权性的保证。在任何情况下，作者或版权持有者均不对因软件或使用或其他处理软件而引起的
+ *  或与之相关的任何索赔、损害或其他责任承担责任，无论是合同行为、侵权行为还是其他行为。
  *  
  ********************************************************************************/
  
 ////////////////////////////////////////////////////////////
 //                                                        //
-//    HomeSpan: A HomeKit implementation for the ESP32    //
+//              HomeSpan：ESP32 的 HomeKit 实现           //
 //    ------------------------------------------------    //
 //                                                        //
-// Example 16: Stateless Programmable Switches            //
+//             示例 16：无状态可编程交换机                  //
 //                                                        //
 ////////////////////////////////////////////////////////////
 
@@ -39,27 +31,24 @@
 
 void setup() {
 
-  // Example 16 does not introduce any new HomeSpan functionality, but instead showcases a unique feature of HomeKit that you can readily access with HomeSpan.
-  // In all prior examples we used the ESP32 to control a local appliance - something connected directly to the ESP32 device.  We've then seen how you can control
-  // the device via HomeKit's iOS or MacOS Home App, or by the addition of local pushbuttons connected directly to the ESP32 device.
+  // 示例 16 并未引入任何新的 HomeSpan 功能，而是展示了 HomeKit 的一项独特功能，您可以通过 HomeSpan 轻松访问该功能。
+  // 在之前的所有示例中，我们都使用 ESP32 来控制本地设备 - 直接连接到 ESP32 设备的设备。然后，我们了解了如何通过 
+  // HomeKit 的 iOS 或 MacOS “家庭”应用或通过添加直接连接到 ESP32 设备的本地按钮来控制设备。
+  // 在此示例中，我们执行了相反的操作，并使用 ESP32 上的按钮来控制其他 HomeKit 设备。
 
-  // In this example we do the opposite, and use buttons on the ESP32 to control OTHER HomeKit devices.
-  
-  // To do so, we use HomeKit's Stateless Programmable Switch Service.  Similar to other read-only Services, such as the Temperature and Air Quality Sensors 
-  // fully explored in Example 12, the Stateless Programmable Switch Service only listens for event notifications coming from HomeSpan and does not try to control
-  // or update anything on the HomeSpan Device.  More specifically, the Stateless Programmable Switch Service listens for notifications of a SINGLE, DOUBLE,
-  // or LONG button press coming from HomeSpan.
-  
-  // What these button presses mean is outside the control of HomeSpan.  Instead, you program their actions directly in the Home App.  In this fashion, HomeSpan
-  // becomes a platform for generic buttons that you can program to control any other HomeKit accessory or even trigger HomeKit scenes.
+  // 为此，我们使用 HomeKit 的无状态可编程开关服务。与其他只读服务（例如示例 12 中全面探讨的温度和空气质量传感器）类似，
+  // 无状态可编程开关服务仅监听来自 HomeSpan 的事件通知，不会尝试控制或更新 HomeSpan 设备上的任何内容。更具体地说，
+  // 无状态可编程开关服务会监听来自 HomeSpan 的单击、双击或长按按钮的通知。
 
-  // Upon running this configuration and pairing to HomeKit, your Home App should reveal a new tile labeled "PushButton Switches."  Clicking that tile will open up
-  // a new page where you can program the actions of each of the buttons.  These actions can be changed at any time without any need to modify the HomeSpan code,
-  // or even reboot the device. 
+  // 这些按钮按下的含义不受 HomeSpan 的控制。相反，您可以直接在“家庭”应用中编程它们的操作。这样，HomeSpan 就变成了一个通用按钮平台，
+  // 您可以对其进行编程以控制任何其他 HomeKit 配件，甚至触发 HomeKit 场景。
 
-  // The code for this is quite simple, and as usual we've encapsulated all the functionality in a standalone file: DEV_ProgButton.h.  Below we create two generic
-  // buttons, one connected to pin 23, and one connected to pin 5.  See DEV_ProgButton.h for complete details. 
-  
+  // 运行此配置并与 HomeKit 配对后，您的“家庭”应用应显示一个标有“按钮开关”的新图块。单击该图块将打开一个新页面，您可以在其中编程每个
+  // 按钮的操作。这些操作可以随时更改，而无需修改 HomeSpan 代码，甚至无需重新启动设备。
+
+  // 此代码非常简单，与往常一样，我们将所有功能封装在一个独立文件中：DEV_ProgButton.h。下面我们创建两个通用按钮，一个连接到引脚 23，
+  // 一个连接到引脚 5。有关完整详细信息，请参阅 DEV_ProgButton.h。
+
   Serial.begin(115200);
 
   homeSpan.begin(Category::Bridges,"HomeSpan Bridge");
@@ -73,15 +62,15 @@ void setup() {
       new Characteristic::Identify(); 
       new Characteristic::Name("PushButton Switches");
 
-    // We've written DEV_ProgButton to take two arguments.  The first is a pin number that DEV_ProgButton.h uses to create a SpanButton.  The second is an index number
-    // that HomeKit uses as a label when you program the actions of each button in the Home App.  The numbers do not have to be sequential, nor start with 1.  They just need
-    // to be unique so HomeKit can distinguish them.  Note that HomeKit does not require index numbers if you only have one Stateless Programmable Switch Service within any
-    // given Accessory.  Since we have two, we must specify two unique index numbers.
+    // 我们编写了 DEV_ProgButton 来接受两个参数。第一个是 DEV_ProgButton.h 用于创建 SpanButton 的引脚号。
+    // 第二个是 HomeKit 用作标签的索引号，当您在 “家庭”应用中编程每个按钮的操作时。这些数字不必是连续的，也不必从 1 开始。
+    // 它们只需要是唯一的，以便 HomeKit 可以区分它们。请注意，如果您在任何给定的附件中只有一个无状态可编程开关服务，
+    // 则 HomeKit 不需要索引号。由于我们有两个，因此我们必须指定两个唯一的索引号。
     
-    new DEV_ProgButton(23,1);       // create Stateless Programmable Switch Service on pin 23 with index=1
-    new DEV_ProgButton(5,2);        // create Stateless Programmable Switch Service on pin 5 with index=2
+    new DEV_ProgButton(23,1);       // 在引脚 23 上创建无状态可编程开关服务，索引为 1
+    new DEV_ProgButton(5,2);        // 在引脚 5 上创建无状态可编程开关服务，索引为 2
  
-} // end of setup()
+} // setup() 结束
 
 //////////////////////////////////////
 
@@ -89,4 +78,4 @@ void loop(){
   
   homeSpan.poll();
   
-} // end of loop()
+} // loop() 结束
