@@ -1,36 +1,28 @@
 /*********************************************************************************
- *  MIT License
+ *  MIT 许可证
  *  
- *  Copyright (c) 2022 Gregg E. Berman
+ *  Copyright (c) 2020-2024 Gregg E. Berman
  *  
  *  https://github.com/HomeSpan/HomeSpan
  *  
- *  Permission is hereby granted, free of charge, to any person obtaining a copy
- *  of this software and associated documentation files (the "Software"), to deal
- *  in the Software without restriction, including without limitation the rights
- *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- *  copies of the Software, and to permit persons to whom the Software is
- *  furnished to do so, subject to the following conditions:
+ *  特此授予获得此软件和相关文档文件（“软件”）副本的任何人免费许可，以无限制方式处理软件，
+ *  包括但不限于使用、复制、修改、合并、发布、分发、再许可和/或销售软件副本的权利，并允许
+ *  向其提供软件的人员这样做，但须遵守以下条件：
  *  
- *  The above copyright notice and this permission notice shall be included in all
- *  copies or substantial portions of the Software.
+ *  上述版权声明和本许可声明均应包含在软件的所有副本或重要部分中。
  *  
- *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- *  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- *  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- *  SOFTWARE.
+ *  软件按“原样”提供，不作任何明示或暗示的保证，包括但不限于适销性、特定用途的适用性和不
+ *  侵权性的保证。在任何情况下，作者或版权持有者均不对因软件或使用或其他处理软件而引起的
+ *  或与之相关的任何索赔、损害或其他责任承担责任，无论是合同行为、侵权行为还是其他行为。
  *  
  ********************************************************************************/
  
-// HomeSpan Addressable RGB LED Examples.  Demonstrates use of:
+// HomeSpan 可寻址 RGB LED 示例。演示了以下内容的使用：
 //
-//  * HomeSpan Pixel Class that provides for control of single-wire addressable RGB and RGBW LEDs, such as the WS2812 and SK6812
-//  * HomeSpan Dot Class that provides for control of two-wire addressable RGB LEDs, such as the APA102 and SK9822
+// * HomeSpan 像素类，用于控制单线可寻址 RGB 和 RGBW LED，例如 WS2812 和 SK6812
+// * HomeSpan 点类，用于控制双线可寻址 RGB LED，例如 APA102 和 SK9822
 //
-// IMPORTANT:  YOU LIKELY WILL NEED TO CHANGE THE PIN NUMBERS BELOW TO MATCH YOUR SPECIFIC ESP32/S2/C3 BOARD
+// 重要提示：您可能需要更改下面的引脚号以匹配您的特定 ESP32/S2/C3 板
 //
 
 #if defined(CONFIG_IDF_TARGET_ESP32)
@@ -64,7 +56,7 @@
 
 ///////////////////////////////
 
-struct NeoPixel_RGB : Service::LightBulb {      // Addressable single-wire RGB LED Strand (e.g. NeoPixel)
+struct NeoPixel_RGB : Service::LightBulb {      // 可寻址单线 RGB LED 灯串（例如 NeoPixel）
  
   Characteristic::On power{0,true};
   Characteristic::Hue H{0,true};
@@ -75,23 +67,23 @@ struct NeoPixel_RGB : Service::LightBulb {      // Addressable single-wire RGB L
   
   NeoPixel_RGB(uint8_t pin, int nPixels) : Service::LightBulb(){
 
-    V.setRange(5,100,1);                      // sets the range of the Brightness to be from a min of 5%, to a max of 100%, in steps of 1%
-    pixel=new Pixel(pin);                     // creates Pixel RGB LED on specified pin
-    this->nPixels=nPixels;                    // save number of Pixels in this LED Strand
-    update();                                 // manually call update() to set pixel with restored initial values
+    V.setRange(5,100,1);                      // 将亮度范围设置为最小 5% 到最大 100%，步长为 1%
+    pixel=new Pixel(pin);                     // 在指定引脚上创建像素 LED
+    this->nPixels=nPixels;                    // 保存此 LED 灯串中的像素数
+    update();                                 // 手动调用 update() 来设置像素以恢复初始值
   }
 
   boolean update() override {
 
     int p=power.getNewVal();
     
-    float h=H.getNewVal<float>();       // range = [0,360]
-    float s=S.getNewVal<float>();       // range = [0,100]
-    float v=V.getNewVal<float>();       // range = [0,100]
+    float h=H.getNewVal<float>();       // 范围 = [0,360]
+    float s=S.getNewVal<float>();       // 范围 =  [0,100]
+    float v=V.getNewVal<float>();       // 范围 =  [0,100]
 
     Pixel::Color color;
 
-    pixel->set(color.HSV(h*p, s*p, v*p),nPixels);       // sets all nPixels to the same HSV color
+    pixel->set(color.HSV(h*p, s*p, v*p),nPixels);       // 将所有 nPixel 设置为相同的 HSV 颜色
           
     return(true);  
   }
@@ -99,7 +91,7 @@ struct NeoPixel_RGB : Service::LightBulb {      // Addressable single-wire RGB L
 
 ///////////////////////////////
 
-struct NeoPixel_RGBW : Service::LightBulb {      // Addressable single-wire RGBW LED Strand (e.g. NeoPixel)
+struct NeoPixel_RGBW : Service::LightBulb {      // 可寻址单线 RGBW LED 灯串（例如 NeoPixel）
  
   Characteristic::On power{0,true};
   Characteristic::Brightness V{100,true};
@@ -109,24 +101,24 @@ struct NeoPixel_RGBW : Service::LightBulb {      // Addressable single-wire RGBW
   
   NeoPixel_RGBW(uint8_t pin, int nPixels) : Service::LightBulb(){
 
-    V.setRange(5,100,1);                      // sets the range of the Brightness to be from a min of 5%, to a max of 100%, in steps of 1%
-    pixel=new Pixel(pin,PixelType::GRBW);     // creates Pixel RGBW LED on specified pin (with order of colors chnanged to reflect this specific NeoPixel device)
-    this->nPixels=nPixels;                    // save number of Pixels in this LED Strand
-    update();                                 // manually call update() to set pixel with restored initial values
+    V.setRange(5,100,1);                      // 将亮度范围设置为最小 5% 到最大 100%，步长为 1%
+    pixel=new Pixel(pin,true);                // 在指定引脚上创建像素 RGBW LED（第二个参数设置为 RGBW 的 true）
+    this->nPixels=nPixels;                    // 保存此 LED 灯串中的像素数
+    update();                                 // 手动调用 update() 来设置像素以恢复初始值
   }
 
   boolean update() override {
 
     int p=power.getNewVal();
     
-    float v=V.getNewVal<float>();       // range = [0,100]
-    float t=T.getNewVal<float>();       // range = [140,500] (140=coldest, 500=warmest)
+    float v=V.getNewVal<float>();       // 范围 = [0,100]
+    float t=T.getNewVal<float>();       // 范围 = [140,500]（140=最冷，500=最热）
 
-    float hue=240-(t-140)/3;            // add in a splash of color between blue and green to simulated change of color temperature
+    float hue=240-(t-140)/3;            // 在蓝色和绿色之间添加一抹色彩来模拟色温的变化
 
-    // Pixel::Color color;              // if static HSV method is used (below), there is no need to first create a Color object
+    // Pixel::Color color; // 如果使用静态 HSV 方法（如下），则无需先创建 Color 对象
 
-    pixel->set(pixel->HSV(hue, 100, v*p, v*p),nPixels);       // sets all nPixels to the same HSV color (note use of static method pixel->HSV, instead of defining and setting Pixel::Color)
+    pixel->set(pixel->HSV(hue, 100, v*p, v*p),nPixels);      // 将所有 nPixels 设置为相同的 HSV 颜色（注意使用静态方法 pixel->HSV，而不是定义和设置 Pixel::Color）
           
     return(true);  
   }
@@ -134,7 +126,7 @@ struct NeoPixel_RGBW : Service::LightBulb {      // Addressable single-wire RGBW
 
 ///////////////////////////////
 
-struct DotStar_RGB : Service::LightBulb {      // Addressable two-wire RGB LED Strand (e.g. DotStar)
+struct DotStar_RGB : Service::LightBulb {      // 可寻址双线 RGB LED 灯串（例如 DotStar）
  
   Characteristic::On power{0,true};
   Characteristic::Hue H{0,true};
@@ -145,29 +137,29 @@ struct DotStar_RGB : Service::LightBulb {      // Addressable two-wire RGB LED S
   
   DotStar_RGB(uint8_t dataPin, uint8_t clockPin, int nPixels) : Service::LightBulb(){
 
-    V.setRange(5,100,1);                      // sets the range of the Brightness to be from a min of 5%, to a max of 100%, in steps of 1%
-    pixel=new Dot(dataPin,clockPin);          // creates Dot LED on specified pins
-    this->nPixels=nPixels;                    // save number of Pixels in this LED Strand
-    update();                                 // manually call update() to set pixel with restored initial values
-    update();                                 // call second update() a second time - DotStar seems to need to be "refreshed" upon start-up
+    V.setRange(5,100,1);                      // 将亮度范围设置为最小 5% 到最大 100%，步长为 1%
+    pixel=new Dot(dataPin,clockPin);          // 在指定引脚上创建点 LED
+    this->nPixels=nPixels;                    // 保存此 LED 灯串中的像素数
+    update();                                 // 手动调用 update() 来设置像素以恢复初始值
+    update();                                 // 第二次调用第二个 update() - DotStar 似乎需要在启动时“刷新”
   }
 
   boolean update() override {
 
     int p=power.getNewVal();
     
-    float h=H.getNewVal<float>();       // range = [0,360]
-    float s=S.getNewVal<float>();       // range = [0,100]
-    float v=V.getNewVal<float>();       // range = [0,100]
+    float h=H.getNewVal<float>();       // 范围 = [0,360]
+    float s=S.getNewVal<float>();       // 范围 = [0,100]
+    float v=V.getNewVal<float>();       // 范围 = [0,100]
 
-    Dot::Color color[nPixels];          // create an arrary of Colors
+    Dot::Color color[nPixels];          // 创建一个颜色数组
 
-    float hueStep=360.0/nPixels;        // step size for change in hue from one pixel to the next
+    float hueStep=360.0/nPixels;        // 色调从一个像素到下一个像素变化的步长
 
     for(int i=0;i<nPixels;i++)
-      color[i].HSV(h+i*hueStep,s,100,v*p);   // create spectrum of all hues starting with specified Hue; use current-limiting parameter (4th argument) to control overall brightness, instead of PWM
+      color[i].HSV(h+i*hueStep,s,100,v*p);   // 从指定的色调开始创建所有色调的光谱；使用限流参数（第 4 个参数）来控制整体亮度，而不是 PWM
       
-    pixel->set(color,nPixels);          // set the colors according to the array
+    pixel->set(color,nPixels);          // 根据数组设置颜色
           
     return(true);  
   }
@@ -181,16 +173,16 @@ void setup() {
  
   homeSpan.begin(Category::Lighting,"Pixel LEDS" DEVICE_SUFFIX);
 
-  SPAN_ACCESSORY();                                             // create Bridge (note this sketch uses the SPAN_ACCESSORY() macro, introduced in v1.5.1 --- see the HomeSpan API Reference for details on this convenience macro)
+  SPAN_ACCESSORY();                                             // 创建 Bridge（请注意，此草图使用了 v1.5.1 中引入的 SPAN_ACCESSORY() 宏——有关此便捷宏的详细信息，请参阅 HomeSpan API 参考）
 
   SPAN_ACCESSORY("Neo RGB");
-    new NeoPixel_RGB(NEOPIXEL_RGB_PIN,8);                       // create 8-LED NeoPixel RGB Strand with full color control
+    new NeoPixel_RGB(NEOPIXEL_RGB_PIN,8);                       // 创建具有全色彩控制的 8-LED NeoPixel RGB 灯串
 
   SPAN_ACCESSORY("Neo RGBW");
-    new NeoPixel_RGBW(NEOPIXEL_RGBW_PIN,60);                    // create 60-LED NeoPixel RGBW Strand  with simulated color temperature control 
+    new NeoPixel_RGBW(NEOPIXEL_RGBW_PIN,60);                    // 创建具有模拟色温控制的 60-LED NeoPixel RGBW 灯串 
 
   SPAN_ACCESSORY("Dot RGB");
-    new DotStar_RGB(DOTSTAR_DATA_PIN,DOTSTAR_CLOCK_PIN,30);     // create 30-LED DotStar RGB Strand displaying a spectrum of colors and using the current-limiting feature of DotStars to create flicker-free dimming
+    new DotStar_RGB(DOTSTAR_DATA_PIN,DOTSTAR_CLOCK_PIN,30);     // 创建 30-LED DotStar RGB 灯串，显示色谱，并使用 DotStars 的限流功能实现无闪烁调光
 
 }
 
@@ -199,5 +191,3 @@ void setup() {
 void loop() {
   homeSpan.poll();
 }
-
-///////////////////////////////
