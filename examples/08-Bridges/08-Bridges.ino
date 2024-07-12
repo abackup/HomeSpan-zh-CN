@@ -1,36 +1,28 @@
 /*********************************************************************************
- *  MIT License
+ *  MIT 许可证
  *  
- *  Copyright (c) 2020-2024 Gregg E. Berman
+ *  Copyright (c) 2020-2022 Gregg E. Berman
  *  
  *  https://github.com/HomeSpan/HomeSpan
  *  
- *  Permission is hereby granted, free of charge, to any person obtaining a copy
- *  of this software and associated documentation files (the "Software"), to deal
- *  in the Software without restriction, including without limitation the rights
- *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- *  copies of the Software, and to permit persons to whom the Software is
- *  furnished to do so, subject to the following conditions:
+ *  特此授予获得此软件和相关文档文件（“软件”）副本的任何人免费许可，以无限制方式处理软件，
+ *  包括但不限于使用、复制、修改、合并、发布、分发、再许可和/或销售软件副本的权利，并允许
+ *  向其提供软件的人员这样做，但须遵守以下条件：
  *  
- *  The above copyright notice and this permission notice shall be included in all
- *  copies or substantial portions of the Software.
+ *  上述版权声明和本许可声明均应包含在软件的所有副本或重要部分中。
  *  
- *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- *  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- *  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- *  SOFTWARE.
+ *  软件按“原样”提供，不作任何明示或暗示的保证，包括但不限于适销性、特定用途的适用性和不
+ *  侵权性的保证。在任何情况下，作者或版权持有者均不对因软件或使用或其他处理软件而引起的
+ *  或与之相关的任何索赔、损害或其他责任承担责任，无论是合同行为、侵权行为还是其他行为。
  *  
  ********************************************************************************/
  
 ////////////////////////////////////////////////////////////
 //                                                        //
-//    HomeSpan: A HomeKit implementation for the ESP32    //
+//              HomeSpan：ESP32 的 HomeKit 实现           //
 //    ------------------------------------------------    //
 //                                                        //
-// Example 8: HomeKit Bridges and Bridge Accessories      //
+//             示例 8：HomeKit 桥接器和桥接器配件          //
 //                                                        //
 ////////////////////////////////////////////////////////////
 
@@ -39,51 +31,48 @@
 
 void setup() {
 
-  // If the only Service defined in the FIRST Accessory of a multi-Accessory device is the required Accessory Information Service,
-  // the device is said to be configured as a "Bridge".  Historically there may have been a number of functional differences between bridge
-  // devices and non-bridge devices, but since iOS 15, it's not obvious there are any differences in functionality, with two exceptions:
-  
-  //  1. Recall from Example 7 that the use of Characteristic::Name() to change the default name of an Accessory Tile
-  //     does not work for the first Accessory defined.  The Home App always displays the default name of the first Accessory Tile
-  //     as the name of the device specified in homeSpan.begin().  However, this is not an issue when implementing a device
-  //     as a Bridge, since the first Accessory is nothing but the Bridge itself - having the default name match the name
-  //     of the device in this case makes much more sense.  More importantly, you can now use Characteristic::Name() to change the 
-  //     default name of BOTH the LED Accessory Tiles.
+  // 如果多附件设备的第一个附件中定义的唯一服务是必需的附件信息服务，则称该设备配置为“桥接器”。从历史上看，桥接设备和非桥接设备之间可能存在许多功能差异，
+  // 但自 iOS 15 以来，功能差异并不明显，但有两个例外：
 
-  //  2. Devices configured as a Bridge appear in the Home App under the main settings page that displays all Hubs and Bridges.
+  // 1. 回想一下示例 7，使用 Characteristic::Name() 更改附件图块的默认名称对定义的第一个附件不起作用。“家庭”应用始终将第一个附件图块的默认名称显示为 homeSpan.begin() 
+  // 中指定的设备名称。但是，在将设备实现为桥接器时，这不是问题，因为第一个附件就是桥接器本身——在这种情况下，让默认名称与设备名称匹配更有意义。更重要的是，您现在可以
+  // 使用 Characteristic::Name() 更改两个 LED 附件图块的默认名称。
 
-  // The sketch below is functionally identical to Example 7, except that instead of defining two Accessories (one for the Simple On/Off
-  // LED and one for the Dimmable LED), we define three Accessories, where the first acts as the Bridge.
-  
-  // As usual, all previous comments have been deleted and only new changes from the previous example are shown.
+  // 2. 配置为桥接器的设备出现在 “家庭”应用的主设置页面下，该页面显示所有集线器和桥接器。
 
-  // NOTE: To see how this works in practice, you'll need to unpair your device and re-pair it once the new code is loaded.
-  
+  // 下面的草图在功能上与示例 7 相同，不同之处在于我们定义三个附件（一个用于简单开/关 LED，一个用于可调光 LED），
+  // 而不是定义两个附件，其中第一个附件充当桥接器。
+
+  // 与往常一样，所有先前的评论都已删除，仅显示上一个示例中的新更改。
+
+  // 注意：要了解其实际工作原理，您需要在加载新代码后取消配对您的设备并重新配对。
+
   Serial.begin(115200);
 
-  // Below we replace Category::Lighting with Category::Bridges. This changes the icon of the device shown when pairing
-  // with the Home App, but does NOT change the icons of the Accessory Tiles.  You can choose any Category you like.
-  // For instance, we could have continued to use Category::Lighting, even though we are configuring the device as a Bridge.
+  // 下面我们将 Category::Lighting 替换为 Category::Bridges。这会更改与 “家庭”应用配对时显示的设备图标，
+  // 但不会更改附件图块的图标。您可以选择任何您喜欢的类别。
+
+  // 例如，即使我们将设备配置为 Bridge，我们也可以继续使用 Category::Lighting。
 
   homeSpan.begin(Category::Bridges,"HomeSpan Bridge");
   
-  new SpanAccessory();                            // This first Accessory is the new "Bridge" Accessory.  It contains no functional Services, just the Accessory Information Service
+  new SpanAccessory();                            // 第一个附件是新的“桥接”附件。它不包含任何功能服务，只包含附件信息服务
     new Service::AccessoryInformation();
       new Characteristic::Identify();            
  
-  new SpanAccessory();                            // This second Accessory is the same as the first Accessory in Example 7, with the exception that Characteristic::Name() now does something
+  new SpanAccessory();                            // 第二个附件与示例 7 中的第一个附件相同，不同之处在于 Characteristic::Name() 现在执行一些操作
     new Service::AccessoryInformation();
       new Characteristic::Identify();            
-      new Characteristic::Name("Simple LED");     // Note that unlike in Example 7, this use of Name() is now utilized by the Home App since it is not the first Accessory (the Bridge above is the first)
+      new Characteristic::Name("Simple LED");     // 请注意，与示例 7 不同，Name() 的这种用法现在由 “家庭”应用使用，因为它不是第一个配件（上面的 Bridge 是第一个）
     new DEV_LED(16);
 
-  new SpanAccessory();                            // This third Accessory is the same as the second Accessory in Example 7
+  new SpanAccessory();                            // 此第三个附件与示例 7 中的第二个附件相同
     new Service::AccessoryInformation();    
       new Characteristic::Identify();               
       new Characteristic::Name("Dimmable LED");  
     new DEV_DimmableLED(17);
 
-} // end of setup()
+} // setup() 结束
 
 //////////////////////////////////////
 
@@ -91,4 +80,4 @@ void loop(){
   
   homeSpan.poll();
   
-} // end of loop()
+} // loop() 结束
