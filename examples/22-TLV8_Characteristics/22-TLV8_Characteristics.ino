@@ -1,49 +1,39 @@
 /*********************************************************************************
- *  MIT License
+ *  MIT 许可证
  *  
  *  Copyright (c) 2020-2024 Gregg E. Berman
  *  
  *  https://github.com/HomeSpan/HomeSpan
  *  
- *  Permission is hereby granted, free of charge, to any person obtaining a copy
- *  of this software and associated documentation files (the "Software"), to deal
- *  in the Software without restriction, including without limitation the rights
- *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- *  copies of the Software, and to permit persons to whom the Software is
- *  furnished to do so, subject to the following conditions:
+ *  特此授予获得此软件和相关文档文件（“软件”）副本的任何人免费许可，以无限制方式处理软件，
+ *  包括但不限于使用、复制、修改、合并、发布、分发、再许可和/或销售软件副本的权利，并允许
+ *  向其提供软件的人员这样做，但须遵守以下条件：
  *  
- *  The above copyright notice and this permission notice shall be included in all
- *  copies or substantial portions of the Software.
+ *  上述版权声明和本许可声明均应包含在软件的所有副本或重要部分中。
  *  
- *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- *  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- *  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- *  SOFTWARE.
+ *  软件按“原样”提供，不作任何明示或暗示的保证，包括但不限于适销性、特定用途的适用性和不
+ *  侵权性的保证。在任何情况下，作者或版权持有者均不对因软件或使用或其他处理软件而引起的
+ *  或与之相关的任何索赔、损害或其他责任承担责任，无论是合同行为、侵权行为还是其他行为。
  *  
  ********************************************************************************/
 
 ////////////////////////////////////////////////////////////////
 //                                                            //
-//      HomeSpan: A HomeKit implementation for the ESP32      //
+//                HomeSpan：ESP32 的 HomeKit 实现              //
 //      ------------------------------------------------      //
 //                                                            //
-// Example 22: Demonstrates the use of the TLV8 Library       //
-//             by implementing DisplayOrder, an optional      //
-//             TLV8 Characteristic used with the TV Service   //
-//             to set the order in which TV Inputs are        //
-//             displayed for selection in the Home App        //
+//      示例 22：通过实现 DisplayOrder 演示如何使用 TLV8 库，  //
+//               DisplayOrder 是与 TV 服务一起使用的           //
+//              可选 TLV8 特性，用于设置在 Home 应用          //
+//              中显示的 TV Input 的顺序以供选择               //
 //                                                            //
 ////////////////////////////////////////////////////////////////
 
 #include "HomeSpan.h"
 
-// NOTE: Please see the "Other Examples -> Television" sketch for complete details on how to implement a Television Service.  The focus
-// of this sketch is solely to demonstrate how to use the TLV8 Library to create TLV8 data for use with the DisplayOrder Characteristic.
+// 注意：请参阅“其他示例 -> 电视”草图，了解如何实现电视服务的完整详细信息。此草图的重点仅是演示如何使用 TLV8 库创建 TLV8 数据以用于 DisplayOrder 特性。
 
-// First we define a simple Television Input Source Service
+// 首先我们定义一个简单的电视输入源服务
 
 struct TVInput : Service::InputSource {
 
@@ -59,60 +49,56 @@ struct TVInput : Service::InputSource {
   }
 };
 
-// Next we define a simple Television Service
+// 接下来我们定义一个简单的电视服务
 
 struct HomeSpanTV : Service::Television {
 
   SpanCharacteristic *active = new Characteristic::Active(0);
   SpanCharacteristic *activeID = new Characteristic::ActiveIdentifier(10);
   
-  SpanCharacteristic *displayOrder;       //  Create a pointer to use for the new TLV8 DisplayOrder Characteristic, which will be instantiated below once we build the TLV8 record
+  SpanCharacteristic *displayOrder;       //  创建一个指针，用于新的 TLV8 DisplayOrder 特征，一旦我们构建 TLV8 记录，它将在下面实例化
 
   HomeSpanTV() : Service::Television() {
 
-    // Before we instantiate displayOrder, we need to build a TLV8 object with the information required
-    // by the DisplayOrder Characteristic.  The (undocumented by Apple!) TLV8 specifications for the
-    // DisplayOrder Characteristic are as follows:
+    // 在实例化 displayOrder 之前，我们需要构建一个包含 DisplayOrder Characteristic 所需信息的 TLV8 对象。DisplayOrder Characteristic 的 TLV8 规范（Apple 未记录）如下：
 
-    // TAG     NAME             FORMAT     DESCRIPTION
+    // 标签     名称             格式       描述
     // ----    -------------    ------     --------------------------------------------
-    // 0x01    inputSourceID    uint32     ID of the Input Source to be displayed first
-    // 0x00    separator        none       Empty element to separate the inputSourceIDs
-    // 0x01    inputSourceID    uint32     ID of the Input Source to be displayed second
-    // 0x00    separator        none       Empty element to separate the inputSourceIDs
-    // 0x01    inputSourceID    uint32     ID of the Input Source to be displayed third
-    // 0x00    separator        none       Empty element to separate the inputSourceIDs
+    // 0x01    inputSourceID    uint32     首先要显示的输入源的 ID
+    // 0x00    separator        none       用于分隔 inputSourceID 的空元素
+    // 0x01    inputSourceID    uint32     第二个要显示的输入源的 ID
+    // 0x00    separator        none       用于分隔 inputSourceID 的空元素
+    // 0x01    inputSourceID    uint32     第三个要显示的输入源的 ID
+    // 0x00    separator        none       用于分隔 inputSourceID 的空元素
     // etc...
 
-    // To start, instantiate a new TLV8 object
+    // 首先，实例化一个新的 TLV8 对象
            
-    TLV8 orderTLV;              // creates an empty TLV8 object
+    TLV8 orderTLV;              // 创建一个空的 TLV8 对象
 
-    // Next, fill it with TAGS and VALUES based on the above specification.  The easiest, though
-    // not necessarily most elegant, way to do this is by simply adding each TAG/VALUE as follows:
+    // 接下来，根据上述规范用标签和值填充它。最简单（但不一定是最优雅）的方法是简单地添加每个标签/值，如下所示：
 
-    orderTLV.add(1,10);        // TAG=1, VALUE=ID of first Input Source to be displayed
-    orderTLV.add(0);           // TAG=0  (no value)
-    orderTLV.add(1,20);        // TAG=1, VALUE=ID of the second Input Source to be displayed
-    orderTLV.add(0);           // TAG=0  (no value)
-    orderTLV.add(1,50);        // TAG=1, VALUE=ID of the third Input Source to be displayed
-    orderTLV.add(0);           // TAG=0  (no value)
-    orderTLV.add(1,30);        // TAG=1, VALUE=ID of the fourth Input Source to be displayed
-    orderTLV.add(0);           // TAG=0  (no value)
-    orderTLV.add(1,40);        // TAG=1, VALUE=ID of the fifth Input Source to be displayed
+    orderTLV.add(1,10);        // TAG=1，VALUE=要显示的第一个输入源的 ID
+    orderTLV.add(0);           // TAG=0  (没有值)
+    orderTLV.add(1,20);        // TAG=1，VALUE=要显示的第二个输入源的 ID
+    orderTLV.add(0);           // TAG=0  (没有值)
+    orderTLV.add(1,50);        // TAG=1，VALUE=要显示的第三个输入源的 ID
+    orderTLV.add(0);           // TAG=0  (没有值)
+    orderTLV.add(1,30);        // TAG=1，VALUE=要显示的第四个输入源的ID
+    orderTLV.add(0);           // TAG=0  (没有值)
+    orderTLV.add(1,40);        // TAG=1，VALUE=要显示的第五个输入源的ID
 
-    // Based on the above structure, we expect the Home App to display our input sources based on their IDs
-    // in the following order: 10, 20, 50, 30, 40.  These IDs must of course match the IDs you choose
-    // for your input sources when you create them at the end of this sketch in setup()
+    // 根据上述结构，我们预计“家庭”应用将根据其 ID 显示我们的输入源，顺序如下：10、20、50、30、40。
+   // 这些 ID 当然必须与您在 setup() 中此草图末尾创建输入源时选择的 ID 相匹配
 
-    // Now we can instantiate displayOrder using the TLV8 object created above as its initial value
+    // 现在我们可以使用上面创建的 TLV8 对象作为其初始值来实例化 displayOrder
 
-    displayOrder = new Characteristic::DisplayOrder(orderTLV);           // set the "value" of DisplayOrder to be the orderTLV object we just created
+    displayOrder = new Characteristic::DisplayOrder(orderTLV);           // 将 DisplayOrder 的“值”设置为我们刚刚创建的 orderTLV 对象
 
-    // That's it - you've created your first TLV8 Characteristic!      
+    // 就这样——您已经创建了您的第一个 TLV8 特征！
   }
 
-  // Below we define the usual update() loop.  There is nothing "TLV-specific" about this part of the code
+  // 下面我们定义常用的 update() 循环。这部分代码与 TLV 无关
   
   boolean update() override {
 
@@ -140,7 +126,7 @@ void setup() {
 
   SPAN_ACCESSORY();      
 
-  (new HomeSpanTV())                             // Define a Television Service and link in the InputSources!
+  (new HomeSpanTV())                             // 定义电视服务并链接到输入源！
     ->addLink(new TVInput(10,"Xfinity"))
     ->addLink(new TVInput(20,"BlueRay Disc"))
     ->addLink(new TVInput(30,"Amazon Prime"))
