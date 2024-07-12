@@ -1,7 +1,7 @@
 /*********************************************************************************
- * 
+ *  MIT 许可证
  *  
- *  Copyright (c) 2020-2022 Gregg E. Berman
+ *  Copyright (c) 2020-2024 Gregg E. Berman
  *  
  *  https://github.com/HomeSpan/HomeSpan
  *  
@@ -39,10 +39,6 @@
 
 // 注意：所有 HomeSpan 示例最好结合 HomeSpan GitHub 页面上提供的文档进行查看。有关详细信息和参考资料，请参阅 https://github.com/HomeSpan/HomeSpan。
 // 特别是，在继续操作之前，您可能需要查看 HomeSpan API 概述页面。
-
-// 这些示例还经常引用 Apple 的 HomeKit 附件协议规范（称为 HAP）。您可以直接从 Apple 下载此文件，网址为
-// https://developer.apple.com/support/homekit-accessory-protocol。
-
 
 // 让我们开始吧...
 
