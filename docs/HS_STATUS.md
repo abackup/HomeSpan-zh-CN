@@ -1,34 +1,37 @@
-# HomeSpan Status
+<!--  原文时间：2022.11.6,翻译时间：2024.5.6，校对时间：2024.7.12   -->
 
-The optional ***homeSpan*** method, `void setStatusCallback(void (*func)(HS_STATUS status))`, can be used to create a callback function, *func*, that HomeSpan calls whenever its status changes.  HomeSpan passes *func* a single argument, *status*, of type *HS_STATUS*, defined as follows:
+# HomeSpan 状态
+
+可选的 ***homeSpan*** 方法`void setStatusCallback(void (*func)(HS_STATUS status))` 可用于创建一个回调函数 func，每当 HomeSpan 的状态发生变化时，它就会调用该函数。HomeSpan 向 func 传递一个参数 status,类型为 HS_STATUS，定义如下：
 
 ```C++
 enum HS_STATUS {
-  HS_WIFI_NEEDED,                         // WiFi Credentials have not yet been set/stored
-  HS_WIFI_CONNECTING,                     // HomeSpan is trying to connect to the network specified in the stored WiFi Credentials
-  HS_PAIRING_NEEDED,                      // HomeSpan is connected to central WiFi network, but device has not yet been paired to HomeKit
-  HS_PAIRED,                              // HomeSpan is connected to central WiFi network and ther device has been paired to HomeKit
-  HS_ENTERING_CONFIG_MODE,                // User has requested the device to enter into Command Mode
-  HS_CONFIG_MODE_EXIT,                    // HomeSpan is in Command Mode with "Exit Command Mode" specified as choice
-  HS_CONFIG_MODE_REBOOT,                  // HomeSpan is in Command Mode with "Reboot" specified as choice
-  HS_CONFIG_MODE_LAUNCH_AP,               // HomeSpan is in Command Mode with "Launch Access Point" specified as choice
-  HS_CONFIG_MODE_UNPAIR,                  // HomeSpan is in Command Mode with "Unpair Device" specified as choice
-  HS_CONFIG_MODE_ERASE_WIFI,              // HomeSpan is in Command Mode with "Erase WiFi Credentials" specified as choice
-  HS_CONFIG_MODE_EXIT_SELECTED,           // User has selected "Exit Command Mode" 
-  HS_CONFIG_MODE_REBOOT_SELECTED,         // User has select "Reboot" from the Command Mode
-  HS_CONFIG_MODE_LAUNCH_AP_SELECTED,      // User has selected "Launch AP Access" from the Command Mode
-  HS_CONFIG_MODE_UNPAIR_SELECTED,         // User has seleected "Unpair Device" from the Command Mode
-  HS_CONFIG_MODE_ERASE_WIFI_SELECTED,     // User has selected "Erase WiFi Credentials" from the Command Mode
-  HS_REBOOTING,                           // HomeSpan is in the process of rebooting the device
-  HS_FACTORY_RESET,                       // HomeSpan is in the process of performing a Factory Reset of device
-  HS_AP_STARTED,                          // HomeSpan has started the Access Point but no one has yet connected
-  HS_AP_CONNECTED,                        // The Access Point is started and a user device has been connected
-  HS_AP_TERMINATED,                       // HomeSpan has terminated the Access Point 
-  HS_OTA_STARTED                          // HomeSpan is in the process of recveived an Over-the-Air software update   
+  HS_WIFI_NEEDED,                         // 尚未设置/存储 WiFi 凭证been set/stored
+  HS_WIFI_CONNECTING,                     // HomeSpan 正在尝试连接到存储的 WiFi 凭证中指定的网络
+  HS_PAIRING_NEEDED,                      // HomeSpan 已连接到家庭 WiFi，但设备尚未与 HomeKit 配对
+  HS_PAIRED,                              // HomeSpan 已连接到家庭 WiFi,并且该设备已与 HomeKit 配对
+  HS_ENTERING_CONFIG_MODE,                // 用户已请求设备进入命令模式
+  HS_CONFIG_MODE_EXIT,                    // HomeSpan 处于命令模式，并指定“退出命令模式”作为选择
+  HS_CONFIG_MODE_REBOOT,                  // HomeSpan 处于命令模式，并指定“重新启动”作为选择
+  HS_CONFIG_MODE_LAUNCH_AP,               // HomeSpan 处于命令模式，并指定“启动接入点”作为选择
+  HS_CONFIG_MODE_UNPAIR,                  // HomeSpan 处于命令模式，并指定“取消配对设备”作为选项
+  HS_CONFIG_MODE_ERASE_WIFI,              // HomeSpan 处于命令模式，并指定“清除 WiFi 凭证”作为选项
+  HS_CONFIG_MODE_EXIT_SELECTED,           // 用户已选择“退出命令模式”
+  HS_CONFIG_MODE_REBOOT_SELECTED,         // 用户已从命令模式中选择“重新启动”
+  HS_CONFIG_MODE_LAUNCH_AP_SELECTED,      // 用户已从命令模式中选择“启动 AP 访问”
+  HS_CONFIG_MODE_UNPAIR_SELECTED,         // 用户已从命令模式中选择“取消配对设备”
+  HS_CONFIG_MODE_ERASE_WIFI_SELECTED,     // 用户已从命令模式中选择“清除 WiFi 凭证”
+  HS_REBOOTING,                           // HomeSpan 正在重启设备
+  HS_FACTORY_RESET,                       // HomeSpan 正在对设备进行恢复出厂设置
+  HS_AP_STARTED,                          // HomeSpan 已启动接入点，但尚未有人连接
+  HS_AP_CONNECTED,                        // 接入点已启动，且用户设备已连接
+  HS_AP_TERMINATED,                       // HomeSpan 已终止接入点
+  HS_OTA_STARTED                          // HomeSpan 正在接收无线软件更新
+
 };
 ```
 
-The ***homeSpan*** method `char* statusString(HS_STATUS s)`, is a convenience function for converting any of the above enumerations to short, pre-defined character string messages as follows:
+ ***homeSpan*** 方法 `char* statusString(HS_STATUS s)` 是一个方便的函数，用于将上面的任何枚举转换为简短的预定义字符串消息，如下所示：
 
 ```C++
 const char* Span::statusString(HS_STATUS s){
@@ -59,27 +62,27 @@ const char* Span::statusString(HS_STATUS s){
 }
 ```
 
-### Example:
+### 例如:
 
 ```C++
 #include "HomeSpan.h"
 
 void setup(){
-  homeSpan.setStatusCallback(statusUpdate);   // set callback function
+  homeSpan.setStatusCallback(statusUpdate);   // 设置回调函数
   ...
   homeSpan.begin();
   ...
 }
 
-// create a callback function that simply prints the pre-defined short messages on the Serial Monitor whenever the HomeSpan status changes
+// 创建一个回调函数，每当 HomeSpan 状态发生变化时，该函数就会在串口监视器上打印预定义的短消息
 
 void statusUpdate(HS_STATUS status){
   Serial.printf("\n*** HOMESPAN STATUS CHANGE: %s\n",homeSpan.statusString(status));
 }
 ```
 
-You can of course create any alternative messsages, or take any actions desired, in *func* and do not need to use the pre-defined strings above.
+当然，你可以在 *func* 中创建任何替代消息，或者采取任何需要的操作，而不需要使用上面预定义的字符串。
 
 ---
 
-[↩️](Reference.md) Back to the Reference API page
+[↩️](Reference.md) 返回 API 页面
