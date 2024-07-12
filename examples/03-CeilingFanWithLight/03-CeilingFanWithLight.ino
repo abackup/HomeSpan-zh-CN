@@ -1,107 +1,94 @@
 /*********************************************************************************
- *  MIT License
+ *  MIT 许可证
  *  
- *  Copyright (c) 2020-2024 Gregg E. Berman
+ *  Copyright (c) 2020-2022 Gregg E. Berman
  *  
  *  https://github.com/HomeSpan/HomeSpan
  *  
- *  Permission is hereby granted, free of charge, to any person obtaining a copy
- *  of this software and associated documentation files (the "Software"), to deal
- *  in the Software without restriction, including without limitation the rights
- *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- *  copies of the Software, and to permit persons to whom the Software is
- *  furnished to do so, subject to the following conditions:
+ *  特此授予获得此软件和相关文档文件（“软件”）副本的任何人免费许可，以无限制方式处理软件，
+ *  包括但不限于使用、复制、修改、合并、发布、分发、再许可和/或销售软件副本的权利，并允许
+ *  向其提供软件的人员这样做，但须遵守以下条件：
  *  
- *  The above copyright notice and this permission notice shall be included in all
- *  copies or substantial portions of the Software.
+ *  上述版权声明和本许可声明均应包含在软件的所有副本或重要部分中。
  *  
- *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- *  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- *  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- *  SOFTWARE.
+ *  软件按“原样”提供，不作任何明示或暗示的保证，包括但不限于适销性、特定用途的适用性和不
+ *  侵权性的保证。在任何情况下，作者或版权持有者均不对因软件或使用或其他处理软件而引起的
+ *  或与之相关的任何索赔、损害或其他责任承担责任，无论是合同行为、侵权行为还是其他行为。
+ *  
+ ********************************************************************************/
  *  
  ********************************************************************************/
  
 ////////////////////////////////////////////////////////////
 //                                                        //
-//    HomeSpan: A HomeKit implementation for the ESP32    //
+//              HomeSpan：ESP32 的 HomeKit 实现           //
 //    ------------------------------------------------    //
 //                                                        //
-// Example 3: A simple on/off ceiling fan with an         //
-//            on/off ceiling light                        //
+//            示例 3：带有开/关吊灯的简单开/关吊扇         //
+//                                                        //
 //                                                        //
 ////////////////////////////////////////////////////////////
 
 
-#include "HomeSpan.h"         // Always start by including the HomeSpan library
+#include "HomeSpan.h"        // 始终从包含 HomeSpan 库开始
 
 void setup() {
 
-  // Example 3 shows how adding multiple Services to a single Accessory allows us to create a multi-featured Accessory, such as a ceiling fan wih a ceiling light
+  // 示例 3 展示了如何将多个服务添加到单个配件中，以便我们创建多功能配件，例如带吊灯的吊扇
  
-  Serial.begin(115200);      // Start a serial connection - this is needed for you to type in your WiFi credentials
+  Serial.begin(115200);      // 启动串口连接-这是您需要输入 WiFi 凭证的必要条件
 
-  homeSpan.begin(Category::Fans,"HomeSpan Ceiling Fan");  // Initialize HomeSpan - note the Category has been set to "Fans"
+  homeSpan.begin(Category::Fans,"HomeSpan Ceiling Fan");  // 初始化 HomeSpan - 注意类别已设置为“风扇”
 
-  // We begin by creating a Light Bulb Accessory just as in Examples 1 and 2
+  // 我们首先创建一个灯泡配件，就像示例 1 和 2 中那样
 
-  new SpanAccessory();                              // Begin by creating a new Accessory using SpanAccessory(), no arguments needed
+  new SpanAccessory();                              // 首先使用 SpanAccessory() 创建一个新的附件，不需要任何参数
   
-    new Service::AccessoryInformation();            // HAP requires every Accessory to implement an AccessoryInformation Service, with the required Identify Characteristic
-      new Characteristic::Identify();                 // Create the required Identify  
+    new Service::AccessoryInformation();            // HAP 要求每个配件都实现配件信息服务，并具备所需的识别特征
+      new Characteristic::Identify();                 // 创建所需的标识  
 
-    new Service::LightBulb();                       // Create the Light Bulb Service
-      new Characteristic::On();                       // This Service requires the "On" Characterstic to turn the light on and off
+    new Service::LightBulb();                       // 创建灯泡服务
+      new Characteristic::On();                       // 此服务需要“On”特性来打开和关闭灯
 
   // Now we add a Fan Service within this same Accessory
 
-    new Service::Fan();                             // Create the Fan Service
-      new Characteristic::Active();                   // This Service requires the "Active" Characterstic to turn the fan on and off
+    new Service::Fan();                             //  创建粉丝服务
+      new Characteristic::Active();                   // 此服务需要“主动”特性来打开和关闭风扇
 
- // Similar to Example 2, we will also implement a LightBulb as a second Accessory
+ // 与示例 2 类似，我们还将实现一个 LightBulb 作为第二个附件
 
-  new SpanAccessory();                              // Begin by creating a new Accessory using SpanAccessory(), no arguments needed
+  new SpanAccessory();                              // 首先使用 SpanAccessory() 创建一个新的附件，不需要任何参数
   
-    new Service::AccessoryInformation();            // HAP requires every Accessory to implement an AccessoryInformation Service, with the required Identify Characteristic
-      new Characteristic::Identify();                 // Create the required Identify  
+    new Service::AccessoryInformation();            // HAP 要求每个配件都实现配件信息服务，并具备所需的识别特征
+      new Characteristic::Identify();                 // 创建所需的标识  
 
-    new Service::LightBulb();                       // Create the Light Bulb Service
-      new Characteristic::On();                       // This Service requires the "On" Characterstic to turn the light on and off      
+    new Service::LightBulb();                       // 创建灯泡服务
+      new Characteristic::On();                       // 此服务需要“On”特性来打开和关闭灯      
 
-  // If everything worked correctly you should now see two Tiles in the Home App:
+  // 如果一切正常，您现在应该在 “家庭”应用中看到两个图块：
   // 
-  //  * a Tile named "HomeSpan Ceiling Fan" with an icon of a Fan.  Clicking this Tile should open the
-  //    control page showing a Fan control on the left, and a Light control on the right
+  //  * 一个名为“HomeSpan Ceiling Fan”的图块，带有风扇图标。单击此图块应打开控制页面，左侧显示风扇控件，右侧显示灯光控件
   //
-  //  * a Tile named "HomeSpan Ceiling Fan 2" with an icon of a LightBulb.  Clicking this Tile should
-  //    toggle the Light On/Off
+  //  * 一个名为“HomeSpan Ceiling Fan 2”的图块，带有灯泡图标。单击此图块应切换灯的开/关
   
-  // The reason for including the second LightBulb Accessories in this example is to illustrate the impact of the device's Category
-  // on various icons.  Setting Category to Fan in homeSpan.begin() serves two purposes.  First, it sets the icon for the device itself,
-  // as shown by the Home App during initial pairing, to a Fan.  Second, it helps the Home App to determine which icon to use for an
-  // Accessory Tile when there is ambiguity.  The second Accessory contains nothing but a LightBulb Service, so the Home App sensibly
-  // uses a LightBulb icon for the Tile.  But what icon should the Home App use for the first Accessory containing both a Fan Service
-  // and a LightBulb Service?  Either a Fan or LightBulb icon would make sense.  Setting the Category of the device to Fan causes
-  // the Home App to choose a Fan icon for the first Accessory.
+  // 在此示例中包含第二个灯泡配件的原因是为了说明设备类别对各种图标的影响。在 homeSpan.begin() 中将类别设置为风扇有两个目的。
+  // 首先，它将设备本身的图标（如 “家庭”应用在初始配对期间所示）设置为风扇。其次，当存在歧义时，它可以帮助 “家庭”应用确定要为配件
+  // 图块使用哪个图标。第二个配件只包含灯泡服务，因此 “家庭”应用明智地为图块使用灯泡图标。但是，对于包含风扇服务和灯泡服务的第一个
+  // 配件，“家庭”应用应该使用什么图标？风扇或灯泡图标都是合理的。将设备的类别设置为风扇会导致 “家庭”应用为第一个配件选择风扇图标。
   
-  // As a test of this, unpair the device; change the Category to Lighting (as in Example 2); re-load the sketch; and re-pair the device.
-  // You should now see the icon for the "HomeSpan Ceiling Fan" Tile is a LightBulb, and the control screen for the Accessory should
-  // show the Light control on the left and the Fan control on the right.
+  // 作为测试，请取消设备配对；将类别更改为照明（如示例 2 所示）；重新加载草图；然后重新配对设备。
+  // 您现在应该看到“HomeSpan 吊扇”Tile 的图标是灯泡，并且配件的控制屏幕应该在左侧显示灯光控件，在右侧显示风扇控件。
 
-  // IMPORTANT:  HomeKit Controllers often cache a lot of information.  If your Controller does not update to match the above configuration,
-  // simply select the Accessory in your Controller and under settings, select "Remove Accessory", but BEFORE re-pairing the device, type
-  // 'H' into the HomeSpan CLI.  This forces HomeSpan to reboot and generate a new device ID so that it will look "brand new" to the Home App
-  // when you re-pair.
+  // 重要提示：HomeKit 控制器通常会缓存大量信息。如果您的控制器未更新以匹配上述配置，只需在控制器中选择配件，然后在设置下
+ // 选择“移除配件”，但在重新配对设备之前，请在 HomeSpan CLI 中输入“H”。这会强制 HomeSpan 重新启动并生成新的设备 ID，以便
+ // 当您重新配对时，它在 “家庭”应用中看起来是“全新的”。
 
-} // end of setup()
+} // setup() 结束
 
 //////////////////////////////////////
 
 void loop(){
   
-  homeSpan.poll();         // run HomeSpan!
+  homeSpan.poll();         // 运行 HomeSpan!
   
-} // end of loop()
+} // loop() 结束
