@@ -1,47 +1,39 @@
 /*********************************************************************************
- *  MIT License
+ *  MIT 许可证
  *  
- *  Copyright (c) 2020-2024 Gregg E. Berman
+ *  Copyright (c) 2020-2022 Gregg E. Berman
  *  
  *  https://github.com/HomeSpan/HomeSpan
  *  
- *  Permission is hereby granted, free of charge, to any person obtaining a copy
- *  of this software and associated documentation files (the "Software"), to deal
- *  in the Software without restriction, including without limitation the rights
- *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- *  copies of the Software, and to permit persons to whom the Software is
- *  furnished to do so, subject to the following conditions:
+ *  特此授予获得此软件和相关文档文件（“软件”）副本的任何人免费许可，以无限制方式处理软件，
+ *  包括但不限于使用、复制、修改、合并、发布、分发、再许可和/或销售软件副本的权利，并允许
+ *  向其提供软件的人员这样做，但须遵守以下条件：
  *  
- *  The above copyright notice and this permission notice shall be included in all
- *  copies or substantial portions of the Software.
+ *  上述版权声明和本许可声明均应包含在软件的所有副本或重要部分中。
  *  
- *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- *  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- *  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- *  SOFTWARE.
+ *  软件按“原样”提供，不作任何明示或暗示的保证，包括但不限于适销性、特定用途的适用性和不
+ *  侵权性的保证。在任何情况下，作者或版权持有者均不对因软件或使用或其他处理软件而引起的
+ *  或与之相关的任何索赔、损害或其他责任承担责任，无论是合同行为、侵权行为还是其他行为。
  *  
  ********************************************************************************/
  
 ////////////////////////////////////////////////////////////
 //                                                        //
-//    HomeSpan: A HomeKit implementation for the ESP32    //
+//              HomeSpan：ESP32 的 HomeKit 实现           //
 //    ------------------------------------------------    //
 //                                                        //
-// Example 4: A variable-speed ceiling fan with           //
-//            dimmable ceiling light                      //
+//           示例 4：带有可调光天花板灯的变速吊扇          //
+//                                                        //
 //                                                        //
 ////////////////////////////////////////////////////////////
 
 
-#include "HomeSpan.h"         // Always start by including the HomeSpan library
+#include "HomeSpan.h"        // 始终从包含 HomeSpan 库开始
 
 void setup() {
 
-  // Example 4 expands on the first Accessory in Example 3 by adding Characteristics to set FAN SPEED, FAN DIRECTION, and LIGHT BRIGHTNESS.
-  // For ease of reading, all prior comments have been removed and new comments added to show explicit changes from the previous example.
+  // 示例 4 对示例 3 中的第一个附件进行了扩展，添加了用于设置风扇速度、风扇方向和灯光亮度的特性
+  // 为了便于阅读，所有先前的注释均已删除，并添加了新注释以显示与上一个示例相比的显式更改。
  
   Serial.begin(115200); 
 
@@ -53,48 +45,43 @@ void setup() {
       new Characteristic::Identify();                        
 
     new Service::LightBulb();                      
-      new Characteristic::On(true);            // NEW: Providing an argument sets its initial value.  In this case it means the LightBulb will be turned on at start-up
+      new Characteristic::On(true);            // 新功能：提供参数设置其初始值。  在这种情况下，这意味着灯泡将在启动时打开
 
-    // In addition to setting the initial value of a Characteristic, it is also possible to override the default min/max/step range specified by HAP.
-    // We do this with the setRange() method:
+    // 除了设置特性的初始值之外，还可以覆盖 HAP 指定的默认最小/最大/步长范围。
+    // 我们使用 setRange() 方法来做到这一点：
     
-    // setRange(min, max, step), where
+    // setRange(min, max, step), 其中
     //
-    // min = minimum allowed value
-    // max = maximum allowed value
-    // step = step size (can be left blank, in which case the HAP default is retained)
+    // min = 最小允许值
+    // max = 最大允许值
+    // step = 步长（可以留空，在这种情况下保留 HAP 默认值）
 
-    // The setRange() method can be called on any numerical-based Characteristic that supports range overrides.  The easiest way to apply to method is to call it right
-    // after instantiating a new Characteristic.  Don't forget to surround the "new" command in parentheses when chaining a method in this fashion.
+    // 可以对任何支持范围覆盖的基于数字的特征调用 setRange() 方法。  应用到方法的最简单方法是在实例化新特征后立即调用它。 
+    // 当以这种方式链接方法时，不要忘记将“new”命令括在括号中。
     
-    // Here we create a Brightness Characteristic to set the brightness of the LightBulb with an initial value of 50% and an allowable range
-    // from 20-100% in steps of 5%.  See Notes 1 and 2 below for more details:
+    // 这里我们创建一个亮度特性来设置灯泡的亮度，初始值为 50%，允许范围为 20-100%，步长为 5%。详情请参阅下面的
+   // 注释 1 和注释 2：
     
       (new Characteristic::Brightness(50))->setRange(20,100,5);    
 
     new Service::Fan();                             
       new Characteristic::Active();             
-      new Characteristic::RotationDirection();                        // NEW: This allows control of the Rotation Direction of the Fan
-      (new Characteristic::RotationSpeed(50))->setRange(0,100,25);    // NEW: This allows control of the Rotation Speed of the Fan, with an initial value of 50% and a range from 0-100 in steps of 25%
+      new Characteristic::RotationDirection();                        // 新功能：这可以控制风扇的旋转方向
+      (new Characteristic::RotationSpeed(50))->setRange(0,100,25);    // 新功能：这允许控制风扇的旋转速度，初始值为 50%，范围为 0-100，步长为 25%
 
-  // NOTE 1: Setting the initial value of the Brightness Characteristic to 50% does not by itself cause HomeKit to turn the light on to 50% upon start-up.
-  // Rather, this is governed by the initial value of the On Characteristic, which in this case happens to be set to true.  If it were set to false,
-  // or left unspecified (default is false) then the LightBulb will be off at start-up.  However, it will jump to 50% brightness as soon as turned on
-  // for the first time.  This same logic applies to the Active and RotationSpeed Characteristics for a Fan.
+  // 注 1：将亮度特性的初始值设置为 50% 本身并不会导致 HomeKit 在启动时将灯打开到 50%。相反，这是由 On 特性的初始值控制的，在本例中该值恰好设置为 true。
+  // 如果它设置为 false 或未指定（默认为 false），则灯泡将在启动时关闭。  不过第一次开机亮度会跳到50%。  同样的逻辑也适用于风扇的 Active 和 RotationSpeed 特性。
 
-  // NOTE 2: The default range for Characteristics that support a range of values is specified in HAP Section 9.  For Brightness, the range defaults
-  // to min=0%, max=100%, step=1%.  Using setRange() to change the minimum Brightness from 0% to 20% (or any non-zero value) provides for a better
-  // HomeKit experience.  This is because the LightBulb power is controlled by the On Characteristic, and allowing Brightness to be as low as 0%
-  // sometimes results in HomeKit turning on the LightBulb but with Brightness=0%, which is not very intuitive.  This can occur when asking Siri
-  // to lower the Brightness all the way, and then turning on the LightBulb.  By setting a minumum value of 20%, HomeKit always ensures that there is
-  // some Brightness value whenever the LightBulb is turned on.
+  // 注 2：支持一系列值的特性的默认范围在 HAP 第 9 节中指定。对于亮度，范围默认为 min=0%、max=100%、step=1%。  使用 setRange() 将最小亮度从 0% 更改
+  // 为 20%（或任何非零值）可提供更好的 HomeKit 体验。  这是因为灯泡功率是由开启特性控制的，允许亮度低至0%有时会导致HomeKit打开灯泡但亮度=0%，这不是很直观。
+  // 当要求 Siri 一直降低亮度，然后打开灯泡时，可能会发生这种情况。  通过设置最小值 20%，HomeKit 始终确保每当灯泡打开时都有一定的亮度值。
 
-} // end of setup()
+} // setup() 结束
 
 //////////////////////////////////////
 
 void loop(){
   
-  homeSpan.poll();         // run HomeSpan!
+  homeSpan.poll();         // 运行 HomeSpan!
   
-} // end of loop()
+} // loop() 结束
