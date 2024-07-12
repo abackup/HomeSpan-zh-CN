@@ -1,36 +1,28 @@
 /*********************************************************************************
- *  MIT License
+ *  MIT 许可证
  *  
- *  Copyright (c) 2020-2024 Gregg E. Berman
+ *  Copyright (c) 2024 Gregg E. Berman
  *  
  *  https://github.com/HomeSpan/HomeSpan
  *  
- *  Permission is hereby granted, free of charge, to any person obtaining a copy
- *  of this software and associated documentation files (the "Software"), to deal
- *  in the Software without restriction, including without limitation the rights
- *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- *  copies of the Software, and to permit persons to whom the Software is
- *  furnished to do so, subject to the following conditions:
+ *  特此授予获得此软件和相关文档文件（“软件”）副本的任何人免费许可，以无限制方式处理软件，
+ *  包括但不限于使用、复制、修改、合并、发布、分发、再许可和/或销售软件副本的权利，并允许
+ *  向其提供软件的人员这样做，但须遵守以下条件：
  *  
- *  The above copyright notice and this permission notice shall be included in all
- *  copies or substantial portions of the Software.
+ *  上述版权声明和本许可声明均应包含在软件的所有副本或重要部分中。
  *  
- *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- *  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- *  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- *  SOFTWARE.
+ *  软件按“原样”提供，不作任何明示或暗示的保证，包括但不限于适销性、特定用途的适用性和不
+ *  侵权性的保证。在任何情况下，作者或版权持有者均不对因软件或使用或其他处理软件而引起的
+ *  或与之相关的任何索赔、损害或其他责任承担责任，无论是合同行为、侵权行为还是其他行为。
  *  
  ********************************************************************************/
  
 ////////////////////////////////////////////////////////////
 //                                                        //
-//    HomeSpan: A HomeKit implementation for the ESP32    //
+//              HomeSpan：ESP32 的 HomeKit 实现           //
 //    ------------------------------------------------    //
 //                                                        //
-// Example 19: Web Logging with time-keeping              //
+//           示例 19：带计时功能的 Web 日志记录             //
 //                                                        //
 ////////////////////////////////////////////////////////////
 
@@ -40,27 +32,23 @@
 
 void setup() {
 
-// This is a duplicate of Example 5 (Two Working LEDs) with the addition of HomeSpan Web Logging
+// 这是示例 5（两个工作 LED）的副本，并添加了 HomeSpan Web 日志记录
 
   Serial.begin(115200);
 
-// Below we enable Web Logging.  The first parameter sets the maximum number of log messages to save.  As the
-// log fills with messages, older ones are replaced by newer ones.  The second parameter specifies a Timer Server
-// that HomeSpan calls to set the device clock.  Setting the clock is optional, and you can leave this
-// argument blank (or set to NULL) if you don't care about setting the absolute time of the device.  The third
-// argument defines the Time Zone used for setting the device clock.  The fourth argument specifies the URL page
-// of the Web Log.  See the HomeSpan API Reference for complete details, as well as additional options, related
-// to this function call.
+// 下面我们启用 Web 日志。第一个参数设置要保存的最大日志消息数。随着日志中消息的增加，较旧的消息将被较新的消息替换。
+// 第二个参数指定 HomeSpan 调用以设置设备时钟的计时器服务器。设置时钟是可选的，如果您不关心设置设备的绝对时间，
+// 则可以将此参数留空（或设置为 NULL）。第三个参数定义用于设置设备时钟的时区。第四个参数指定 Web 日志的 URL 页面。
+// 有关与此函数调用相关的完整详细信息以及其他选项，请参阅 HomeSpan API 参考。
 
-  homeSpan.enableWebLog(10,"pool.ntp.org","UTC","myLog");           // creates a web log on the URL /HomeSpan-[DEVICE-ID].local:[TCP-PORT]/myLog
+  homeSpan.enableWebLog(10,"pool.ntp.org","UTC","myLog");           // 在 URL /HomeSpan-[DEVICE-ID].local:[TCP-PORT]/myLog 上创建网络日志
 
-// The full URL of the Web Log will be shown in the Serial Monitor at boot time for reference.
-// The Web Log output displays a variety of device parameters, plus any log messages you choose
-// to provide with the WEBLOG() macro (see DEV_LED.h)
+// T启动时，串口监视器中将显示 Web 日志的完整 URL，以供参考。
+// Web 日志输出显示各种设备参数，以及您选择使用 WEBLOG() 宏提供的任何日志消息（参见 DEV_LED.h）
 
-// Note the rest of the sketch below is identical to Example 5.  All of the Web Logging occurs in DEV_LED.h  
+//请注意，下面的其余草图与示例 5 相同。所有 Web 日志记录都发生在 DEV_LED.h 中
   
-  homeSpan.begin(Category::Lighting,"HomeSpan LEDs");           // Note we can set Category to Lighting even if device is configured as a Bridge
+  homeSpan.begin(Category::Lighting,"HomeSpan LEDs");           //请注意，即使设备配置为桥接器，我们也可以将类别设置为照明
   
   new SpanAccessory(); 
     new Service::AccessoryInformation(); 
@@ -78,7 +66,7 @@ void setup() {
       new Characteristic::Name("LED #2");      
     new DEV_LED(17);
 
-} // end of setup()
+} // setup() 结束
 
 //////////////////////////////////////
 
@@ -86,4 +74,4 @@ void loop(){
   
   homeSpan.poll();
   
-} // end of loop()
+} // loop() 结束
