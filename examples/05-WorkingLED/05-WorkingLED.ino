@@ -1,70 +1,58 @@
 /*********************************************************************************
- *  MIT License
+ *  MIT 许可证
  *  
- *  Copyright (c) 2020-2024 Gregg E. Berman
+ *  Copyright (c) 2020-2022 Gregg E. Berman
  *  
  *  https://github.com/HomeSpan/HomeSpan
  *  
- *  Permission is hereby granted, free of charge, to any person obtaining a copy
- *  of this software and associated documentation files (the "Software"), to deal
- *  in the Software without restriction, including without limitation the rights
- *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- *  copies of the Software, and to permit persons to whom the Software is
- *  furnished to do so, subject to the following conditions:
+ *  特此授予获得此软件和相关文档文件（“软件”）副本的任何人免费许可，以无限制方式处理软件，
+ *  包括但不限于使用、复制、修改、合并、发布、分发、再许可和/或销售软件副本的权利，并允许
+ *  向其提供软件的人员这样做，但须遵守以下条件：
  *  
- *  The above copyright notice and this permission notice shall be included in all
- *  copies or substantial portions of the Software.
+ *  上述版权声明和本许可声明均应包含在软件的所有副本或重要部分中。
  *  
- *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- *  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- *  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- *  SOFTWARE.
+ *  软件按“原样”提供，不作任何明示或暗示的保证，包括但不限于适销性、特定用途的适用性和不
+ *  侵权性的保证。在任何情况下，作者或版权持有者均不对因软件或使用或其他处理软件而引起的
+ *  或与之相关的任何索赔、损害或其他责任承担责任，无论是合同行为、侵权行为还是其他行为。
  *  
  ********************************************************************************/
  
 ////////////////////////////////////////////////////////////
 //                                                        //
-//    HomeSpan: A HomeKit implementation for the ESP32    //
+//              HomeSpan：ESP32 的 HomeKit 实现           //
 //    ------------------------------------------------    //
 //                                                        //
-// Example 5: Two working on/off LEDs based on the        //
-//            LightBulb Service                           //
+//     示例 5：基于 LightBulb 服务的两个工作开/关 LED      //
+//                                                        //
 //                                                        //
 ////////////////////////////////////////////////////////////
 
+
 #include "HomeSpan.h" 
-#include "DEV_LED.h"          // NEW! Include this new file, DEV_LED.h, which will be fully explained below
+#include "DEV_LED.h"          // 新功能！包括这个新文件 DEV_LED.h，下面将对其进行全面解释
 
 void setup() {
 
-  // First light! Control an LED from HomeKit!
+  // 第一盏灯！通过 HomeKit 控制 LED！
+  // 示例 5 在示例 2 的基础上进行了扩展，添加了实际控制从 HomeKit 连接到 ESP32 的 LED 所需的代码。在示例 2 中，我们构建了所有功能，
+  // 以在 HomeKit 内部创建显示开/关灯的“Tile”配件，但这些控制实际上并未对 ESP32 进行任何操作。要操作实际设备，需要对 HomeSpan 进行编程，
+  // 使其通过执行某种形式的操作来响应来自 HomeKit 的“更新”请求。
+
+  // 虽然 HomeKit 本身会向各个特性发送“更新”请求，但这并不直观，并且当服务具有多个特性（例如“开”和“亮度”）时，会导致复杂的编码要求。
+  // 为了让用户更容易做到这一点，HomeSpan 使用了一个更新服务的框架，而不是更新单个特性。它通过调用每个服务的 update() 方法来实现这一点，
+  // 并使用标志指示 HomeKit 请求更新的该服务中的所有特性。用户只需实现代码来执行实际操作，如果更新成功，则返回 true 或 false。
+  // HomeSpan 负责所有底层细节。
+
+  // HomeKit 中定义的每项服务，例如 Service:LightBulb 和 Service:Fan（甚至 Service::AccessoryInformation）都实现了 update() 方法，
+  // 默认情况下，该方法不执行任何操作，只返回 true 值。要实际操作真实设备，您需要使用自己的代码覆盖此默认 update() 方法。最简单的方法是
+  // 基于内置 HomeSpan 服务之一创建 DERIVED 类。在此派生类中，您可以执行初始设置例程（如果需要），使用自己的代码覆盖 update() 方法，
+  // 甚至创建完全操作复杂设备所需的任何其他方法或特定于类的变量。最重要的是，派生类可以接受参数，以便您可以使它们更通用，多次重复使用
+  // 它们（如下所示），并将它们转换为独立模块（也如下所示）。
+
+  // HomeSpan 实现的所有 HomeKit 服务都可以在 Services.h 文件中找到。任何服务都可以用作派生服务的父级。
+
+  // 我们首先重复与示例 2 几乎相同的代码，但有一些关键更改。为了便于阅读，删除了仅重复示例 2 的行中的所有先前注释，并添加了新注释以明确显示新代码。
   
-  // Example 5 expands on Example 2 by adding in the code needed to actually control LEDs connected to the ESP32 from HomeKit.
-  // In Example 2 we built out all the functionality to create a "Tile" Acessories inside HomeKit that displayed an on/off light, but
-  // these control did not actually operate anything on the ESP32.  To operate actual devices HomeSpan needs to be programmed to
-  // respond to "update" requests from HomeKit by performing some form of operation.
-  
-  // Though HomeKit itself sends "update" requests to individual Characteristics, this is not intuitive and leads to complex coding requirements
-  // when a Service has more than one Characteristic, such as both "On" and "Brightness."  To make this MUCH easier for the user, HomeSpan
-  // uses a framework in which Services are updated instead of individual Characteristics.  It does so by calling the update() method of
-  // each Service with flags indicating all the Characteristics in that Service that HomeKit requested to update.  The user simply
-  // implements code to perform the actual operation, and returns either true or false if the update was successful.  HomeSpan takes care of all
-  // the underlying nuts and bolts.
-
-  // Every Service defined in HomeKit, such as Service:LightBulb and Service:Fan (and even Service::AccessoryInformation) implements an update()
-  // method that, as a default, does nothing but returns a value of true.  To actually operate real devices you need to over-ride this default update()
-  // method with your own code.  The easiest way to do this is by creating a DERIVED class based on one of the built-in HomeSpan Services.
-  // Within this derived class you can perform initial set-up routines (if needed), over-ride the update() method with your own code, and even create
-  // any other methods or class-specific variables you need to fully operate complex devices.  Most importantly, the derived class can take arguments
-  // so that you can make them more generic, re-use them multiple times (as will be seen below), and convert them to standalone modules (also shown below).
-
-  // All of the HomeKit Services implemented by HomeSpan can be found in the Services.h file.  Any can be used as the parent for a derived Service.
-
-  // We begin by repeating nearly the same code from Example 2, but with a few key changes. For ease of reading, all prior comments have been removed
-  // from lines that simply repeat Example 2, and new comments have been added to explictly show the new code.
 
   Serial.begin(115200);
 
@@ -75,32 +63,32 @@ void setup() {
     new Service::AccessoryInformation(); 
       new Characteristic::Identify();                
 
-  //  In Example 2 we instantiated a LightBulb Service and its "On" Characteristic here.  We are now going to replace these two lines (by commenting them out)...
+  //  在示例 2 中，我们在此处实例化了 LightBulb 服务及其“开启”特性。我们现在将替换这两行（通过注释掉它们）...
 
   //  new Service::LightBulb();                   
   //    new Characteristic::On();                 
 
-  // ...with a single new line instantiating a new class we will call DEV_LED():
+  // ...使用一行新代码来实例化一个新类，我们将调用 DEV_LED()：
 
-    new DEV_LED(16);        // this instantiates a new LED Service.  Where is this defined?  What happpened to Characteristic::On?  Keep reading...
+    new DEV_LED(16);        // 这将实例化一个新的 LED 服务。它在哪里定义？Characteristic::On 发生了什么？继续阅读...
 
-  // The full definition and code for DEV_LED is implemented in a separate file called "DEV_LED.h" that is specified using the #include at the top of this program.
-  // The prefix DEV_ is not required but it's a helpful convention when naming all your device-specific Services. Note that DEV_LED will include all the required
-  // Characterictics of the Service, so you DO NOT have to separately instantiate Characteristic::On --- everything HomeSpan needs for DEV_LED should be implemented
-  // in DEV_LED itself (though it's not all that much).  Finally, note that we created DEV_LED to take a single integer argument.  If you guessed this is
-  // the number of the Pin to which you have attached an LED, you'd be right.  See DEV_LED.h for a complete explanation of how it works.
+  // DEV_LED 的完整定义和代码在名为“DEV_LED.h”的单独文件中实现，该文件使用此程序顶部的 #include 指定。
+  // 前缀 DEV_ 不是必需的，但在命名所有设备特定服务时，这是一个有用的惯例。请注意，DEV_LED 将包含服务的所有必需特性，
+  // 因此您不必单独实例化 Characteristic::On --- HomeSpan 为 DEV_LED 所需的一切都应该在 DEV_LED 本身中实现（尽管并不是那么多）。
+  // 最后，请注意，我们创建 DEV_LED 来接受单个整数参数。如果您猜这是您已连接 LED 的引脚的编号，那么您是对的。
+  // 请参阅 DEV_LED.h 以了解其工作原理的完整说明。
 
   new SpanAccessory(); 
   
     new Service::AccessoryInformation();    
       new Characteristic::Identify();                       
 
-  //  new Service::LightBulb();                       // Same as above, this line is deleted...
-  //    new Characteristic::On();                     // This line is also deleted...
+  //  new Service::LightBulb();                       // 同上，删除此行...
+  //    new Characteristic::On();                     // 此行也被删除..
   
-    new DEV_LED(17);                                  // ...and replaced with a single line that instantiates a second DEV_LED Service on Pin 17
+    new DEV_LED(17);                                  // ...并用一行代码替换，该代码在引脚 17 上实例化第二个 DEV_LED 服务
 
-} // end of setup()
+} // setup() 结束
 
 //////////////////////////////////////
 
@@ -108,4 +96,4 @@ void loop(){
   
   homeSpan.poll();
   
-} // end of loop()
+} // loop() 结束
