@@ -1,93 +1,77 @@
 /*********************************************************************************
- *  MIT License
+ *  MIT 许可证
  *  
- *  Copyright (c) 2022 Gregg E. Berman
+ *  Copyright (c) 2020-2024 Gregg E. Berman
  *  
  *  https://github.com/HomeSpan/HomeSpan
  *  
- *  Permission is hereby granted, free of charge, to any person obtaining a copy
- *  of this software and associated documentation files (the "Software"), to deal
- *  in the Software without restriction, including without limitation the rights
- *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- *  copies of the Software, and to permit persons to whom the Software is
- *  furnished to do so, subject to the following conditions:
+ *  特此授予获得此软件和相关文档文件（“软件”）副本的任何人免费许可，以无限制方式处理软件，
+ *  包括但不限于使用、复制、修改、合并、发布、分发、再许可和/或销售软件副本的权利，并允许
+ *  向其提供软件的人员这样做，但须遵守以下条件：
  *  
- *  The above copyright notice and this permission notice shall be included in all
- *  copies or substantial portions of the Software.
+ *  上述版权声明和本许可声明均应包含在软件的所有副本或重要部分中。
  *  
- *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- *  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- *  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- *  SOFTWARE.
+ *  软件按“原样”提供，不作任何明示或暗示的保证，包括但不限于适销性、特定用途的适用性和不
+ *  侵权性的保证。在任何情况下，作者或版权持有者均不对因软件或使用或其他处理软件而引起的
+ *  或与之相关的任何索赔、损害或其他责任承担责任，无论是合同行为、侵权行为还是其他行为。
  *  
  ********************************************************************************/
  
 #include "HomeSpan.h" 
 
-// Apple's HomeKit does not provide any native services or characteristics for measuring atmospheric pressure.
-// However, Eve for HomeKit does support pressure measurements.
+// Apple 的 HomeKit 不提供任何用于测量大气压力的原生服务或特性。
 
-// This brief sketch demonstrates how you can use HomeSpan's Custom Service and Custom Characteristic features
-// to create a Pressure Sensor Accessory that will be recognized by the Eve for HomeKit App. Note that the
-// Apple Home App will show this as a "Not Supported" Accessory Tile indicating it cannot be used in the Home App.
-// However, this does not create any problems or errors in the Home App.
+// 但是，Eve 应用支持压力测量。
 
-// Step 1:
+// 这个简短的草图演示了如何使用 HomeSpan 的自定义服务和自定义特性功能来创建压力传感器附件，该附件将被 Eve 应用识别。请注意，
+// Apple“家庭”应用会将其显示为“不支持”附件图块，表示它无法在“家庭”应用中使用。但是，这不会在“家庭”应用中造成任何问题或错误。
 
-//    Use the CUSTOM_SERV macro to create a new service named AtmosphericPressureSensor with
-//    a UUID=E863F00A-079E-48FF-8F27-9C2605A29F52. This new service will be added to HomeSpan's Service namespace
-//    and can be accessed using the fully-qualified name Service::AtmosphericPressureSensor.  The UUID specified
-//    will not be recognized by Apple's Home App, but will be recognized by the Eve for HomeKit App. Note you
-//    do NOT enclose either of the parameters in quotes!
+// 步骤 1：
+
+// 使用 CUSTOM_SERV 宏创建一个名为 AtmosphericPressureSensor 的新服务，其 UUID=E863F00A-079E-48FF-8F27-9C2605A29F52。此新服务将添加到 HomeSpan 的服务命名空间中，
+// 可以使用完全限定名称 Service::AtmosphericPressureSensor 进行访问。指定的 UUID 不会被 Apple 的 “家庭”应用识别，但会被 Eve 应用识别。请注意，不要将任何一个参数括在引号中！
 
   CUSTOM_SERV(AtmosphericPressureSensor, E863F00A-079E-48FF-8F27-9C2605A29F52);
 
-// Step 2:
+// 步骤 2：
 
-//    Use the CUSTOM_CHAR macro to create a new characteristic named AtmosphericPressure with
-//    a UUID=E863F10F-079E-48FF-8F27-9C2605A29F52. This new characteristic will be added to HomeSpan's Characteristic namespace
-//    and can be accessed using the fully-qualified name Characteristic::AtmosphericPressure.  The UUID specified will not be
-//    recognized by Apple's Home App, but will be recognized by the Eve for HomeKit App. Note you do NOT enclose any of the
-//    parameters in quotes!
+// 使用 CUSTOM_CHAR 宏创建一个名为 AtmosphericPressure 的新特性，其 UUID=E863F10F-079E-48FF-8F27-9C2605A29F52。此新特性将添加到 HomeSpan 的特征命名空间，可以使用完全限定名称 Characteristic::AtmosphericPressure 进行访问。Apple 的 “家庭”应用无法识别指定的 UUID，但 Eve 应用可以识别。请注意，不要将任何参数括在引号中！
 //
-//    The meaning of the parmameters are as follows:
+// 参数含义如下：
 //
-//      PR+EV:    sets permission for "read" and "notify"
-//      FLOAT:    sets the format to floating-point decimal number
-//      1013:     sets the default starting value to 1013, which is 1 atm in millibars
-//      700:      sets the default lower range of allowed values to 700 millibars
-//      1200:     sets the default upper range of allowed values to 1200 millibars
-//      false:    sets the "static range" flag to false, indicating that users CAN override the default range setRange() if desired
+// PR+EV：设置“读取”和“通知”权限
+// FLOAT：将格式设置为浮点十进制数
+// 1013：将默认起始值​​设置为 1013，即 1 atm 毫巴
+// 700：将默认允许值下限设置为 700 毫巴
+// 1200：将默认允许值上限设置为 1200 毫巴
+// false：将“静态范围”标志设置为 false，表示用户可以根据需要覆盖默认范围 setRange()
+
 
   CUSTOM_CHAR(AtmosphericPressure, E863F10F-079E-48FF-8F27-9C2605A29F52, PR+EV, FLOAT, 1013, 700, 1200, false);
 
-// Now that AtmosphericPressureSensor and AtmosphericPressure have been created, they can be used just as any other native HomeSpan
-// Service and Characteristic.
+// 现在已经创建了 AtmosphericPressureSensor 和 AtmosphericPressure，它们可以像任何其他本机 HomeSpan 服务和特性一样使用。
 
 //////////////////////////////////////
 
-struct PressureSensor : Service::AtmosphericPressureSensor {         // A standalone Air Pressure Sensor
+struct PressureSensor : Service::AtmosphericPressureSensor {         // 独立气压传感器
 
-  Characteristic::AtmosphericPressure pressure;                      // Eve Air Pressure with range 700-1200 hPa (millibars), where 1 atm=1013 hPa
+  Characteristic::AtmosphericPressure pressure;                      // Eve 气压范围为 700-1200 hPa（毫巴），其中 1 atm=1013 hPa
   
   PressureSensor() : Service::AtmosphericPressureSensor{} {
         
-    Serial.print("Configuring Air Pressure Sensor");                 // initialization message
+    Serial.print("Configuring Air Pressure Sensor");                 // 初始化消息
     Serial.print("\n");
 
-  } // end constructor
+  } // 结束构造函数
 
   void loop(){
 
-    if(pressure.timeVal()>5000)                        // here we simulate an actual sensor by generating a random pressure reading every 5 seconds
+    if(pressure.timeVal()>5000)                       // 这里我们通过每 5 秒生成一个随机压力读数来模拟实际的传感器
       pressure.setVal((double)random(900,1100));
        
-  } // end loop
+  } // 结束循环
 
-}; // end PressureSensor
+}; // 结束压力传感器
 
 //////////////////////////////////////
 
