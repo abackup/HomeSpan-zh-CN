@@ -155,7 +155,7 @@ HomeKit *未认证*电视服务的示例，展示了如何使用不同的特征�
 ### [电动窗帘](../examples/Other%20Examples/MotorizedWindowShade/MotorizedWindowShade.ino)
 演示如何使用 *StepperControl* 类操作步进电机。实现基于上述 [示例 13](../examples/13-TargetStates/13-TargetStates.ino) 的电动窗帘。有关完整详细信息，请参阅 [控制步进电机](Stepper.md)
 
-### [自定义分区](../examples/Other%20Examples/CustomNVSPartition/CustomNVSPartition.ino)
+### [自定义分区](../examples/Other%20Examples/CustomNVSPartition/CustomNVSPartition.ino)<a name="customnvspartition"></a>
 演示如何通过将 *Partition.csv* 文件添加到草图文件夹来为草图创建自定义分区方案。可用于扩展非易失性存储（NVS）分区的大小，在创建具有许多附件的 HomeSpan 设备时可能需要该分区，当你想将这些附件的特征保存在 NVS 中时
 
 ### [外部引用](../examples/Other%20Examples/ExternalReference%20/ExternalReference.ino)
