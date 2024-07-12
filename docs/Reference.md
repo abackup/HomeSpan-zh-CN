@@ -1,6 +1,8 @@
-# HomeSpan API Reference
+<!-- 原文时间：2024.7.1，翻译时间：2024.7.6，校对时间：2024.7.12  -->
 
-The HomeSpan Library is invoked by including *HomeSpan.h* in your Arduino sketch as follows:
+# HomeSpan API 参考
+
+HomeSpan 库通过在 Arduino 草图中包含 *HomeSpan.h* 来调用，如下所示：
 
 ```C++
 #include "HomeSpan.h"
@@ -8,315 +10,313 @@ The HomeSpan Library is invoked by including *HomeSpan.h* in your Arduino sketch
 
 ## *homeSpan*
 
-At runtime HomeSpan will create a global **object** named `homeSpan` (of type *class Span*) that supports the following methods:
+在运行时，HomeSpan 将创建一个名为 `homeSpan` 的全局**对象**（类型为 *Span*），该对象支持以下方法：
 
-* `void begin(Category catID, const char *displayName, const char *hostNameBase, const char *modelName)` 
-  * initializes HomeSpan
-  * **must** be called at the beginning of each sketch before any other HomeSpan functions and is typically placed near the top of the Arduino `setup()` method, but **after** `Serial.begin()` so that initialization diagnostics can be output to the Serial Monitor
-  * all arguments are **optional**
-    * *catID* - the HAP Category HomeSpan broadcasts for pairing to HomeKit.  Default is Category::Lighting.  See [HomeSpan Accessory Categories](Categories.md) for a complete list
-    * *displayName* - the MDNS display name broadcast by HomeSpan.  Default is "HomeSpan Server"
-    * *hostNameBase* - the full MDNS host name is broadcast by HomeSpan as *hostNameBase-DeviceID*.local, where DeviceID is a unique 6-byte code generated automatically by HomeSpan.  Default is "HomeSpan"
-    * *modelName* - the HAP model name HomeSpan broadcasts for pairing to HomeKit.  Default is "HomeSpan-ESP32"
-  * example: `homeSpan.begin(Category::Fans, "Living Room Ceiling Fan");`
- 
- * `void poll()`
-   * checks for HAP requests, local commands, and device activity
-   * **must** be called repeatedly in each sketch and is typically placed at the top of the Arduino `loop()` method (*unless* `autoPoll()`, described further below, is used instead)
+* `void begin(Category catID, const char *displayName, const char *hostNameBase, const char *modelName)`
+  * 初始化 HomeSpan
+  * **必须**在每个草图的开头调用，然后再调用任何其他 HomeSpan 函数，并且通常放置在 Arduino `setup()` 方法的顶部附近，但在 `Serial.begin()` **之后**，以便初始化诊断可以输出到串口监视器
+  * 所有参数都是**可选**
+     * *catID* - HAP 类别 HomeSpan 广播用于与 HomeKit 配对。默认为 Category::Lighting。有关完整列表，请参阅 [HomeSpan 配件件类别](Categories.md)
+     * *displayName* - HomeSpan 广播的 MDNS 显示名称。默认为 "HomeSpan Server"
+     * *hostNameBase* - 完整的 MDNS 主机名由 HomeSpan 作为 *hostNameBase-DeviceID*.local 广播，其中 DeviceID 是 HomeSpan 自动生成的唯一的 6 字节代码。默认为 "HomeSpan"
+     * *modelName* - 与 HomeKit 配对的 HomeSpan 广播 HAP 模型名称。默认为 "HomeSpan-ESP32"
+  * 例：`homeSpan.begin(Category::Fans, "Living Room Ceiling Fan");`
+* `void poll()`
+  * 检查 HAP 请求、本地命令和设备活动
+  * **必须**在每个草图中重复调用，并且通常放在 Arduino `loop()` 方法的顶部（*除非*使用下面进一步描述的 `autoPoll()`）
 
 ---
 
-The following **optional** `homeSpan` methods override various HomeSpan initialization parameters used in `begin()`, and therefore **should** be called before `begin()` to take effect.
-Methods with a return type of `Span&` return a reference to `homeSpan` itself and can thus be chained together (e.g. `homeSpan.setControlPin(21).setStatusPin(13);`).  If a method is *not* called, HomeSpan uses the default parameter indicated below:
+以下**可选** `homeSpan` 方法会覆盖 `begin()` 中使用的各种 HomeSpan 初始化参数，因此**应该**在 `begin()` 之前调用才能生效。返回类型为 `Span&`的方法返回对 `homeSpan` 本身的引用，因此可以链接在一起（例如 `homeSpan.setControlPin(21).setStatusPin(13);`）。如果未调用某个方法，HomeSpan 将使用如下所示的默认参数：
 
 * `Span& setControlPin(uint8_t pin, triggerType=PushButton::TRIGGER_ON_LOW)`
-  * sets the ESP32 *pin* to use for the HomeSpan Control Button
-  * if this method is not called, HomeSpan will assume there is no Control Button
-  * the optional second argument, *triggerType*, configures the Control Button as follows:
-    * `PushButton::TRIGGER_ON_LOW` - triggers when *pin* is driven LOW
-      * suitable for buttons that connect *pin* to GROUND (this is the default when *triggerType* is not specified)
-    * `PushButton::TRIGGER_ON_HIGH` - triggers when *pin* is driven HIGH
-      * suitable for buttons that connect *pin* to VCC (typically 3.3V)
-    * `PushButton::TRIGGER_ON_TOUCH` - uses the device's touch-sensor peripheral to trigger when *pin* has been touched
-      * not available on ESP32-C3
-  * as an alternative, you can set *triggerType* to any user-defined function of the form `boolean(int arg)` to utilize any device as a Control Button.  See **SpanButton** below for details
+  * 设置用于 HomeSpan 控制按钮的 ESP32 *pin*
+  * 如果未调用此方法，HomeSpan 将假定没有控制按钮
+  * 可选的第二个参数 *triggerType* 将按如下方式配置控制按钮：
+    * `PushButton::TRIGGER_ON_LOW` - 当 *pin* 驱动为低电平时触发
+      * 适用于将 *pin* 连接到地面的按钮（当未指定 *triggerType* 时，这是默认值）
+    * `PushButton::TRIGGER_ON_HIGH` - 当 *pin* 驱动为高电平时触发
+      * 适用于将 *pin* 连接到 VCC（通常为 3.3V）的按钮
+    * `PushButton::TRIGGER_ON_TOUCH` - 使用设备的触摸传感器外设在触摸 *pin* 时触发
+      * ESP32-C3 上不可用
+  * 或者，你可以将 *triggerType* 设置为任何用户定义的 `boolean(int arg)` 形式的函数，以将任何设备用作控制按钮。有关详细信息，请参阅下面的 **[SpanButton](#spanbutton)**
 
 * `int getControlPin()`
-   * returns the pin number of the HomeSpan Control Button as set by `setControlPin(pin)`, or -1 if no pin has been set
-  
+  * 返回由 `setControlPin(pin)` 设置的 HomeSpan 控制按钮的引脚号，如果未设置引脚，则返回 -1
+
 * `Span& setStatusPin(uint8_t pin)`
-  * sets the ESP32 *pin* to use for the HomeSpan Status LED
-  * assumes a standard LED will be connected to *pin*
-  * if neither this method nor any equivalent method is called, HomeSpan will assume there is no Status LED
-  
+  * 设置用于 HomeSpan 状态指示灯的 ESP32 *pin*
+  * 假设标准 LED 将连接到 *pin*
+  * 如果未调用此方法或任何等效方法，HomeSpan 将假定没有状态指示灯
+
 * `Span& setStatusPixel(uint8_t pin, float h=0, float s=100, float v=100)`
-  * sets the ESP32 *pin* to use for the HomeSpan Status LED
-  * this method is an *alternative* to using `setStatusPin()` above
-  * assumes an RGB NeoPixel (or equivalent) will be connected to *pin*
-  * works well with ESP32 boards that have a built-in NeoPixel LED, though adding an external NeoPixel is fine
-  * users can optionally specify the color HomeSpan will use with the NeoPixel by providing the following HSV values:
-    * h = Hue from 0-360
-    * s = Saturation percentage from 0-100
-    * v = Brightness percentage from 0-100
-  * color defaults to *red* if unspecified
-  * example: `homeSpan.setStatusPixel(8,120,100,20)` sets the Status LED to light green using a NeoPixel attached to pin 8 
-  * if neither this method nor any equivalent method is called, HomeSpan will assume there is no Status LED
+  * 设置用于 HomeSpan 状态指示灯的 ESP32 *pin*
+  * 此方法是使用上述 `setStatusPin()` 的*替代方法*
+  * 假设 RGB NeoPixel（或等效物）将连接到 *pin*
+  * 适用于 ESP32 板有内置 NeoPixel LED，但添加外部 NeoPixel 也可以
+  * 用户可以通过提供以下 HSV 值来选择性地指定 HomeSpan 将与 NeoPixel 一起使用的颜色：
+    * h = 色调，范围从 0-360
+    * s = 饱和度百分比，范围从 0-100
+    * v = 亮度百分比，范围从 0-100
+  * 如果未指定，颜色默认为*红色*
+  * 示例：`homeSpan.setStatusPixel(8,120,100,20)` 使用连接到引脚 8 的 NeoPixel 将状态指示灯设置为浅绿色
+  * 如果未调用此方法或任何等效方法，HomeSpan 将假定没有状态指示灯
 
 * `Span& setStatusDevice(Blinkable *sDev)`
-  * sets the Status LED to a user-specified Blinkable device, *sDev*
-  * this method is an *alternative* to using either `setStatusPin()` or `setStatusPixel()` above
-  * see [Blinkable](Blinkable.md) for details on how to create generic Blinkable devices
-  * useful when using an LED connected to a pin expander, or other specialized driver, as the Status LED
-  * if neither this method nor any equivalent method is called, HomeSpan will assume there is no Status LED
+  * 将状态指示灯设置为用户指定的可闪烁设备 *sDev*
+  * 此方法是使用上述 `setStatusPin()` 或 `setStatusPixel()` 的*替代方法*
+  * 参见 [Blinkable](Blinkable.md) 详细了解如何创建通用的 Blinkable 设备
+  * 在使用连接到引脚扩展器或其他专用驱动器的 LED 作为状态指示灯时很有用
+  * 如果未调用此方法或任何等效方法，HomeSpan 将假定没有状态指示灯
 
 * `Span& setStatusAutoOff(uint16_t duration)`
-  * sets Status LED to automatically turn off after *duration* seconds
-  * Status LED will automatically turn on, and duration timer will be reset, whenever HomeSpan activates a new blinking pattern
-  * if *duration* is set to zero, auto-off is disabled (Status LED will remain on indefinitely)
-  
+  * 将状态指示灯设置为在 *duration* 秒后自动关闭
+  * 每当 HomeSpan 激活新的闪烁模式时，状态指示灯将自动打开，并且持续时间计时器将重置
+  * 如果 *duration* 设置为零，则自动关闭将被禁用（状态指示灯将无限期保持打开状态）
+
 * `int getStatusPin()`
-   * returns the pin number of the Status LED as set by `setStatusPin(pin)`, or -1 if no pin has been set
+  * 返回由 `setStatusPin(pin)` 设置的状态指示灯的引脚号，如果未设置引脚，则返回 -1
 
 * `Span& setApSSID(const char *ssid)`
-  * sets the SSID (network name) of the HomeSpan Setup Access Point (default="HomeSpan-Setup")
-  
+  * 设置 HomeSpan 设置接入点的 SSID（网络名称）（默认为 "HomeSpan-Setup"）
+
 * `Span& setApPassword(const char *pwd)`
-  * sets the password of the HomeSpan Setup Access Point (default="homespan")
-  
+  * 设置 HomeSpan 设置接入点的密码（默认为 "homespan"）
+
 * `Span& setApTimeout(uint16_t nSec)`
-  * sets the duration (in seconds) that the HomeSpan Setup Access Point, once activated, stays alive before timing out (default=300 seconds)
-  
+  * 设置 HomeSpan 设置接入点激活后在超时前保持活动的持续时间（以秒为单位）（默认值为 300 秒）
+
 * `Span& setCommandTimeout(uint16_t nSec)`
-  * sets the duration (in seconds) that the HomeSpan End-User Command Mode, once activated, stays alive before timing out (default=120 seconds)
-  
+  * 设置 HomeSpan 最终用户命令模式激活后在超时前保持活动的持续时间（以秒为单位）（默认值为 120 秒）
+
 * `Span& setLogLevel(int level)`
-  * sets the logging level for diagnostic messages, where:
-    * 0 = top-level HomeSpan status messages, and any `LOG0()` messages specified in the sketch by the user (default)
-    * 1 = all HomeSpan status messages, and any `LOG1()` messages specified in the sketch by the user
-    * 2 = all HomeSpan status messages plus all HAP communication packets to and from the HomeSpan device, as well as all `LOG1()` and `LOG2()` messages specified in the sketch by the user
-    * -1 = supresses ALL HomeSpan status messages, including all `LOG0()`, `LOG1()`, and `LOG2()` messages specified in the sketch by the user, freeing up the Serial port for other uses
-  * the log level setting has no impact on any `Serial.print()` or `Serial.printf()` statements that may be used in a sketch.  Use one of the `LOG()` macros instead of `Serial.print()` or `Serial.printf()` if you want to control the output by setting the HomeSpan log level
-  * the log level setting has no impact on any ESP32 diagnostic messages output by the ESP32 operating system itself.  To suppress these mesaages make sure to compile your sketch with the *Core Debug Level* set to "None" in the Tools menu of the Arduino IDE
-  * note the log level can also be changed at runtime with the 'L' command via the [HomeSpan CLI](CLI.md)
-  * see [Message Logging](Logging.md) for complete details
+  * 设置诊断消息的日志记录级别，其中：
+    * 0 = 顶级 HomeSpan 状态消息，以及用户在草图中指定的任何 `LOG0()` 消息（默认值）
+    * 1 = 所有 HomeSpan 状态消息，以及用户在草图中指定的任何 `LOG1()` 消息
+    * 2 = 所有 HomeSpan 状态消息以及往返于 HomeSpan 设备的所有 HAP 通信数据包，以及用户在草图中指定的所有 `LOG1()` 和 `LOG2()` 消息
+    * -1 = 抑制所有消息HomeSpan 状态消息，包括用户在草图中指定的所有 `LOG0()`、`LOG1()` 和 `LOG2()` 消息，释放串口以用于其他用途
+  * 日志级别设置对草图中可能使用的任何 `Serial.print()` 或 `Serial.printf()` 语句没有影响。如果你想通过设置 HomeSpan 日志级别来控制输出，请使用其中一个 `LOG()` 宏，而不是 `Serial.print()` 或 `Serial.printf()`
+  * 日志级别设置对 ESP32 操作系统本身输出的任何 ESP32 诊断消息没有影响。要隐藏这些消息，请确保在编译草图时将 Arduino IDE 的工具菜单中的*核心调试级别*设置为“无”
+  * 注意，也可以在运行时通过 [命令行界面](CLI.md) 使用 "L" 命令更改日志级别
+  * 有关完整详细信息，请参阅 [消息日志](Logging.md)
 
 * `int getLogLevel()`
-  * returns the current Log Level as set by `setLogLevel(level)`
-  
+  * 返回由 `setLogLevel(level)` 设置的当前日志级别
+
 * `Span& setPortNum(uint16_t port)`
-  * sets the TCP port number used for communication between HomeKit and HomeSpan (default=80)
-  
+  * 设置用于 HomeKit 和 HomeSpan 之间通信的 TCP 端口号（默认值为 80）
+
 * `Span& setHostNameSuffix(const char *suffix)`
-  * sets the suffix HomeSpan appends to *hostNameBase* to create the full hostName
-  * if not specified, the default is for HomeSpan to append a dash "-" followed the 6-byte Accessory ID of the HomeSpan device
-  * setting *suffix* to a null string "" is permitted
-  * example: `homeSpan.begin(Category::Fans, "Living Room Ceiling Fan", "LivingRoomFan");` will yield a default *hostName* of the form *LivingRoomFan-A1B2C3D4E5F6.local*.  Calling `homeSpan.setHostNameSuffix("v2")` prior to `homeSpan.begin()` will instead yield a *hostName* of *LivingRoomFanv2.local*
-  
+  * 设置 HomeSpan 附加到 *hostNameBase* 的后缀以创建完整的 hostName
+  * 如果未指定，则默认为 HomeSpan 在设备的 6 字节附件 ID 后附加一个破折号 "-"
+  * 将 *suffix* 设置为允许使用空字符串 ""
+  * 示例：`homeSpan.begin(Category::Fans, "Living Room Ceiling Fan", "LivingRoomFan");` 将产生一个默认的 *hostName*，形式为 *LivingRoomFan-A1B2C3D4E5F6.local*。在 `homeSpan.begin()` 之前调用 `homeSpan.setHostNameSuffix("v2")` 将产生 *LivingRoomFanv2.local* 的 *hostName*
+
 * `Span& setQRID(const char *id)`
-  * changes the Setup ID, which is used for pairing a device with a [QR Code](QRCodes.md), from the HomeSpan default to *id*
-  * the HomeSpan default is "HSPN" unless permanently changed for the device via the [HomeSpan CLI](CLI.md) using the 'Q' command
-  * *id* must be exactly 4 alphanumeric characters (0-9, A-Z, and a-z).  If not, the request to change the Setup ID is silently ignored and the default is used instead
-  
+  * 将用于将设备与 [二维码](QRCodes.md) 配对的设置 ID 从 HomeSpan 默认值更改为 *id*
+  * 除非通过 [命令行界面](CLI.md) 使用 "Q" 命令永久更改设备，否则 HomeSpan 默认值为 "HSPN"
+  * *id* 必须正好是 4 个字母数字字符（0-9、A-Z 和 a-z）。如果不是，更改设置 ID 的请求将被默默忽略，并使用默认值
+
 ---
 
-The following **optional** `homeSpan` methods enable additional features and provide for further customization of the HomeSpan environment.  Unless otherwise noted, calls **should** be made before `begin()` to take effect:
+以下**可选** `homeSpan` 方法启用其他功能并提供对 HomeSpan 环境的进一步自定义。除非另有说明，否则**应**在 `begin()` 之前进行调用才能生效：
 
 * `int enableOTA(boolean auth=true, boolean safeLoad=true)`
-  * enables [Over-the-Air (OTA) Updating](OTA.md) of a HomeSpan device, which is otherwise disabled
-  * HomeSpan OTA requires an authorizing password unless *auth* is specified and set to *false*
-  * the default OTA password for new HomeSpan devices is "homespan-ota"
-  * this can be changed via the [HomeSpan CLI](CLI.md) using the 'O' command
-  * note enabling OTA reduces the number of HAP Controller Connections by 1
-  * OTA Safe Load will be enabled by default unless the second argument is specified and set to *false*.  HomeSpan OTA Safe Load checks to ensure that sketches uploaded to an existing HomeSpan device are themselves HomeSpan sketches, and that they also have OTA enabled.  See [HomeSpan OTA Safe Load](OTA.md#ota-safe-load) for details
-  * returns 0 if enabling OTA was successful, or -1 and reports an error to the Serial Monitor if not
+   * 启用 HomeSpan 设备的 [无线 (OTA) 更新](OTA.md)，否则该功能将被禁用
+   * HomeSpan OTA 需要授权密码，除非指定 *auth* 并将其设置为 *false*
+   * 新 HomeSpan 设备的默认 OTA 密码是 "homespan-ota" 
+   * 这可以通过 [命令行界面](CLI.md) 使用 "O" 命令进行更改
+   * 注意启用 OTA 会使 HAP 套接字连接数减少 1
+   * 除非指定第二个参数并将其设置为 *false*，否则默认情况下将启用 OTA 安全加载。HomeSpan OTA 安全加载检查以确保上传到现有 HomeSpan 设备的草图本身就是 HomeSpan 草图，并且它们也启用了 OTA。详情请参见 [HomeSpan OTA 安全加载](OTA.md#ota-安全加载)
+   * 如果启用 OTA 成功，则返回 0，否则返回 -1；并向串口监视器报告错误
 
 * `int enableOTA(const char *pwd, boolean safeLoad=true)`
-  * an alternative form of `enableOTA()` that allows you to programmatically change the OTA password to the specified *pwd*
-  * *pwd* must contain between 1 and 32 characters
-  * this command causes HomeSpan to ignore, but does not otherwise alter, any password stored using the 'O' command 
-  * returns 0 if enabling OTA was successful, or -1 and reports an error to the Serial Monitor if not
+   * `enableOTA()` 的替代形式，允许你以编程方式将 OTA 密码更改为指定的 *pwd*
+   * *pwd* 必须包含 1 至 32 个字符
+   * 此命令使 HomeSpan 忽略但不更改使用 "O" 命令存储的任何密码
+   * 如果启用 OTA 成功，则返回 0，否则返回 -1；并向串口监视器报告错误
 
 * `Span& enableAutoStartAP()`
-  * enables automatic start-up of WiFi Access Point if WiFi Credentials are **not** found at boot time
-  * methods to alter the behavior of HomeSpan's Access Point, such as `setApTimeout()`, must be called prior to `enableAutoStartAP()` to have an effect  
-  
+   * 如果在启动时**未**找到 WiFi 凭证，则启用 WiFi 接入点的自动启动
+   * 改变 HomeSpan 接入点行为的方法，例如 `setApTimeout()`，必须在 `enableAutoStartAP()` 之前调用才能生效
+
 * `Span& setApFunction(void (*func)())`
-  * replaces HomeSpan's built-in WiFi Access Point with user-defined function *func*
-  * *func* must be of type *void* and have no arguments
-  * *func* will be called instead of HomeSpan's built-in WiFi Access Point whenever the Access Point is launched:
-    * via the CLI by typing 'A', or
-    * via the Control Button using option 3 of the Command Mode, or
-    * automatically upon start-up if `enableAutoStartAP()` is set and there are no stored WiFi Credentials
-  * after identifying the SSID and password of the desired network, *func* must call `setWifiCredentials()` to save and use these values
-  * it is recommended that *func* terminates by restarting the device using `ESP.restart()`. Upon restart HomeSpan will use the SSID and password just saved
-  
+   * 调用用户定义的函数 *func* 取代 HomeSpan 的内置 WiFi 接入点
+   * *func* 必须是 *void* 类型并且没有参数
+   * *func* 将在每次启动接入点时调用，而不是 HomeSpan 的内置 WiFi 接入点：
+     * 通过 CLI 输入 "A"，或者
+     * 通过使用命令模式选项 3 的控制按钮，或
+     * 如果设置了 `enableAutoStartAP()` 并且没有存储 WiFi 凭证，则启动时自动启动
+   * 识别所需网络的 SSID 和密码后，*func* 必须调用 `setWifiCredentials()` 来保存并使用这些值
+   * 建议 *func* 通过使用 `ESP.restart()` 重新启动设备来终止。重新启动后，HomeSpan 将使用刚刚保存的 SSID 和密码
+
 * `Span& setWifiCredentials(const char *ssid, const char *pwd)`
-  * sets the SSID (*ssid*) and password (*pwd*) of the WiFi network to which HomeSpan will connect
-  * *ssid* and *pwd* are automatically saved in HomeSpan's non-volatile storage (NVS) for retrieval when the device restarts
-  * note that the saved values are truncated if they exceed the maximum allowable characters (ssid=32; pwd=64)
-  * :warning: SECURITY WARNING: The purpose of this function is to allow advanced users to *dynamically* set the device's WiFi Credentials using a customized Access Point function specified by `setApFunction(func)`. It it NOT recommended to use this function to hardcode your WiFi SSID and password directly into your sketch.  Instead, use one of the more secure methods provided by HomeSpan, such as typing 'W' from the CLI, or launching HomeSpan's Access Point, to set your WiFi credentials without hardcoding them into your sketch
- 
+  * 设置 HomeSpan 将连接的 WiFi 网络的 SSID (*ssid*) 和密码 (*pwd*)
+  * *ssid* 和 *pwd* 会自动保存在 HomeSpan 的非易失性存储器 (NVS) 中，以便在设备重启时检索
+  * 请注意，如果保存的值超过允许的最大字符数 (ssid=32; pwd=64)，则会被截断
+  * :warning: 安全警告：此函数的目的是允许高级用户使用由 `setApFunction(func)` 指定的自定义接入点函数*动态*设置设备的 WiFi 凭据。不建议使用此函数将你的 WiFi SSID 和密码直接硬编码到你的草图中。相反，使用 HomeSpan 提供的更安全的方法之一，例如从 CLI 输入 "W"，或启动 HomeSpan 的接入点，来设置你的 WiFi 凭据，而无需将它们硬编码到你的草图中
+
 * `Span& setVerboseWifiReconnect(bool verbose)`
-  * when trying connecting to WiFi, HomeSpan normally logs "Trying to connect to..." messages to the Serial Monitor and the Web Log
-  * calling this method with *verbose* set to *false* supresses these messages
-  * calling this method a second time with *verbose* set to *true* re-activates these messages (default behavior)
+  * 尝试连接到 WiFi 时，HomeSpan 通常会将“尝试连接到...”消息记录到串口监视器和网络日志
+  * 调用此方法并将 *verbose* 设置为 *false* 会抑制这些消息
+  * 第二次调用此方法并将 *verbose* 设置为 *true* 会重新激活这些消息（默认行为）
 
 * `Span& setWifiCallback(void (*func)())`
-  * sets an optional user-defined callback function, *func*, to be called by HomeSpan upon start-up just after WiFi connectivity has been initially established.  This one-time call to *func* is provided for users that are implementing other network-related services as part of their sketch, but that cannot be started until WiFi connectivity is established.  The function *func* must be of type *void* and have no arguments
+  * 设置可选的用户定义回调函数 *func*，由 HomeSpan 在 WiFi 连接初步建立后启动时调用。此对 *func* 的一次性调用适用于正在将其他网络相关服务作为其草图的一部分实现的用户，但在建立 WiFi 连接之前无法启动这些服务。函数 *func* 必须是 *void* 类型，并且没有参数
 
 * `Span& setWifiCallbackAll(void (*func)(int count))`
-  * similar to `setWiFiCallback()` above, but the user-defined callback function, *func*, is called by HomeSpan *every* time WiFi connectivity has been established or re-established after a disconnect.  The function *func* must be of type *void* and accept a single *int* argument, *count*, into which HomeSpan passes the number of times WiFi has been established or re-established (i.e. *count*=1 on initial WiFi connection; *count*=2 if re-established after the first disconnect, etc.)
-    
+  * 类似于上面的 `setWiFiCallback()`，但用户定义的回调函数 *func* 每次在 WiFi 连接建立或断开连接后重新建立时都会被 HomeSpan 调用。函数 *func* 必须是 *void* 类型，并接受单个 *int* 参数 *count*，HomeSpan 将 WiFi 建立或重新建立的次数传递给该参数（即，在初始 WiFi 连接时 *count*=1；如果在第一次断开连接后重新建立，则 *count*=2，等等）
+
 * `Span& setPairCallback(void (*func)(boolean status))`
-  * sets an optional user-defined callback function, *func*, to be called by HomeSpan upon completion of pairing to a controller (*status=true*) or unpairing from a controller (*status=false*)
-  *   this one-time call to *func* is provided for users that would like to trigger additional actions when the device is first paired, or the device is later unpaired
-  *   note this *func* is **not** called upon start-up and should not be used to simply check whether a device is paired or unpaired.  It is only called when pairing status changes
-  *   the function *func* must be of type *void* and accept one *boolean* argument
- 
+  * 设置可选的用户定义回调函数 *func*，在完成与控制器的配对（*status=true*）或与控制器的配对（*status=false*）后由 HomeSpan 调用
+  * 此一次性调用 *func* 是为希望在设备首次配对或设备稍后取消配对时触发其他操作的用户提供的
+  * 请注意，此 *func* **不会**在启动时调用，不应仅用于检查设备是否配对或取消配对。仅在配对状态改变时调用它
+  * 函数 *func* 必须是 *void* 类型并接受一个 *boolean* 参数
+
 * `Span& setControllerCallback(void (*func)())`
-  * sets an optional user-defined callback function, *func*, to be called by HomeSpan every time a new controller is added, removed, or updated, even if the pairing status does not change
-  * note this method differs from `setPairCallback()`, which is only called if the device's pairing status changes, such as when the first controller is added during initial pairing, or the last controller is removed when unpairing
-  * the function *func* must be of type *void* and have no arguments
-  * see the `controllerListBegin()` and `controllerListEnd()` methods for details on how to read the pairing data for each paired controller (*only needed to support certain advanced use cases*)
- 
+
+  * 设置可选的用户定义回调函数 func，每次添加、删除或更新新控制器时，即使配对状态没有更改，HomeSpan 也会调用该函数
+  * 注意此方法与 `setPairCallback()` 不同，仅当设备的配对状态发生变化时，例如在初始配对时添加第一个控制器，或在取消配对时删除最后一个控制器时，才会调用该方法 
+  * 函数 func 的类型必须为 void 并且没有参数
+  * 有关如何读取每个配对控制器的配对数据的详细信息，请参阅 （仅支持某些高级用例 `controllerListBegin()` `controllerListEnd())` 时需要） 
+
 * `Span& setStatusCallback(void (*func)(HS_STATUS status))`
-  * sets an optional user-defined callback function, *func*, to be called by HomeSpan whenever its running state (e.g. WiFi Connecting, Pairing Needed...) changes in way that would alter the blinking pattern of the (optional) Status LED
-  * if *func* is set, it will be called regardless of whether or not a Status LED has actually been defined
-  * this allows users to reflect changes to the current state of HomeSpan using alternative methods, such as outputting messages to an embedded LCD or E-Ink display
-  * the function *func* must be of type *void* and accept one argument of enum type [HS_STATUS](HS_STATUS.md)
+  * 设置一个可选的用户定义回调函数 *func*，每当 HomeSpan 的运行状态（例如 WiFi 连接、需要配对...）发生变化时，该函数将被调用，从而改变（可选）状态指示灯的闪烁模式
+  * 如果设置了 *func*，则无论是否实际定义了状态指示灯，都会调用它
+  * 这允许用户使用替代方法反映 HomeSpan 当前状态的变化，例如将消息输出到嵌入式 LCD 或 E-Ink 显示器
+  * 函数 *func* 必须是 *void* 类型并接受一个枚举类型 [HS_STATUS](HS_STATUS.md) 的参数
 
 * `char* statusString(HS_STATUS s)`
-  * returns a pre-defined character string message representing *s*, which must be of enum type [HS_STATUS](HS_STATUS.md)
-  * typically used in conjunction with `setStatusCallback()` above
+  * 返回一个预定义的字符串消息，表示*s*，必须是枚举类型 [HS_STATUS](HS_STATUS.md)
+  * 通常与上面的 `setStatusCallback()` 一起使用
 
 * `Span& setPairingCode(const char *s)`
-  * sets the Setup Pairing Code to *s*, which **must** be exactly eight numerical digits (no dashes)
-  * example: `homeSpan.setPairingCode("46637726");`
-  * a hashed version of the Pairing Code will be saved to the device's non-volatile storage, overwriting any currently-stored Pairing Code
-  * this method operated silently unless *s* contains an invalid code, in which case a fatal error will be reported to the Serial Monitor, the code will *not* be saved, and the sketch will be HALTED
-  * :warning: SECURTY WARNING: Hardcoding a device's Pairing Code into your sketch is considered a security risk and is **not** recommended.  Instead, use one of the more secure methods provided by HomeSpan, such as typing 'S \<code\>' from the CLI, or launching HomeSpan's Access Point, to set your Pairing Code without hardcoding it into your sketch
-
+  * 将设置配对代码设置为 *s*，**必须**正好是 8 位数字（无破折号）
+  * 示例：`homeSpan.setPairingCode("46637726");`
+  * 配对代码的哈希版本将保存到设备的非易失性存储器中，覆盖任何当前存储的配对代码
+  * 如果 *s* 包含无效代码，则会报告错误，并且不会保存代码。相反，将使用当前存储的配对代码（如果未存储任何代码，则使用 HomeSpan 默认配对代码）
+  * :warning: 安全警告：将设备的配对代码硬编码到你的草图中被视为安全风险，不建议这样做。相反，请使用 HomeSpan 提供的更安全的方法之一来设置你的配对代码，例如从 CLI 输入 "S \<code\>"，或启动 HomeSpan 的接入点，而无需将其硬编码到你的草图中
 * `Span& setSketchVersion(const char *sVer)`
-  * sets the version of a HomeSpan sketch to *sVer*, which can be any arbitrary character string
-  * if unspecified, HomeSpan uses "n/a" as the default version text
-  * HomeSpan displays the version of the sketch in the Arduino IDE Serial Monitor upon start-up
-  * HomeSpan also includes both the version of the sketch, as well as the version of the HomeSpan library used to compile the sketch, as part of its HAP MDNS broadcast.  This data is *not* used by HAP.  Rather, it is for informational purposes and allows you to identify the version of a sketch for a device that is updated via [OTA](OTA.md), rather than connected to a computer
-  
+  * 将 HomeSpan 草图的版本设置为 *sVer*，可以是任意字符串
+  * 如果未指定，HomeSpan 将使用 "n/a" 作为默认版本文本
+  * HomeSpan 在启动时在 Arduino IDE 串口监视器中显示草图的版本
+  * HomeSpan 还包括草图的版本以及用于编译草图的 HomeSpan 库的版本，作为其 HAP MDNS 广播的一部分。HAP *不*使用此数据。相反，它仅用于提供信息，并允许你识别通过 [OTA](OTA.md) 更新的设备的草图版本，而不是连接到计算机
+
 * `const char *getSketchVersion()`
-  * returns the version of a HomeSpan sketch, as set using `void setSketchVersion(const char *sVer)`, or "n/a" if not set
-  * can by called from anywhere in a sketch
+  * 返回 HomeSpan 草图的版本，使用 `void setSketchVersion(const char *sVer)` 设置，如果未设置则返回 "n/a"
+  * 可以从草图中的任何位置调用
 
 * `Span& enableWebLog(uint16_t maxEntries, const char *timeServerURL, const char *timeZone, const char *logURL)`
-  * enables a rolling Web Log that displays the most recent *maxEntries* entries created by the user with the `WEBLOG()` macro.  Parameters, and their default values if unspecified, are as follows:
-    * *maxEntries* - maximum number of (most recent) entries to save.  If unspecified, defaults to 0, in which case the Web Log will only display status without any log entries
-    * *timeServerURL* - the URL of a time server that HomeSpan will use to set its clock upon startup after a WiFi connection has been established. HomeSpan will reserve one extra socket connection when a time server is specified. If unspecified, defaults to NULL, in which case HomeSpan skips setting the device clock
-    * *timeZone* - specifies the time zone to use for setting the clock.  Uses POSIX.1 format only and does not support the *Time Zone Database*, or *tzdata*. As per [GNU libc documentation for TZ](https://www.gnu.org/software/libc/manual/html_node/TZ-Variable.html), *the offset specifies the time value you must **add to the local time** to get a Coordinated Universal Time value*. "UTC+5:00" means that local time + 5 hours give UTC time. See the GNU libc documentation for some examples, including how to specify North American Eastern Standard Time (EST) and Eastern Daylight Time (EDT) with start and end dates of EDT. If *serverURL=NULL* this field is ignored; if *serverURL!=NULL* this field is required
-    * *logURL* - the URL of the Web Log page for this device.  If unspecified, defaults to "status".  If *logURL* is set to NULL HomeSpan will use the *timeServerURL* and *timeZone* parameters to set the clock, but it will *not* serve any Web Log pages in response to any HTTP requests.  However, Web Log data is still accumulated internally and the resulting HTML can be accessed anytime by calling the `homeSpan.getWebLog()` method (see below)  
-  * example: `homeSpan.enableWebLog(50,"pool.ntp.org","UTC-1:00","myLog");` creates a web log at the URL *http<nolink>://HomeSpan-\[DEVICE-ID\].local:\[TCP-PORT\]/myLog* that will display the 50 most-recent log messages produced with the WEBLOG() macro.  Upon start-up (after a WiFi connection has been established) HomeSpan will attempt to set the device clock by calling the server "pool.ntp.org" and adjusting the time to be 1 hour ahead of UTC.
-  * when attemping to connect to *timeServerURL*, HomeSpan waits 120 seconds for a response.  This is done in the background and does not block HomeSpan from running as usual while it tries to set the time.  If no response is received after the 120-second timeout period, HomeSpan assumes the server is unreachable and skips the clock-setting procedure.  Use `setTimeServerTimeout()` to re-configure the 120-second timeout period to another value
-  * see [Message Logging](Logging.md) for complete details
+  * 启用滚动网络日志，显示用户使用 `WEBLOG()` 宏创建的最近 *maxEntries* 条目。参数及其默认值（如果未指定）如下：
+    * *maxEntries* - 要保存的最大（最近）条目数。如果未指定，则默认为 0，在这种情况下，Web 日志将仅显示状态而没有任何日志条目
+    * *timeServerURL* - 时间服务器的 URL，HomeSpan 在建立 WiFi 连接后将使用该时间服务器在启动时设置其时钟。指定时间服务器后，HomeSpan 将保留一个额外的套接字连接。如果未指定，则默认为空，在这种情况下，HomeSpan 将跳过设置设备时钟
+    * *timeZone* - 指定用于设置时钟的时区。仅使用 POSIX.1 格式，不支持 *Time Zone Database* 或 *tzdata*。根据 [TZ 的 GNU libc 文档](https://www.gnu.org/software/libc/manual/html_node/TZ-Variable.html)，*偏移量指定你必须**添加到本地时间**才能获得协调世界时值的时间值*。"UTC+5:00" 表示本地时间 + 5 小时为 UTC 时间。请参阅 GNU libc 文档以获取一些示例，包括如何指定北美东部标准时间 (EST) 和东部夏令时间 (EDT)，开始日期和结束日期为 EDT。如果 *serverURL=NULL*，则忽略此字段；如果 *serverURL!=NULL*，则必须填写此字段
+    * *logURL* - 此设备的网络日志页面的 URL。如果未指定，则默认为 "status" 。如果 *logURL* 设置为空，HomeSpan 将使用 *timeServerURL* 和 *timeZone* 参数来设置时钟，但它不会响应任何 HTTP 请求来提供任何网络日志页面。但是，Web 日志数据仍在内部累积，并且可以通过调用 `homeSpan.getWebLog()` 方法随时访问生成的 HTML（见下文）
+  * 示例：`homeSpan.enableWebLog(50,"pool.ntp.org","UTC-1:00","myLog");` 在 URL *http<nolink>://HomeSpan-\[DEVICE-ID\].local:\[TCP-PORT\]/myLog* 处创建一个网络日志，该日志将显示使用 WEBLOG() 宏生成的 50 条最新日志消息。启动时（建立 WiFi 连接后），HomeSpan 将尝试通过调用服务器 "pool.ntp.org" 并将时间调整为比 UTC 早 1 小时来设置设备时钟。
+  * 尝试连接到 *timeServerURL* 时，HomeSpan 会等待 120 秒以获得响应。这是在后台完成的，在 HomeSpan 尝试设置时间时不会阻止其照常运行。如果 120 秒超时期限后仍未收到任何响应，HomeSpan 将假定服务器无法访问并跳过时钟设置程序。使用 `setTimeServerTimeout()` 将 120 秒超时时间重新配置为其他值
+  * 有关完整详细信息，请参阅 [消息日志](Logging.md)
 
 * `Span& setTimeServerTimeout(uint32_t tSec)`
-  * changes the default 120-second timeout period HomeSpan uses when `enableWebLog()` tries set the device clock from an internet time server to *tSec* seconds
- 
+  * 将 HomeSpan 在 `enableWebLog()` 尝试将设备时钟从互联网时间服务器设置为 *tSec* 秒时使用的默认 120 秒超时时间更改为
+
 * `Span& setWebLogCSS(const char *css)`
-  * sets the format of the HomeSpan Web Log to the custom style sheet specified by *css*
-  * see [Message Logging](Logging.md) for details on how to construct *css*
+  * 将 HomeSpan网络日志的格式设置为 *css* 指定的自定义样式表
+  * 有关如何构造 *css* 的详细信息，请参阅 [消息日志](Logging.md)
 
 * `Span& setWebLogCallback(void (*func)(String &htmlText))`
-  * sets an optional user-defined callback function, *func*, to be called by HomeSpan whenever the Web Log is produced
-  * allows user to add additional custom data to the initial table of the Web Log by **extending** the String *htmlText*, which is passed as a reference to *func*
-  * the function *func* must be of type *void* and accept one argument of type *String*
-  * see [Message Logging](Logging.md) for details on how to construct *htmlText*
+  * 设置可选的用户定义回调函数 *func*，每当生成网络日志时 HomeSpan 都会调用该函数
+  * 允许用户向通过**扩展**字符串 *htmlText* 来构造网络日志的初始表，该字符串作为引用传递给 *func*
+  * 函数 *func* 必须是 *void* 类型，并接受一个 *String* 类型的参数
+  * 有关如何构造 *htmlText* 的详细信息，请参阅 [消息日志](Logging.md)
 
 * `void getWebLog(void (*f)(const char *htmlBuf, void *args), void *userData)`
-   * when called, HomeSpan *streams* the current Web Log HTML text, and any optionally-specified *userData*, directly to the user-defined function, *f()*, which should return a *void* and accept the following two arguments:
-     *  *htmlBuf* - pointer to part of the HTML text for the Web Log page
-     *  *args* - a pass-through of the *userData* argument
-   *  if user-defined data is not needed, set *userData* to NULL
-   * to avoid creating a single large text buffer, HomeSpan splits the HTML for the Web Log into chunks of 1024 bytes and repeatedly calls *f()* until all the HTML has been streamed; HomeSpan then makes a final call to *f()* with *htmlBuf* set to NULL indicating to the user that the end of the HTML text has been reached
-   * this command is primarily used to redirect Web Log pages to a user-defined process for alternative handling, display, or transmission
-   * see [Message Logging](Logging.md) for more details
-  
+  * 调用时，HomeSpan *流式传输*当前网络日志 HTML 文本以及任何可选指定的 *userData*，直接发送到用户定义的函数 *f()*，该函数应返回一个 *void* 并接受以下两个参数：
+    * *htmlBuf* - 指向网络日志页面 HTML 文本部分的指针
+    * *args* - *userData* 参数的传递
+  * 如果不需要用户定义的数据，请将 *userData* 设置为空
+  * 为避免创建单个大型文本缓冲区，HomeSpan 将网络日志的 HTML 拆分为 1024 字节的块并重复调用 *f()* 直到所有 HTML 都已流式传输；然后 HomeSpan 最后调用 *f()*，并将 *htmlBuf* 设置为空，向用户指示已到达 HTML 文本的末尾
+  * 此命令主要用于将网络日志页面重定向到用户定义的进程，以进行其他处理、显示或传输
+  * 有关更多详细信息，请参阅 [消息日志](Logging.md)
 * `void processSerialCommand(const char *CLIcommand)`
-  * processes the *CLIcommand* just as if were typed into the Serial Monitor
-  * allows for programmatic access to all CLI commands, included any custom commands defined by the user
-  * will work whether or not device is connected to a computer
-  * example: `homeSpan.processSerialCommand("A");` starts the HomeSpan Setup Access Point
-  * example: `homeSpan.processSerialCommand("Q HUB3");` changes the HomeKit Setup ID for QR Codes to "HUB3"
+  * 处理 *CLIcommand*，就像输入到串口监视器中一样
+  * 允许以编程方式访问所有 CLI 命令，包括用户定义的任何自定义命令
+  * 无​​论设备是否连接到计算机，都可以工作
+  * 示例：`homeSpan.processSerialCommand("A");` 启动 HomeSpan 设置接入点
+  * 示例：`homeSpan.processSerialCommand("Q HUB3");` 将 二维码的 HomeKit 设置 ID 更改为 "HUB3"
 
 * `Span& setRebootCallback(void (*func)(uint8_t count), uint32_t upTime)`
-  * sets an optional user-defined callback function, *func*, that is called (just once) when *upTime* milliseconds after rebooting have elapsed (default *upTime*=5000 ms if not specified)
-  * the function *func* must be of type *void* and accept one argument of type *uint8_t*
-  * the parameter *count*, which HomeSpan passes to *func*, indicates the number of "short" reboots that have occured prior to the current reboot, where a "short" reboot is any that occurs **before** *upTime* milliseconds have elapsed
-  * this allows the user to provide a generic form of input to a sketch by rapidly turning on/off power to the device a specified number of times, typically to provide a method of resetting some aspect of a remote device
-  * example using a lamba function:
+  * 设置可选的用户定义回调函数 *func*，在重启后经过 *upTime* 毫秒时调用（仅一次）（如果未指定，则默认 *upTime*=5000 毫秒）
+  * 函数 *func* 必须是输入 *void* 并接受一个 *uint8_t* 类型的参数
+  * HomeSpan 传递给 *func* 的参数 *count* 表示在当前重启之前发生的“短”重启次数，其中“短”重启是指在 *upTime* 毫秒过去之前发生的任何重启
+  * 这允许用户通过快速打开/关闭设备电源指定次数来向草图提供通用形式的输入，通常用于提供重置远程设备某些方面的方法
+  * 使用 lamba 函数的示例：
     * `homeSpan.setRebootCallback( [](uint8_t c) {if(c==3) homeSpan.processSerialCommand("X");} );`
-    * causes HomeSpan to run the 'X' Serial Command, which erases WiFi data, if the device is "short" rebooted exactly 3 times, where each reboot is for less than 5 seconds
-    * note that creating 3 short reboots means you actually cycle the power (or press the reset button) a total of 4 times, since the last time you allow the sketch to run without rebooting
- 
-* `Span& setSerialInputDisable(boolean val)`
-   * if *val* is true, disables HomeSpan from reading input from the Serial port
-   * if *val* is false, re-enables HomeSpan reading input from the Serial port
-   * useful when the main USB Serial port is needed for reading data from an external Serial peripheral, rather than being used to read input from the Arduino Serial Monitor
+    * 如果设备“短”重启恰好 3 次，每次重启时间少于 5 秒，则导致 HomeSpan 运行 "X" 串行命令，该命令将擦除 WiFi 数据
+    * 请注意，创建 3 次短重启意味着你实际上总共循环电源（或按下重置按钮）4 次，自上次允许草图运行而无需重新启动以来
 
- * `boolean getSerialInputDisable()`
-   * returns *true* if HomeSpan reading from the Serial port is currently disabled
-   * returns *false* if HomeSpan is operating normally and will read any CLI commands input into the Arduino Serial Monitor
- 
+* `Span& setSerialInputDisable(boolean val)`
+  * 如果 *val* 为 true，则禁用 HomeSpan 从串口读取输入
+  * 如果 *val* 为 false，则重新启用 HomeSpan 从串口读取输入
+  * 当需要主 USB 串口从外部串行外围设备读取数据而不是用于从 Arduino 串口监视器读取输入时很有用
+
+* `boolean getSerialInputDisable()`
+  * 如果 HomeSpan 从串口读取当前被禁用，则返回 *true*
+  * 如果 HomeSpan 正常运行并将读取输入到 Arduino 串口监视器的任何 CLI 命令，则返回 *false*
+
 ---
 
-The following **optional** `homeSpan` methods provide additional run-time functionality for more advanced use cases: 
- 
+以下**可选** `homeSpan` 方法为更高级的用例提供了额外的运行时功能：
+
 * `void deleteStoredValues()`
-  * deletes the value settings of all stored Characteristics from the NVS
-  * performs the same function as typing 'V' into the CLI
- 
+  * 删除所有存储特性的值设置来自 NVS
+  * 执行的功能与在 CLI 中输入 "V" 相同
+
 * `boolean deleteAccessory(uint32_t aid)`
-  * deletes Accessory with Accessory ID of *aid*, if found
-  * returns true if successful (match found), or false if the specified *aid* does not match any current Accessories
-  * allows for dynamically changing the Accessory database during run-time (i.e. changing the configuration *after* the Arduino `setup()` has finished)
-  * deleting an Accessory automatically deletes all Services, Characteristics, and any other resources it contains
-  * outputs Level-1 Log Messages listing all deleted components
-  * note: though deletions take effect immediately, HomeKit Controllers, such as the Home App, will not be aware of these changes until the database configuration number is updated and rebroadcast - see `updateDatabase()` below
- 
+  * 如果找到，则删除附件 ID 为 *aid* 的附件
+  * 如果成功（找到匹配项），则返回 true；如果指定的 *aid* 与任何当前附件不匹配，则返回 false
+  * 允许在运行时动态更改附件数据库（即在 Arduino `setup()` 完成后更改配置）
+  * 删除附件会自动删除其包含的所有服务、特性和任何其他资源
+  * 输出列出所有已删除组件的 1 级日志消息
+  * 注意：虽然删除会立即生效，但 HomeKit 控制器（如“家庭”应用）在数据库配置编号更新并重新广播之前不会知道这些更改 - 请参阅下面的 `updateDatabase()`
+
 * `boolean updateDatabase()`
-  * recomputes the database configuration number and, if changed, rebroadcasts the new number via MDNS so all connected HomeKit Controllers, such as the Home App, can request a full refresh to accurately reflect the new configuration
-  * returns true if configuration number has changed, false otherwise
-  * *only* needed if you want to make run-time (i.e. after the Arduino `setup()` function has completed) changes to the device's Accessory database 
-  * use anytime after dynamically adding one or more Accessories (with `new SpanAccessory(aid)`) or deleting one or more Accessories (with `homeSpan.deleteAccessory(aid)`)
-  * **important**: once you delete an Accessory, you cannot re-use the same *aid* when adding a new Accessory (on the same device) unless the new Accessory is configured with the exact same Services and Characteristics as the deleted Accessory
-  * note: this method is **not** needed if you have a static Accessory database that is fully defined in the Arduino `setup()` function of a sketch
+  * 重新计算数据库配置编号，如果发生更改，则通过 MDNS 重新广播新编号，以便所有连接的 HomeKit 控制器（如“家庭”应用）可以请求完全刷新以准确反映新配置
+  * 如果配置编号已更改，则返回 true，否则返回 false
+  * *仅*在你想要对设备的附件数据库进行运行时（即 Arduino `setup()` 函数完成后）更改时才需要
+  * 在动态添加一个或多个附件（使用 `new SpanAccessory(aid)`）或删除一个或多个附件（使用`homeSpan.deleteAccessory(aid)`)
+  * **重要**：删除配件后，你不能在添加新配件时（在同一设备上）重复使用相同的 *aid*，除非新配件配置了与已删除配件完全相同的服务和特性
+  * 注意：如果你有一个在草图的 Arduino `setup()` 函数中完全定义的静态配件数据库，则**不需要**此方法
 
 * `Span& resetIID(uint32_t newIID)`
-  * resets the IID count for the current Accessory to *newIID*, which must be greater than 0
-  * throws an error and halts program if called before at least one Accessory is created
-  * example: `homeSpan.resetIID(100)` causes HomeSpan to set the IID to 100 for the very next Service or Characteristic defined within the current Accessory, and then increment the IID count going forward so that any Services or Characteristics subsequently defined (within the same Accessory) have IID=101, 102, etc.
-  * note: calling this function only affects the IID generation for the current Accessory (the count will be reset to IID=1 upon instantiation of a new Accessory)
+  * 将当前附件的 IID 计数重置为 *newIID*，该计数必须大于 0
+  * 如果在创建至少一个附件之前调用，则会引发错误并暂停程序
+  * 例如：`homeSpan.resetIID(100)` 导致 HomeSpan 将当前附件中定义的下一个服务或特性的 IID 设置为 100，然后向前增加 IID 计数，以便随后定义的任何服务或特性（在同一个附件内）具有 IID=101、102 等。
+  * 注意：调用此函数仅影响当前附件的 IID 生成（实例化新附件时，计数将重置为 IID=1）
 
 * `const_iterator controllerListBegin()` and `const_iterator controllerListEnd()`
-  * returns a *constant iterator* pointing to either the *beginning*, or the *end*, of an opaque linked list that stores all controller data
-  * iterators should be defined using the `auto` keyword as follows: `auto myIt=homeSpan.controllerListBegin();`
-  * controller data can be read from a de-referenced iterator using the following methods:    
-    * `const uint8_t *getID()` returns pointer to the 36-byte ID of the controller
-    * `const uint8_t *getLTPK()` returns pointer to the 32-byte Long Term Public Key of the controller
-    * `boolean isAdmin()` returns true if controller has admin permissions, else returns false
-  * <details><summary>click here for example code</summary><br>
+  * 返回一个*常量迭代器*，指向存储所有控制器数据的不透明链表的*开头*或*结尾*
+  * 迭代器应使用“auto”关键字定义，如下所示： `auto myIt=homeSpan.controllerListBegin();`
+  * 可以使用以下方法从取消引用的迭代器读取控制器数据：  
+    * `const uint8_t *getID()` 返回指向控制器 36 字节 ID 的指针
+    * `const uint8_t *getLTPK()` 返回指向控制器的 32 字节长期公钥的指针
+    * `boolean isAdmin()` 如果控制器具有管理员权限则返回 true，否则返回 false
+
+  * <details><summary>单击此处查看示例代码</summary><br>
 
     ```C++
-    // Extract and print the same data about each controller that HomeSpan prints to the Serial Monitor when using the 's' CLI command
+    // 提取并打印有关每个控制器的相同数据，HomeSpan 使用 "s" CLI 命令时会将其打印到串行监视器
     
     Serial.printf("\nController Data\n");
     
-    for(auto it=homeSpan.controllerListBegin(); it!=homeSpan.controllerListEnd(); ++it){  // loop over each controller
+    for(auto it=homeSpan.controllerListBegin(); it!=homeSpan.controllerListEnd(); ++it){  // 循环遍历每个控制器
     
-      Serial.printf("Admin=%d",it->isAdmin());    // indicate if controller has admin permissions
+      Serial.printf("Admin=%d",it->isAdmin());    // 指示控制器是否具有管理员权限
 
-      Serial.printf("  ID=");                     // print the 36-byte Device ID of the controller
+      Serial.printf("  ID=");                     // 打印控制器的 36 字节设备 ID
       for(int i=0;i<36;i++)
         Serial.printf("%02X",it->getID()[i]);
     
-      Serial.printf("  LTPK=");                   // print the 32-byte Long-Term Public Key of the controller)
+      Serial.printf("  LTPK=");                   // 打印控制器的32字节长期公钥
       for(int i=0;i<32;i++)
         Serial.printf("%02X",it->getLTPK()[i]);
     
@@ -324,323 +324,318 @@ The following **optional** `homeSpan` methods provide additional run-time functi
     }
     ```
     </details>
- 
+
 ---
 
-The following `homeSpan` methods are considered experimental, since not all use cases have been explored or debugged.  Use with caution:
- 
+以下 `homeSpan` 方法被视为实验性的，因为并非所有用例都经过探索或调试。请谨慎使用：
+
 * `void autoPoll(uint32_t stackSize, uint32_t priority, uint32_t cpu)`
- 
-  * an *optional* method to create a separate task that repeatedly calls `poll()` in the background.  This frees up the Ardino `loop()` method for any user-defined code to run in parallel that would otherwise block, or be blocked by, calling `poll()` in the `loop()` method.  Parameters, and their default values if unspecified, are as follows:
- 
-    * *stackSize* - size of stack, in bytes, used by the polling task.  Default=8192 if unspecified
-    * *priority* - priority at which task runs.  Minimum is 1.  Maximum is typically 24, but it depends on how the ESP32 operating system is configured. If you set it to an arbitrarily high value (e.g. 999), it will be set to the maximum priority allowed.  Default=1 if unspecified
-    * *cpu* - specifies the CPU on which the polling task will run.  Valid values are 0 and 1.  This parameter is ignored on single-cpu boards.  Default=0 if unspecified
-  * if used, **must** be placed in a sketch as the last line in the Arduino `setup()` method
-  * HomeSpan will throw and error and halt if both `poll()`and `autoPoll()` are used in the same sketch - either place `poll()` in the Arduino `loop()` method **or** place `autoPoll()` at the the end of the Arduino `setup()` method
-  * if this method is used, and you have no need to add your own code to the main Arduino `loop()`, you can safely skip defining a blank `void loop(){}` function in your sketch
-  * warning: if any code you add to the Arduino `loop()` method tries to alter any HomeSpan settings or functions running in the background `poll()` task, race conditions may yield undefined results
- 
-* `TaskHandle_t getAutoPollTask()`
-  * returns the task handle for the Auto Poll Task, or NULL if Auto Polling has not been used
- 
+
+  * 一种*可选*方法，用于创建一个单独的任务，该任务在后台重复调用 `poll()`。这释放了 Ardino `loop()` 方法，以便任何用户定义的代码可以并行运行，否则这些代码会阻塞或被 cal 阻塞在 `loop()` 方法中调用 `poll()`。参数及其默认值（如果未指定）如下：
+
+    * *stackSize* - 轮询任务使用的堆栈大小（以字节为单位）。如果未指定，则默认值为 8192
+    * *priority* - 任务运行的优先级。最小值为 1。最大值通常为 24，但这取决于 ESP32 操作系统的配置方式。如果将其设置为任意高值（例如 999），它将被设置为允许的最大优先级。如果未指定，则默认值为 1
+    * *cpu* - 指定轮询任务将在其上运行的 CPU。有效值为 0 和 1。在单 CPU 板上，此参数将被忽略。如果未指定，则默认为 0
+  * 如果使用，**必须**将其放在草图中作为 Arduino `setup()` 方法的最后一行
+  * 如果在同一个草图中同时使用 `poll()` 和 `autoPoll()`，HomeSpan 将抛出错误并停止 - 将 `poll()` 放在 Arduino `loop()` 方法中**或**将 `autoPoll()` 放在 Arduino `setup()` 方法的末尾
+  * 如果使用此方法，并且你不需要将自己的代码添加到主 Arduino `loop()`，则可以安全地跳过在草图中定义空白的 `void loop(){}` 函数
+  * 警告：如果你添加到 Arduino `loop()` 方法的任何代码试图更改任何 HomeSpan 设置或在后台 `poll()` 任务中运行的函数，竞争条件可能会产生未定义的结果
+
+* `TaskHandle_t getAutoPollTask​​()`
+  * 返回自动轮询任务的任务句柄，如果未使用自动轮询，则返回空
+
 ## *SpanAccessory(uint32_t aid)*
 
-Creating an instance of this **class** adds a new HAP Accessory to the HomeSpan HAP Database.
+创建此**类**的实例会将新的 HAP 附件添加到 HomeSpan HAP 数据库。
 
-  * every HomeSpan sketch requires at least one Accessory
-  * a sketch can contain a maximum of 150 Accessories per sketch (if exceeded, a runtime error will the thrown and the sketch will halt)
-  * there are no associated methods
-  * the argument *aid* is optional.
-  
-    * if specified and *not* zero, the Accessory ID is set to *aid*.
-    * if unspecified, or equal to zero, the Accessory ID will be set to one more than the ID of the previously-instantiated Accessory, or to 1 if this is the first Accessory.
-    * the first Accessory instantiated must always have an ID=1 (which is the default if *aid* is unspecified).
-    * setting the *aid* of the first Accessory to anything but 1 throws an error during initialization.
-    
-  * you must call `homeSpan.begin()` before instantiating any Accessories
-  * example: `new SpanAccessory();`
-  
+* 每个 HomeSpan 草图至少需要一个附件
+* 每个草图最多可包含 150 个附件（如果超过，将引发运行时错误，并且草图将停止）
+* 没有关联方法
+* 参数 *aid* 是可选的。
+
+  * 如果指定且*不*为零，附件 ID 将设置为 *aid*。
+  * 如果未指定或等于零，附件 ID 将设置为比先前实例化的附件的 ID 多 1，如果这是第一个附件，则设置为 1。
+  * 实例化的第一个附件必须始终具有 ID=1（如果未指定 *aid*，则为默认值）。
+  * 将第一个附件的 *aid* 设置为 1 以外的任何值都会在初始化期间引发错误。
+
+* 你必须在实例化任何附件之前调用 `homeSpan.begin()`
+* 示例：`new SpanAccessory();`
+
 ## *SpanService()*
 
-This is a **base class** from which all HomeSpan Services are derived, and should **not** be directly instantiated.  Rather, to create a new Service instantiate one of the HomeSpan Services defined in the [Service](ServiceList.md) namespace.  No arguments are needed.
+这是一个**基类**，所有 HomeSpan 服务都从中派生，不应直接实例化。相反，要创建新服务，请实例化 [服务和特征](ServiceList.md) 命名空间中定义的 HomeSpan 服务之一。不需要任何参数。
 
-* instantiated Services are added to the HomeSpan HAP Database and associated with the last Accessory instantiated
-* instantiating a Service without first instantiating an Accessory throws an error during initialization
-* example: `new Service::MotionSensor();`
+* 实例化的服务将添加到 HomeSpan HAP 数据库并与最后实例化的附件相关联
+* 在没有先实例化附件的情况下实例化服务会在初始化期间引发错误
+* 示例：`new Service::MotionSensor();`
 
-The following methods are supported:
+支持以下方法：
 
 * `SpanService *setPrimary()`
-  * specifies that this is the primary Service for the Accessory.  Returns a pointer to the Service itself so that the method can be chained during instantiation 
-  * example: `(new Service::Fan)->setPrimary();`
-  * note though this functionality is defined by Apple in HAP-R2, it seems to have been deprecated and no longer serves any purpose or has any affect on the Home App
-  
+  * 指定这是附件的主要服务。返回指向服务本身的指针，以便可以在实例化期间链接该方法
+  * 示例：`(new Service::Fan)->setPrimary();`
+  * 注意，尽管此功能由 Apple 在 HAP-R2 中定义，但它似乎已被弃用，不再有任何用途或对 “家庭”应用有任何影响
+
 * `SpanService *setHidden()`
-  * specifies that this is hidden Service for the Accessory.  Returns a pointer to the Service itself so that the method can be chained during instantiation.
-  * example: `(new Service::Fan)->setHidden();`
-  * note though this functionality is defined by Apple in HAP-R2, it seems to have been deprecated and no longer serves any purpose or has any affect on the Home App
-  
+  * 指定这是配件的隐藏服务。返回指向服务本身的指针，以便可以在实例化期间链接该方法。
+  * 示例：`(new Service::Fan)->setHidden();`
+  * 注意，尽管此功能由 Apple 在 HAP-R2 中定义，但它似乎已被弃用，不再有任何用途或对 “家庭”应用有任何影响
+
 * `SpanService *addLink(SpanService *svc)`
-  * adds *svc* as a Linked Service.  Returns a pointer to the calling Service itself so that the method can be chained during instantiation
-  * note that Linked Services are only applicable for select HAP Services.  See Apple's HAP-R2 documentation for full details
-  * example: `(new Service::Faucet)->addLink(new Service::Valve)->addLink(new Service::Valve);` (links two Valves to a Faucet)
+  * 将 *svc* 添加为链接服务。返回指向调用服务本身的指针，以便可以在实例化期间链接该方法
+  * 请注意，链接服务仅适用于部分 HAP 服务。有关完整详细信息，请参阅 Apple 的 HAP-R2 文档
+  * 示例：`(new Service::Faucet)->addLink(new Service::Valve)->addLink(new Service::Valve);`（将两个阀门链接到一个水龙头）
 
 * `vector<T> getLinks<T=SpanService *>(const char *serviceName=NULL)`
-  * template function that returns a vector of pointers to Services that were added using `addLink()`
-    * if template parameter, *T*, is left blank, the elements of the returned vector will be of type *SpanService \**
-    * if template parameter, *T*, is specified, the elements of the returned vector will be cast into type *T*
-  * if *serviceName* is specified, only those services matching *serviceName* will be included in the return vector
-    * *serviceName* must be one of HomeSpan's built-in Services (e.g. "Valve")
-    * if *serviceName* is left blank or set to NULL, all services will be included in the return vector
-  * this function is useful for creating loops that iterate over all linked Services
-  * example: from within a Faucet Service containing linked Valves defined in *MyValveService*, use `for(auto valve : getLinks<MyValveService *>()) { if(valve->active->getVal()) ... }` to check which Valves are active
-  
+  * 模板函数返回使用 `addLink()` 添加的服务指针向量
+    * 如果模板参数 T 留空，则返回向量的元素将为 SpanService * 类型
+    * 如果指定了模板参数 *T*，则返回向量的元素将被转换为类型 *T*
+  * 如果指定了 *serviceName*，则只有与 *serviceName* 匹配的服务才会包含在返回向量中
+    * *serviceName* 必须是 HomeSpan 的内置服务之一（例如 "Valve"）
+    * 如果 *serviceName* 留空或设置为 NULL，则所有服务都将包含在返回向量中
+  * 此功能对于创建遍历所有链接服务的循环非常有用
+  * 例如：在包含 *MyValveService* 中定义的链接阀门的水龙头服务中，使用 `for(auto valve : getLinks<MyValveService *>()) { if(valve->active->getVal()) ... }` 来检查哪些阀门处于活动状态
+
 * `virtual boolean update()`
-  * HomeSpan calls this method upon receiving a request from a HomeKit Controller to update one or more Characteristics associated with the Service.  Users should override this method with code that implements that requested updates using one or more of the SpanCharacteristic methods below.  Method **must** return *true* if update succeeds, or *false* if not.
-  
+  * HomeSpan 在收到来自 HomeKit 控制器的请求以更新与服务相关的一个或多个特性时调用此方法。用户应该用实现请求的更新的代码覆盖此方法使用下面一个或多个 SpanCharacteristic 方法更新。如果更新成功，方法**必须**返回 *true*，否则返回 *false*。
+
 * `virtual void loop()`
-  * HomeSpan calls this method every time `homeSpan.poll()` is executed.  Users should override this method with code that monitors for state changes in Characteristics that require HomeKit Controllers to be notified using one or more of the SpanCharacteristic methods below.
-  
+  * 每次执行 `homeSpan.poll()` 时，HomeSpan 都会调用此方法。用户应使用下面一个或多个 SpanCharacteristic 方法，用代码覆盖此方法，以监控需要通知 HomeKit 控制器的特性的状态变化。
+
 * `virtual void button(int pin, int pressType)`
-  * HomeSpan calls this method whenever a SpanButton() object associated with the Service is triggered.  Users should override this method with code that implements any actions to be taken in response to the SpanButton() trigger using one or more of the SpanCharacteristic methods below.
-    * *pin* - the ESP32 pin associated with the SpanButton() object
-    * *pressType* - 
-      * 0=single press (SpanButton::SINGLE)
-      * 1=double press (SpanButton::DOUBLE)
-      * 2=long press (SpanButton::LONG)
-     
+  * 每当触发与服务关联的 SpanButton() 对象时，HomeSpan 都会调用此方法。用户应使用下面一个或多个 SpanCharacteristic 方法，用代码覆盖此方法，以实施响应 SpanButton() 触发器而采取的任何操作。
+    * *pin* - 与 SpanButton() 对象关联的 ESP32 引脚
+    * *pressType* -
+      * 0=单击 (SpanButton::SINGLE)
+      * 1=双击 (SpanButton::DOUBLE)
+      * 2=长按 (SpanButton::LONG)
+
 * `uint32_t getIID()`
-  * returns the IID of the Service
-    
+  * 返回服务的 IID
+
 ## *SpanCharacteristic(value [,boolean nvsStore])*
-  
-This is a **base class** from which all HomeSpan Characteristics are derived, and should **not** be directly instantiated.  Rather, to create a new Characteristic instantiate one of the HomeSpan Characteristics defined in the [Characteristic](ServiceList.md) namespace.
 
-* instantiated Characteristics are added to the HomeSpan HAP Database and associated with the last Service instantiated
-* instantiating a Characteristic without first instantiating a Service throws an error during initialization
-* the first argument optionally allows you to set the initial *value* of the Characteristic at startup using the following formats:
-  * for NUMERIC Characteristics, *value* can be any integer or decimal numeric type, such as `boolean`, `int`, `uint64_t`, `double`, etc.  HomeSpan will automatically cast *value* into a variable with the correct numerical precision for the Characteristic specified
-  * for STRING Characteristics, *value* must be either of the type `char *`, or a literal quote-enclosed UTF-8 string
-  * for TLV8 Characteristics, *value* must be of the type `TLV8`
-  * for DATA Characteristics, *value* must be a brace-enclosed *pair* of the form `{uint8_t *data, size_t len}`, where *len* specifies the length of the size of the byte-array *data*
-* if *value* is not specified, HomeSpan will supply a reasonable default for the Characteristic
-* for numerical Characteristics, throws a runtime warning if *value* is outside of the min/max range for the Characteristic, where min/max is either the HAP default, or any new values set via a call to `setRange()`
-* the second optional argument, if set to `true`, instructs HomeSpan to save updates to this Characteristic's value in the device's non-volative storage (NVS) for restoration at startup if the device should lose power.  If not specified, *nvsStore* will default to `false` (no storage)
-* examples:
-  * `new Characteristic::Brightness();`           Brightness initialized to default value
-  * `new Characteristic::Brightness(50);`         Brightness initialized to 50
-  * `new Characteristic::Brightness(50,true);`    Brightness initialized to 50; updates to the value are saved to, and restored from, NVS
+这是一个**基类**，所有 HomeSpan 特性都从中派生而来，不应直接实例化。相反，要创建新的特性，请实例化 [服务和特征](ServiceList.md) 命名空间中定义的 HomeSpan 特性之一。
 
-#### The following methods are supported for numerical-based Characteristics (e.g. *int*, *float*...):
+* 实例化的特征被添加到 HomeSpan HAP 数据库并与最后实例化的服务相关联
+* 在没有首先实例化服务的情况下实例化特征会在初始化期间引发错误
+* 第一个参数可选地允许您在启动时使用以下格式设置特征的初始*值*：
+  * 对于数字特征，*值*可以是任何整数或十进制数字类型，例如 `boolean`、`int`、`uint64_t`、`double` 等。HomeSpan 将自动将*值* 转换为具有指定特征的正确数值精度的变量
+  * 对于字符串特征，*值*必须是 `char *` 类型或文字引号括起来的 UTF-8 字符串
+  * 对于 TLV8 特征，*值*必须是 `TLV8` 类型
+  * 对于数据特征，*值*必须是括号括起来的*对*，形式为 `{uint8_t *data, size_t len}`，其中 *len* 指定字节数组 *data* 的大小的长度
+* 如果未指定 *value*，HomeSpan 将为特征提供合理的默认值
+* 对于数值特征，如果 *value* 超出特征的最小/最大范围，则抛出运行时警告，其中最小/最大是 HAP 默认值，或通过调用 `setRange()` 设置的任何新值
+* 如果将第二个可选参数设置为 `true`，则指示 HomeSpan 将此特征值的更新保存在设备的非易失性存储器 (NVS) 中，以便在设备断电时在启动时恢复。如果未指定，*nvsStore* 将默认为 `false`（无存储）
+* 示例：
+  * `new Characteristic::Brightness();`           亮度初始化为默认值
+  * `new Characteristic::Brightness(50);`         亮度初始化为 50
+  * `new Characteristic::Brightness(50,true);`    亮度初始化为 50；保存在 NVS 中的更新
+
+#### 以下方法支持基于数值的特性（例如 *int*、*float*...）：
 
 * `type T getVal<T>()`
-  * a template method that returns the **current** value of a numerical-based Characteristic, after casting into the type *T* specified (e.g. *int*, *double*, etc.).  If template parameter is excluded, value will be cast to *int*.
-  * example with template specified: `double temp = Characteristic::CurrentTemperature->getVal<double>();`
-  * example with template excluded : `int tilt = Characteristic::CurrentTiltAngle->getVal();`
+  * 模板方法，在转换为指定的类型 *T*（例如 *int*、*double* 等）后返回基于数值的特性的**当前**值。如果排除模板参数，值将转换为 *int*。
+  * 指定模板的示例：`double temp = Characteristic::CurrentTemperature->getVal<double>();`
+  * 排除模板的示例：`int tilt = Characteristic::CurrentTiltAngle->getVal();`
 
 * `type T getNewVal<T>()`
-  * a template method that returns the desired **new** value to which a HomeKit Controller has requested the Characteristic be updated.  Same casting rules as for `getVal<>()`
-  * only applicable when called from within the `update()` loop of a **SpanService** (if called outside of the `update()` loop, the return value is that same as calling `getVal<>()`)
-    
-* `void setVal(value [,boolean notify])`
-  * sets the value of a numerical-based Characteristic to *value*, and, if *notify* is set to true, notifies all HomeKit Controllers of the change.  The *notify* flag is optional and will be set to true if not specified.  Setting the *notify* flag to false allows you to update a Characateristic without notifying any HomeKit Controllers, which is useful for Characteristics that HomeKit automatically adjusts (such as a countdown timer) but will be requested from the Accessory if the Home App closes and is then re-opened
-  * works with any integer, boolean, or floating-based numerical *value*, though HomeSpan will convert *value* into the appropriate type for each Characteristic (e.g. calling `setValue(5.5)` on an integer-based Characteristic results in *value*=5)
-  * throws a runtime warning if *value* is outside of the min/max range for the Characteristic, where min/max is either the HAP default, or any new min/max range set via a prior call to `setRange()`
-  * note that *value* is **not** restricted to being an increment of the step size; for example it is perfectly valid to call `setVal(43.5)` after calling `setRange(0,100,5)` on a floating-based Characteristic even though 43.5 does does not align with the step size specified.  The Home App will properly retain the value as 43.5, though it will round to the nearest step size increment (in this case 45) when used in a slider graphic (such as setting the temperature of a thermostat)
-  * throws a runtime warning if called from within the `update()` routine of a **SpanService** *and* `isUpdated()` is *true* for the Characteristic (i.e. it is being updated at the same time via the Home App), *unless* you are changing the value of a Characteristic in response to a *write-response* request from HomeKit (typically used only for certain TLV-based Characteristics)
-  * note this method can be used to update the value of a Characteristic even if the Characteristic is not permissioned for event notifications (EV), in which case the value stored by HomeSpan will be updated but the Home App will *not* be notified of the change
+  * 模板方法，返回 HomeKit 控制器请求更新特性所需的**新**值。与 `getVal<>()` 相同的转换规则
+  * example with template excluded : `int tilt = Characteristic::CurrentTiltAngle->getVal();`
 
+* `void setVal(value [,boolean notify])`
+  * 将基于数字的特性的值设置为 *value*，如果 *notify* 设置为 true，则通知所有 HomeKit 控制器有关更改。*notify* 标志是可选的，如果未指定，则将设置为 true。将 *notify* 标志设置为 false 允许您在不通知任何 HomeKit 控制器的情况下更新特性，这对于 HomeKit 自动调整的特性（例如倒数计时器）很有用，但如果 Home App 关闭然后重新打开，则会从配件中​​请求
+  * 适用于任何整数、布尔值或浮点型数值*值*，但 HomeSpan 会将*值*转换为每个特征的适当类型（例如，在基于整数的特征上调用`setValue(5.5)`会导致*值*=5）
+  * 如果 *value* 超出了特征的最小/最大范围，则会引发运行时警告，其中最小/最大是 HAP 默认值，或者通过之前调用 `setRange()` 设置的任何新的最小/最大范围
+  * 请注意，*值* **不**限于步长增量；例如，在基于浮动的特性上调用 `setRange(0,100,5)` 后调用 `setVal(43.5)` 是完全有效的，即使 43.5 与指定的步长不一致。Home App 将正确保留该值为 43.5，但在滑块图形中使用时（例如设置恒温器的温度），它将四舍五入到最接近的步长增量（在本例中为 45）
+  * 如果从 **SpanService** 的 `update()` 例程中调用，并且 `isUpdated()` 对于特征为 *true*（即，它正在通过 Home App 同时更新），则会引发运行时警告，*除非*您正在响应来自 HomeKit 的 *write-response* 请求来更改特征的值（通常仅用于某些基于 TLV 的特征）
+  * 请注意，即使特征未获得事件通知 (EV) 许可，此方法也可用于更新特征的值，在这种情况下，HomeSpan 存储的值将被更新，但 Home App 将*不会*收到有关更改的通知
 
 * `SpanCharacteristic *setRange(min, max, step)`
-  * overrides the default HAP range for a Characteristic with the *min*, *max*, and *step* parameters specified
-  * *step* is optional; if unspecified (or set to a non-positive number), the default HAP step size remains unchanged
-  * works with any integer or floating-based parameters, though HomeSpan will recast the parameters into the appropriate type for each Characteristic (e.g. calling `setRange(50.5,70.3,0.5)` on an integer-based Characteristic results in *min*=50, *max*=70, and *step*=0)
-  * an error is thrown if:
-    * called on a Characteristic that does not suport range changes, or
-    * called more than once on the same Characteristic
-  * returns a pointer to the Characteristic itself so that the method can be chained during instantiation
-  * example: `(new Characteristic::Brightness(50))->setRange(10,100,5);`
-  
-* `SpanCharacteristic *setValidValues(int n, [int v1, int v2 ...])`
-  * overrides the default HAP Valid Values for Characteristics that have specific enumerated Valid Values with a variable-length list of *n* values *v1*, *v2*, etc.
-  * works on Characteristics with UINT8, UINT16, UINT32, and INT formats only
-    * a warning message is thrown, and the request is ignored, if this method is called on a Characteristic with any other format
-  * returns a pointer to the Characteristic itself so that the method can be chained during instantiation
-  * example: `(new Characteristic::SecuritySystemTargetState())->setValidValues(3,0,1,3);` creates a new Valid Value list of length=3 containing the values 0, 1, and 3.  This has the effect of informing HomeKit that a SecuritySystemTargetState value of 2 (Night Arm) is not valid and should not be shown as a choice in the Home App
+  * 覆盖指定了 *min*、*max* 和 *step* 参数的特性的默认 HAP 范围
+  * *step* 是可选的；如果未指定（或设置为非正数），则默认 HAP 步长保持不变
+  * 适用于任何整数或浮点型参数，但 HomeSpan 会将参数重铸为每个特征的适当类型（例如，在基于整数的特征上调用 `setRange(50.5,70.3,0.5)` 会导致 *min*=50、*max*=70 和 *step*=0）
+  * 如果出现以下情况，则会抛出错误：
+    * 在不支持范围更改的特征上调用，或者
+    * 在同一个特征上调用多次
+  * 返回指向特征本身的指针，以便在实例化期间可以链接该方法
+  * 示例：`(new Characteristic::Brightness(50))->setRange(10,100,5);`
 
-#### The following methods are supported for string-based Characteristics (i.e. a null-terminated C-style array of characters):
+* `SpanCharacteristic *setValidValues(int n, [int v1, int v2 ...])`
+  * 使用可变长度的 *n* 值列表覆盖具有特定枚举有效值的特征的默认 HAP 有效值 *v1*、*v2* 等。
+  * 仅适用于 UINT8、UINT16、UINT32 和 INT 格式的特性
+    * 如果在任何其他格式的特性上调用此方法，则会抛出警告消息并忽略请求
+  * 返回指向特性本身的指针，以便可以在实例化期间链接该方法
+  * 示例：`(new Characteristic::SecuritySystemTargetState())->setValidValues(3,0,1,3);` 创建一个长度为 3 的新有效值列表，其中包含值 0、1 和 3。这会通知 HomeKit，SecuritySystemTargetState 的值为 2（夜间布防）无效，不应在 “家庭”应用中显示为选项
+
+#### 以下方法支持基于字符串的特性（即以空字符结尾的 C 风格字符数组)：
 
 * `char *getString()`
-  * equivalent to `getVal()`, but used exclusively for string-characteristics (i.e. a null-terminated array of characters)
-  
-* `char *getNewString()`
-  * equivalent to `getNewVal()`, but used exclusively for string-characteristics (i.e. a null-terminated array of characters)
+  * 相当于 `getVal()`，但专用于字符串特征（即以空字符结尾的字符数组）
 
-* `void setString(const char *value [,boolean notify])`
-  * equivalent to `setVal(value)`, but used exclusively for string-characteristics (i.e. a null-terminated array of characters)
- 
-#### The following methods are supported for DATA (i.e. byte-array) Characteristics:
+* `char *getNewString()`
+  * 相当于 `getNewVal()`，但专用于字符串特征（即以空字符结尾的字符数组）
+
+* `void setString(const char *value)`
+  * 相当于 `setVal(value)`，但专用于字符串特征（即以空字符结尾的字符数组）
+
+#### DATA（即字节数组）特征支持以下方法：
 
 * `size_t getData(uint8_t *data, size_t len)`
-  * similar to `getVal()`, but exclusively used for byte-array Characteristics
-  * fills byte array *data*, of specified size *len*, with all bytes "encoded" as the current value of the Characteristic
-  * returns the total number of bytes encoded in the Characteristic
-  * if *len* is less than the total number of bytes encoded, no data is extracted (i.e. *data* is unmodified) and a warning message is thrown indicating that the size of the *data* array is insufficient to extract all the bytes encoded in the Characteristic
-  * setting *data* to NULL returns the total number of bytes encoded without extracting any data.  This can be used to help create a *data* array of sufficient size in advance of extracting the data
-  * note: byte-array Characteristics are encoded and transmitted as base-64 strings.  HomeSpan automatically peforms all encoding and decoding between this format and the specified byte arrays.  But when output to the Serial Monitor using the 'i' CLI command, the value of byte-array Characteristics are displayed in their base-64 string format (only the first 32 characters are shown), since base-64 is the representation that is actually transmitted to and from HomeKit
-  * a warning message is thrown if the value stored in the Characteristic is not in base-64 format
-  
+  * 类似于 `getVal()`，但专用于字节数组特征
+  * 用指定大小 *len* 的字节数组 *data* 填充所有字节“编码”为特征的当前值
+  * 返回特征中编码的总字节数
+  * 如果 *len* 小于编码的总字节数，则不会提取任何数据（即 *data* 未修改），并会抛出一条警告消息，表明 *data* 数组的大小不足以提取特征中编码的所有字节
+  * 将 *data* 设置为空 会返回编码的总字节数，但不提取任何数据。这可用于在提取数据之前帮助创建足够大小的 *data* 数组
+  * 注意：字节数组特征被编码并传输为 base-64 字符串。HomeSpan 会自动执行此格式与指定字节数组之间的所有编码和解码。但是，当使用 "i" CLI 命令输出到串行监视器时，字节数组特征的值将以其 base-64 字符串格式显示（仅显示前 32 个字符），因为 base-64 是实际传入和传出 HomeKit 的表示形式
+  * 如果存储在 Characteristic 中的值不是 base-64 格式，则会引发警告消息
+
 * `size_t getNewData(uint8_t *data, size_t len)`
-  * similar to `getData()`, but fills byte array *data*, of specified size *len*, with bytes based on the desired **new** value to which a HomeKit Controller has requested the Characteristic be updated
+  * 类似于 `getData()`，但会根据 HomeKit 控制器要求更新特征所需的**新**值，用字节填充指定大小 *len* 的字节数组 *data*
 
-* `void setData(uint8_t *data, size_t len [,boolean notify])`
-  * similar to `setVal()`, but exclusively used for byte-array Characteristics
-  * updates the Characteristic by "filling" it with *len* bytes from bytes array *data*
-
-#### The following methods are supported for TLV8 (structured-data) Characteristics:
-
-* `size_t getTLV(TLV8 &tlv)`
-  * similar to `getVal()`, but exclusively used for TLV8 Characteristics
-  * fills TLV8 structure *tlv* with TLV8 records from the current value of the Characteristic
-  * returns the total number of bytes encoded in the Characteristic
-  * if *tlv8* is not empty, TLV8 records from the Characteristic will be appended to any existing records
-  * similar to DATA Characteristics, TLV8 Characteristics are stored and transmitted as base-64 strings
-  * a warning message is thrown if the value stored in the Characteristic is not in base-64 format, or does not appear to contain TLV8 records 
+* `void setData(uint8_t *data, size_t len)`
+  * 类似于 `setVal()`，但专门用于字节数组特征
+  * 通过用字节数组 *data* 中的 *len* 个字节“填充”来更新特征
   
+#### TLV8（结构化数据）特征支持以下方法：
+* `size_t getTLV(TLV8 &tlv)`
+
+  * 与 `getVal()` 类似，但专门用于 TLV8 特性
+  * 用 TLV8 记录填充 TLV8 结构 *TLV*，这些记录来自特征的当前值
+  * 返回在特征中编码的总字节数
+  * 如果 *tlv8* 不为空，则特征中的 TLV8 记录将附加到任何现有记录中
+  * 与 DATA 特征类似，TLV8 特征以 base-64 字符串的形式存储和传输
+  * 如果存储在特征中的值不是 base-64 格式，或者似乎不包含 TLV8 记录，则会引发警告消息
 * `size_t getNewTLV(TLV8 &tlv)`
-  * similar to `getTLV()`, but fills TLV8 structure *tlv* with TLV8 records based on the desired **new** value to which a HomeKit Controller has requested the Characteristic be updated
 
+  * 类似，但根据 HomeKit 控制器请求将特征更新到的所需**新**值，用 TLV8 记录填充 TLV8 结构 *tlv* `getTLV()`
 * `void setTLV(TLV8 &tlv [,boolean notify])`
-  * similar to `setVal()`, but exclusively used for TLV8 Characteristics
-  * updates the Characteristic by packing the TLV8 structure *tlv* into a byte array and then encoding it in base-64 for storage as a string
-    
+
+  * 与 `setVal()` 类似，但专门用于 TLV8 特性
+  * 通过将 TLV8 结构 tlv 打包到字节数组中，然后在 base-64 中将其编码为字符串来存储来更新特征值
 * `NULL_TLV`
-  * this is not a method, but rather a static HomeSpan constant defined as an empty TLV8 object.  It may used a placeholder wherever an empty TLV8 object is needed, such as when you want to instantiate a TLV8 Characteristic with *nvsStore=true*, but you don't yet want set the TLV8 value
-  * example: `new Characteristic::DisplayOrder(NULL_TLV,true);`
 
-* see the [TLV8 Characteristics](TLV8.md) page for complete details on how to read/process/create TLV8 Objects using HomeSpan's TLV8 Library.
+  * 这不是一个方法，而是一个定义为空 TLV8 对象的静态 HomeSpan 常量。它可以在需要空 TLV8 对象的地方使用占位符，例如当您想要使用 nvsStore=true 实例化 TLV8 特征，但您还不想设置 TLV8 值时
+  * 例：`new Characteristic::DisplayOrder(NULL_TLV,true);`
+* 有关如何使用 HomeSpan 的 TLV8 库读取/处理/创建 TLV8 对象的完整详细信息，请参阅 [TLV8 特征](docs/TLV8.md) 页面。
 
-#### The following methods are supported for all Characteristics:
+#### 所有特征都支持以下方法：
 
 * `boolean updated()`
-  * returns *true* if a HomeKit Controller has requested an update to the value of the Characteristic, otherwise *false*.  The requested value itself can retrieved with `getNewVal<>()` or `getNewString()`
+  * 如果 HomeKit 控制器已请求更新特征值，则返回 *true*，否则返回 *false*。请求的值本身可以通过 `getNewVal<>()` 或 `getNewString()` 检索
 
 * `int timeVal()`
-  * returns time elapsed (in millis) since value of the Characteristic was last updated (whether by `setVal()`, `setString()` or as the result of a successful update request from a HomeKit Controller)
+  * 返回自上次更新特性值以来经过的时间（以毫秒为单位）（无论是通过 `setVal()`、`setString()` 还是通过 HomeKit 控制器成功更新请求）
 
 * `SpanCharacteristic *setPerms(uint8_t perms)`
-  * changes the default permissions for a Characteristic to *perms*, where *perms* is an additive list of permissions as described in HAP-R2 Table 6-4.  Valid values are PR, PW, EV, AA, TW, HD, and WR
-  * returns a pointer to the Characteristic itself so that the method can be chained during instantiation
-  * example: `(new Characteristic::IsConfigured(1))->setPerms(PW+PR+EV);`
-   
+  * 将特性的默认权限更改为 *perms*，其中 *perms* 是附加权限列表，如 HAP-R2 表 6-4 中所述。有效值为 PR、PW、EV、AA、TW、HD 和 WR
+  * 返回指向特征本身的指针，以便可以在实例化期间链接该方法
+  * 示例：`(new Characteristic::IsConfigured(1))->setPerms(PW+PR+EV);`
+
 * `SpanCharacteristic *addPerms(uint8_t perms)`
-  * adds new permissions, *perms*, to the default permissions for a Characteristic, where *perms* is an additive list of permissions as described in HAP-R2 Table 6-4.  Valid values are PR, PW, EV, AA, TW, HD, and WR
-  * returns a pointer to the Characteristic itself so that the method can be chained during instantiation
-  * example: `(new Characteristic::IsConfigured(1))->addPerms(PW);`
+  * 将新权限 *perms* 添加到特征的默认权限中，其中 *perms* 是附加权限权限列表，如 HAP-R2 表 6-4 中所述。有效值为 PR、PW、EV、AA、TW、HD 和 WR
+  * 返回指向特征本身的指针，以便可以在实例化期间链接该方法
+  * 示例：`(new Characteristic::IsConfigured(1))->addPerms(PW);`
 
 * `SpanCharacteristic *removePerms(uint8_t perms)`
-  * removes permissions, *perms*, from the default permissions of a Characteristic, where *perms* is an additive list of permissions as described in HAP-R2 Table 6-4.  Valid values are PR, PW, EV, AA, TW, HD, and WR
-  * returns a pointer to the Characteristic itself so that the method can be chained during instantiation
-  * example: `(new Characteristic::ConfiguredName("HDMI 1"))->removePerms(PW);`
+  * 从 Characteristic 的默认权限中删除权限 *perms*，其中 *perms* 是权限的附加列表，如 HAP-R2 表 6-4 中所述。有效值为 PR、PW、EV、AA、TW、HD 和 WR
+  * 返回指向特征本身的指针，以便可以在实例化期间链接该方法
+  * 示例：`(new Characteristic::ConfiguredName("HDMI 1"))->removePerms(PW);`
 
 * `SpanCharacteristic *setDescription(const char *desc)`
-  * adds an optional description, *desc*, to a Characteristic, as described in HAP-R2 Table 6-3
-  * this field is generally used to provide information about custom Characteristics, but does not appear to be used in any way by the Home App
-  * returns a pointer to the Characteristic itself so that the method can be chained during instantiation
-  * example: `(new Characteristic::MyCustomChar())->setDescription("Tuner Frequency");`
+  * 向特征添加可选描述 *desc*，如 HAP-R2 表 6-3 中所述
+  * 此字段通常用于提供有关自定义特征的信息，但 “家庭”应用似乎并未以任何方式使用
+  * 返回指向特征本身的指针，以便可以在实例化期间链接该方法
+  * 示例：`(new Characteristic::MyCustomChar())->setDescription("Tuner Frequency");`
 
 * `SpanCharacteristic *setUnit(const char *unit)`
-  * adds or overrides the *unit* for a Characteristic, as described in HAP-R2 Table 6-6
-  * returns a pointer to the Characteristic itself so that the method can be chained during instantiation
-  * example: `(new Characteristic::RotationSpeed())->setUnit("percentage");`
+  * 添加或覆盖特征的 *unit*，如 HAP-R2 表 6-3 中所述HAP-R2 表 6-6
+  * 返回指向特征本身的指针，以便在实例化期间可以链接该方法
+  * 示例：`(new Characteristic::RotationSpeed())->setUnit("percentage");`
 
-* `uint32_t getIID()`
-  * returns the IID of the Characteristic
+### *SpanButton(int pin, uint16_t longTime, uint16_t singleTime, uint16_t doubleTime, boolean (\*triggerType)(int))*<a name="spanbutton"></a>
 
-### *SpanButton(int pin, uint16_t longTime, uint16_t singleTime, uint16_t doubleTime, boolean (\*triggerType)(int))*
+创建此**类**的实例会将按钮处理程序附加到指定的 ESP32 *pin*。
 
-Creating an instance of this **class** attaches a pushbutton handler to the ESP32 *pin* specified.
+* 实例化的按钮与最后实例化的服务相关联
+* 在没有先实例化服务的情况下实例化按钮会在初始化期间引发错误
 
-* instantiated Buttons are associated with the last Service instantiated
-* instantiating a Button without first instantiating a Service throws an error during initialization
+第一个参数是必需的；其余的是可选的：
 
-The first argument is required; the rest are optional:
- 
-* *pin* - the ESP32 pin to which the button is connected 
-* *longTime* - the minimum time (in millis) required for the button to be pressed and held to trigger a Long Press (default=2000 ms)
-* *singleTime* - the minimum time (in millis) required for the button to be pressed to trigger a Single Press (default=5 ms)
-* *doubleTime* -  the maximum time (in millis) allowed between two Single Presses to qualify as a Double Press (default=200 ms)
-* *triggerType* - pointer to a boolean function that accepts a single *int* argument and returns `true` or `false` depending on whether or not a "press" has been triggered on the *pin* number passed to the *int* argument.  For ease of use, you may simply choose from the following built-in functions:
-  * `SpanButton::TRIGGER_ON_LOW` - triggers when *pin* is driven LOW.  Suitable for buttons that connect *pin* to GROUND (this is the default when *triggerType* is not specified)
- 
-  * `SpanButton::TRIGGER_ON_HIGH` - triggers when *pin* is driven HIGH.  Suitable for buttons that connect *pin* to VCC (typically 3.3V)
-  * `SpanButton::TRIGGER_ON_TOUCH`- uses the device's touch-sensor peripheral to trigger when a sensor attached to *pin* has been touched (not available on ESP32-C3 devices)
- 
-When any of these built-in functions are selected (or *triggerType* is left unspecified and the default is used), SpanButton will automatically configure the *pin* as needed upon instantiation.
- 
-Alternatively, you can set *triggerType* to any user-defined function of the form `boolean(int arg)` and provide your own logic for determining whether a trigger has occured on the specified *pin*, which is passed through to your function as *arg*. In this case *arg* can either represent an actual device pin, or simply be an arbitrary *int* your function utilizes, such as the virtual pin number on a multiplexer.  Note: if you specify your own function for *triggerType* you also must include in your sketch any code needed to initialize the logic or configure whatever resource *triggerType* is utilizing (such as a pin multiplexer).
+* *pin* - 按钮连接的 ESP32 引脚
+* *longTime* - 按下并按住按钮以触发长按所需的最短时间（以毫秒为单位）（默认值 = 2000 毫秒）
+* *singleTime* - 按下按钮以触发单击所需的最短时间（以毫秒为单位）（默认值 = 5 毫秒）
+* *doubleTime* - 两次单击之间允许的最大时间（以毫秒为单位）以符合双击的条件（默认值 = 200 毫秒）
+* *triggerType* - 指向布尔函数的指针，该函数接受单个 *int* 参数并返回 `true` 或 `false`，具体取决于传递给 *int* 参数的 *pin* 编号是否触发了“按下”。为方便使用，你可以从以下内置函数中进行选择：
+  * `SpanButton::TRIGGER_ON_LOW` - 当 *pin* 驱动为低电平时触发。适用于将 *pin* 连接到 GROUND 的按钮（当未指定 *triggerType* 时，这是默认值）
 
-For convenience, a second form of the *SpanButton()* constructor is also provided:
-  * `SpanButton(int pin, boolean (*triggerType)(int), uint16_t longTime=2000, uint16_t singleTime=5, uint16_t doubleTime=200)`
-    * this allows you to set just the *pin* and *triggerType* while leaving the remaining parameters at their default values
- 
-#### Trigger Rules ###
-* If button is pressed and continuously held, a Long Press will be triggered every longTime ms until the button is released
-* If button is pressed for more than singleTime ms but less than longTime ms and then released, a Single Press will be triggered, UNLESS the button is pressed a second time within doubleTime ms AND held again for at least singleTime ms, in which case a DoublePress will be triggered;  no further events will occur until the button is released
-* If singleTime>longTime, only Long Press triggers can occur
-* If doubleTime=0, Double Presses cannot occur
- 
-#### Usage ####
-HomeSpan automatically calls the `button(int pin, int pressType)` method of a Service upon a trigger event in any SpanButton associated with that Service, where *pin* is the ESP32 pin to which the pushbutton is connected, and *pressType* is an integer that can also be represented by the enum constants indicated:
-  * 0=single press (`SpanButton::SINGLE`)
-  * 1=double press (`SpanButton::DOUBLE`)
-  * 2=long press (`SpanButton::LONG`)  
-  
-HomeSpan will report a warning, but not an error, during initialization if the user had not overridden the virtual button() method for a Service contaning one or more Buttons; triggers of those Buttons will simply ignored.
- 
-When using one or more Touch Sensors, HomeSpan automatically calibrates the threshold at which they are triggered by polling the baseline sensor reading upon instantiation of first SpanButton of type `SpanButton::TRIGGER_ON_TOUCH`.  For ESP32 devices, the threshold is set to 50% of the baseline value since triggers occur when a sensor value falls *below* the threhold level.  For ESP32-S2 and ESP32-S3 devices, the threshold is set to 200% of the baseline value since triggers occur when a sensor value rises *above* the threhold level.  Normally HomeSpan's auto calibration will result in accurate detection of SINGLE, DOUBLE, and LONG presses of touch sensors.  However, if needed you can override the calibration and set your own threshold value using the following class-level method:
+  * `SpanButton::TRIGGER_ON_HIGH` - 当 *pin* 驱动为高电平时触发。适用于将 *pin* 连接到 VCC（通常为 3.3V）的按钮
+  * `SpanButton::TRIGGER_ON_TOUCH` - 使用设备的触摸传感器外设在连接到 *pin* 的传感器被触摸时触发（ESP32-C3 设备上不可用）
 
- * `void SpanButton::setTouchThreshold(uintXX_t thresh)`
-   * sets the threshold value above (for ESP32 devices) or below (for ESP32-S2 and ESP32-S3 devices) which touch sensors are triggered to *thresh*
-   * *XX* is 16 (for ESP32 devices) or 32 (for ESP32-S2 and ESP32-S3 devices)
-   * the threshold specified is considered global and used for *all* SpanButton instances of type `SpanButton::TRIGGER_ON_TOUCH`
-   * this method can be called either before or after SpanButtons are created
- 
-In addition, you can also override the ESP32's touch sensor timing parameters using the following class-level method:
+当选择任何这些内置函数时（或 *triggerType* 未指定并使用默认值），SpanButton 将在实例化时根据需要自动配置 *pin*。
+
+或者，你可以将 *triggerType* 设置为任何用户定义的函数，形式为 `boolean(int arg)`，并提供你自己的逻辑来确定在指定的 *pin* 上是否发生了触发，该逻辑将作为 *arg* 传递给你的函数。在这种情况下，*arg* 可以表示实际的设备引脚，也可以只是你的函数使用的任意 *int*，例如多路复用器上的虚拟引脚号。注意：如果你为 *triggerType* 指定自己的函数，你还必须在草图中包含初始化逻辑或配置 *triggerType* 正在使用的任何资源（例如引脚多路复用器）所需的任何代码。
+
+为方便起见，还提供了 *SpanButton()* 构造函数的第二种形式：
+* `SpanButton(int pin, boolean (*triggerType)(int), uint16_t longTime=2000, uint16_t singleTime=5, uint16_t doubleTime=200)`
+  * 这允许你仅设置 *pin* 和 *triggerType*，同时将其余参数保留为默认值
+
+#### 触发规则 ###
+* 如果按下按钮并持续按住，则每隔 longTime 毫秒将触发一次长按，直到按钮被释放
+* 如果按下按钮的时间超过 singleTime 毫秒但少于 longTime 毫秒，然后释放，将触发一次单击，除非在 doubleTime 毫秒内第二次按下按钮并再次按住至少 singleTime 毫秒，在这种情况下将触发一次双击；直到按钮被释放，才会发生其他事件
+* 如果 singleTime>longTime，则只能发生长按触发
+* 如果 doubleTime=0，则不能发生双击效果
+
+#### 用法 ####
+HomeSpan 会在与该服务关联的任何 SpanButton 中触发事件时自动调用服务的 `button(int pin, int pressType)` 方法，其中 *pin* 是按钮所连接的 ESP32 引脚，而 *pressType* 是一个整数，也可以用以下枚举常量表示：
+* 0=单击（`SpanButton::SINGLE`）
+* 1=双击（`SpanButton::DOUBLE`）
+* 2=长按（`SpanButton::LONG`）
+
+如果用户没有覆盖包含一个或多个按钮的服务的虚拟 button() 方法，则 HomeSpan 将在初始化期间报告警告，但不会报告错误；这些按钮的触发器将被忽略。
+
+使用一个或多个触摸传感器时，HomeSpan 会在实例化第一个类型为 "SpanButton::TRIGGER_ON_TOUCH" 的 SpanButton 时轮询基线传感器读数，从而自动校准触发触摸传感器的阈值。对于 ESP32 设备，阈值设置为基线值的 50%，因为当传感器值低于阈值水平时会发生触发。对于 ESP32-S2 和 ESP32-S3 设备，阈值设置为基线值的 200%，因为当传感器值高于阈值水平时会发生触发。通常，HomeSpan 的自动校准功能可以准确检测触摸传感器的单击、双击和长按。但是，如果需要，你可以使用以下类级方法覆盖校准并设置自己的阈值：
+
+* `void SpanButton::setTouchThreshold(uintXX_t thresh)`
+  * 将阈值设置为高于（对于 ESP32 设备）或低于（对于 ESP32-S2 和 ESP32-S3 设备）触发触摸传感器的 *thresh*
+  * *XX* 为 16（对于 ESP32 设备）或 32（对于 ESP32-S2 和 ESP32-S3 设备）
+  * 指定的阈值被视为全局的，用于 *所有* 类型为 `SpanButton::TRIGGER_ON_TOUCH` 的 SpanButton 实例
+  * 此方法可以在创建 SpanButton 之前或之后调用
+
+此外，你还可以使用以下类级方法覆盖 ESP32 的触摸传感器时序参数：
 
 * `void SpanButton::setTouchCycles(uint16_t measureTime, uint16_t sleepTime)`
-  * changes the measurement time and sleep time clock cycles to *measureTime* and *sleepTime*, respectively.  This is simply a pass-though call to the Arduino-ESP32 library `touchSetCycles()` function
-  * unless a specific threshold value has been set with `setTouchThreshold()`, `setTouchCycles()` must be called *before* instantiating the first SpanButton() of type `SpanButton::TRIGGER_ON_TOUCH` so that HomeSpan will calibrate the touch threshold based on the new timing parameters specified
+  * 将测量时间和睡眠时间时钟周期分别更改为 *measureTime* 和 *sleepTime*。这只是对 Arduino-ESP32 库 `touchSetCycles()` 函数的传递调用
+  * 除非已使用 `setTouchThreshold()` 设置特定阈值，否则必须在实例化第一个类型为 `SpanButton::TRIGGER_ON_TOUCH` 的 SpanButton() *之前*调用 `setTouchCycles()`，以便 HomeSpan 根据指定的新计时参数校准触摸阈值
 
 ### *SpanToggle(int pin, boolean (\*triggerType)(int)=PushButton::TRIGGER_ON_LOW, uint16_32 toggleTime=5)*
- 
-Creating an instance of this **class** attaches a toggle-switch handler to the ESP32 *pin* specified.  This is a child class of *SpanButton* and thus derives all of the same functionality.  For example, you can set *triggerType* to PushButton::TRIGGER_ON_HIGH, create your own trigger function, etc. However, instead of HomeSpan calling `button(int pin, int pressType)` when a pushbutton is "pressed," HomeSpan calls the same `button()` method when the switch is "toggled" from one position to another.  In this case the parameter *pressType* that is passed into `button()` has a different set of enumerations:
-  * 3=switch is closed (`SpanToggle::CLOSED`)
-  * 4=switch is open (`SpanToggle::OPEN`)
- 
-Note there are no *singleTime*, *longTime*, or *doubleTime* parameters in the constructor since you can't single-press, double-press, or long-press a toggle switch.  Instead, the constructor supports the single parameter *toggleTime* (default=5ms if left unspecified) that sets the minimum time at which the switch needs to be moved to the closed position in order to trigger a call to the `button()` method.  This effectively "debounces" the toggle switch.
- 
-SpanToggle also supports the following additional method:
- 
- * `int position()`
-   * returns the current position of the toggle switch (i.e. SpanToggle::CLOSED or SpanToggle::OPEN)
-   * is equivalent to the *pressType* parameter passed to the `button()` method, but can be called from anywhere in a sketch
-   * useful for reading the initial state of a contact switch upon start-up so that the initial value of Characteristic::ContactSensorState can be set accordingly
-   * example `sensorState=new Characteristic::ContactSensorState(toggleSwitch->position()==SpanToggle::OPEN);`
- 
+
+创建此**类**的实例会将拨动开关处理程序附加到指定的 ESP32 *pin*。这是 *SpanButton* 的子类，因此派生了所有相同的功能。例如，你可以将 *triggerType* 设置为 PushButton::TRIGGER_ON_HIGH，创建自己的触发器函数等。但是，当按钮被“按下”时，HomeSpan 不会调用 `button(int pin, int pressType)`，而是在开关从一个位置“切换”到另一个位置时，HomeSpan 会调用相同的 `button()` 方法。在这种情况下，传递给 `button()` 的参数 *pressType* 具有一组不同的枚举：
+* 3=开关已关闭（`SpanToggle::CLOSED`）
+* 4=开关已打开（`SpanToggle::OPEN`）
+
+请注意，构造函数中没有 *singleTime*、*longTime* 或 *doubleTime* 参数，因为你不能单击、双击或长按切换开关。相反，构造函数支持单个参数 *toggleTime*（如果未指定，则默认值为 5ms），该参数设置开关需要移动到关闭位置才能触发对 `button()` 方法的调用的最短时间。这有效地“消除了”拨动开关的抖动。
+
+SpanToggle 还支持以下附加方法：
+
+* `int position()`
+  * 返回切换开关的当前位置（即 SpanToggle::CLOSED 或 SpanToggle::OPEN）
+  * 相当于传递给 `button()` 方法的 *pressType* 参数，但可以在草图中的任何位置调用
+  * 适用于在启动时读取接触开关的初始状态，以便可以相应地设置 Characteristic::ContactSensorState 的初始值
+  * 示例 `sensorState=new Characteristic::ContactSensorState(toggleSwitch->position()==SpanToggle::OPEN);`
+
 ### *SpanUserCommand(char c, const char \*desc, void (\*f)(const char \*buf [,void \*obj]) [,void \*userObject])*
 
-Creating an instance of this **class** adds a user-defined command to the HomeSpan Command-Line Interface (CLI), where:
+创建此**类**的实例会将用户定义的命令添加到HomeSpan命令行界面，其中：
 
-  * *c* is the single-letter name of the user-defined command
-  * *desc* is a description of the user-defined command that is displayed when the user types '?' into the CLI
-  * *f* is a pointer to a user-defined function that is called when the command is invoked.  Allowable forms for *f* are:
-    1. `void f(const char *buf)`, or
-    1. `void f(const char *buf, void *obj)`
-  * *userObject* is a pointer to an arbitrary object HomeSpan passes to the function *f* as the second argument when the second form of *f* is used.  Note it is an error to include *userObject* when the first form of *f* is used, and it is similarly an error to exclude *userObject* when the second form of *f* is used
+* *c* 是用户定义命令的单字母名称
+* *desc* 是用户定义命令的描述，当用户在 CLI 中键入 "？" 时显示
+* *f* 是指向用户定义函数的指针，当 com调用 mand。*f* 的允许形式为：
+  1. `void f(const char *buf)`，或
+  1. `void f(const char *buf, void *obj)`
+* *userObject* 是指向 HomeSpan 传递给函数 *f* 的任意对象的指针，当使用 *f* 的第二种形式时，该对象作为第二个参数。请注意，当使用 *f* 的第一种形式时，包含 *userObject* 是错误的，当使用 *f* 的第二种形式时，排除 *userObject* 也是错误的
 
-To invoke your custom command from the CLI, preface the single-letter name *c* with '@'.  This allows HomeSpan to distinguish user-defined commands from its built-in commands.  For example,
+要从 CLI 调用自定义命令，请在单字母名称 *c* 前面加上 "@"。这允许 HomeSpan 区分用户定义的命令和其内置命令。例如，
 
 ```C++
 new SpanUserCommand('s', "save current configuration", saveConfig);
@@ -648,9 +643,9 @@ new SpanUserCommand('s', "save current configuration", saveConfig);
 void saveConfig(const char *buf){ ... };
 ```
 
-would add a new command '@s' to the CLI with description "save current configuration" that will call the user-defined function `void saveConfig(const char *buf)` when invoked.  The argument *buf* points to an array of all characters typed into the CLI after the '@'.  This allows the user to pass arguments from the CLI to the user-defined function.  For example, typing '@s123' into the CLI sets *buf* to "s123" when saveConfig is called.
+将向 CLI 添加一个新命令 '@s'，其描述为“保存当前配置”，该命令将在调用时调用用户定义函数 `void saveConfig(const char *buf)`。参数 *buf* 指向在 '@' 后输入到 CLI 中的所有字符的数组。这允许用户将参数从 CLI 传递给用户定义函数。例如，在调用 saveConfig 时，在 CLI 中输入 '@s123' 会将 *buf* 设置为 "s123"。
 
-In the second form of the argument, HomeSpan will pass an additional object to your function *f*.  For example,
+在参数的第二种形式中，HomeSpan 将向函数 *f* 传递一个附加对象。例如，
 
 ```C++
 struct myConfigurations[10];
@@ -659,87 +654,86 @@ new SpanUserCommand('s', "<n> save current configuration for specified index, n"
 void saveConfig(const char *buf, void *obj){ ... do something with myConfigurations ... };
 ```
 
-might be used to save all the elements in *myArray* when called with just the '@s' command, and perhaps save only one element based on an index added to the command, such as '@s34' to save element 34 in *myArray*.  It is up to the user to create all necessary logic within the function *f* to parse and process the full command text passed in *buf*, as well as act on whatever is being passed via *obj.
+可能用于在仅使用 '@s' 命令调用时保存 *myArray* 中的所有元素，并且可能仅根据添加到命令的索引保存一个元素，例如 '@s34' 用于保存 *myArray* 中的元素 34。用户需要在函数 *f* 中创建所有必要的逻辑，以解析和处理传入 *buf* 的完整命令文本，以及对通过 *obj 传递的任何内容采取行动。
 
-To create more than one user-defined command, simply create multiple instances of SpanUserCommand, each with its own single-letter name.  Note that re-using the same single-letter name in an instance of SpanUserCommand over-rides any previous instances using that same letter.
+要创建多个用户定义的命令，只需创建 SpanUserCommand 的多个实例，每个实例都有自己的单字母名称。请注意，在 SpanUserCommand 实例中重复使用相同的单字母名称会覆盖任何使用相同字母的先前实例。
 
-## Custom Characteristics and Custom Services Macros
+## 自定义特性和自定义服务宏<a name="custom"></a>
 
 ### *CUSTOM_CHAR(name,uuid,perms,format,defaultValue,minValue,maxValue,staticRange)*
 ### *CUSTOM_CHAR_STRING(name,uuid,perms,defaultValue)*
 ### *CUSTOM_CHAR_DATA(name,uuid,perms)*
-### *CUSTOM_CHAR_TLV8(name,uuid,perms)*
 
-Creates a custom Characteristic that can be added to any Service.  Custom Characteristics are generally ignored by the Home App but may be used by other third-party applications (such as *Eve for HomeKit*).  The first form should be used create numerical Characterstics (e.g., UINT8, BOOL...); the second form is used to STRING-based Characteristics; the third form is used for DATA-based (i.e. byte-array) Characteristics; and the fourth form is used for TLV8-based (i.e. *structured* byte-array) Characteristics  Parameters are as follows (note that quotes should NOT be used in any of the macro parameters, except for *defaultValue* when applied to a STRING-based Characteristic):
+创建可添加到任何服务的自定义特性。自定义特性通常被 “家庭”应用忽略，但可能被其他第三方应用程序使用（例如 *Eve 应用*）。第一种形式应该用于创建数值特性（例如，UINT8、BOOL...）。第二种形式用于基于字符串的特性。第三种形式用于基于数据（即字节数组）的特性。参数如下（请注意，任何宏参数都不应使用引号，但应用于基于字符串的特性时的 *defaultValue* 除外）：
 
-* *name* - the name of the custom Characteristic.  This will be added to the Characteristic namespace so that it is accessed the same as any HomeSpan Characteristic.  Use UTF-8 coded string for non-ASCII characters.
-* *uuid* - the UUID of the Characteristic as defined by the manufacturer.  Must be either:
-  * *exactly* 36 characters of the form XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX, where *X* represent a valid hexidecimal digit, or
-  * a single hexidecimal number of the form XXXXXXXX with *8 digits or less*, and no leading zeros
-* *perms* - additive list of permissions.  Valid values are PR, PW, EV, AA, TW, HD, and WR (e.g. PR+PW+EV)
-* *format* - for numerical Characteristics, specifies the number format.  Valid value are BOOL, UINT8, UINT16, UNIT32, UINT64, INT, and FLOAT.  Not applicable for the STRING, DATA, or TLV8 Characteristic macros
-* *defaultValue* - specifies the default value of the Characteristic when not defined during instantiation.  Not applicable for the DATA or TLV7 Characteristic macros.
-* *minValue* - specifies the default minimum range for a valid value, which may be able to be overriden by a call to `setRange()`.  Not applicable for the STRING, DATA or TLV8 Characteristic macros
-* *minValue* - specifies the default minimum range for a valid value, which may be able to be overriden by a call to `setRange()`.  Not applicable for the STRING, DATA or TLV8 Characteristic macros
-* *staticRange* - set to *true* if *minValue* and *maxValue* are static and cannot be overridden with a call to `setRange()`.  Set to *false* if calls to `setRange()` are allowed.  Not applicable for the STRING, DATA or TLV8 Characteristic macros
+* *name* - 自定义特性的名称。这将被添加到 Characteristic 命名空间，以便可以像任何 HomeSpan Characteristic 一样对其进行访问。对非 ASCII 字符使用 UTF-8 编码字符串。
+* *uuid* - 制造商定义的特性的 UUID。必须是：
+* *正好* 36 个字符，格式为 XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX，其中 *X* 代表有效的十六进制数字，或
+* 单个十六进制数，格式为 XXXXXXXX，*8 位或更少*，没有前导零
+* *perms* - 附加权限列表。有效值为 PR、PW、EV、AA、TW、HD 和 WR（例如 PR+PW+EV）
+* *format* - 对于数值特性，指定数字格式。有效值为 BOOL、UINT8、UINT16、UNIT32、UINT64、INT 和 FLOAT。不适用于 STRING、DATA 或 TLV8 特性宏
+* *defaultValue* - 指定在实例化期间未定义特性的默认值。不适用于 DATA 或 TLV7 特征宏。
+* *minValue* - 指定有效值的默认最小范围，可以通过调用 `setRange()` 进行覆盖。不适用于 STRING、DATA 或 TLV8 特征宏
+* *minValue* - 指定有效值的默认最小范围，可以通过调用 `setRange()` 进行覆盖。不适用于 STRING、DATA 或 TLV8 特征宏
+* *staticRange* - 如果 *minValue* 和 *maxValue* 是静态的，并且不能通过调用 `setRange()` 进行覆盖，则设置为 *true*。如果允许调用 `setRange()`，则设置为 *false*。不适用于 STRING、DATA 或 TLV8 特征宏
 
-As an example, the first line below creates a custom Characteristic named "Voltage" with a UUID code that is recognized by the *Eve for HomeKit* app.  The parameters show that the Characteristic is read-only (PR) and notifications are enabled (EV).  The default range of allowed values is 0-240, with a default of 120.  The range *can* be overridden by subsequent calls to `setRange()`.  The second line below creates a custom read-only String-based Characteristic:
+例如，下面的第一行创建了一个名为 "Voltage" 的自定义特征，其 UUID 代码可被 *Eve 应用*识别。参数显示该特征是只读的 (PR) 并启用通知 (EV)。允许值的默认范围是 0-240，默认值为 120。随后调用 `setRange()` 可以覆盖该范围。下面的第二行创建了一个自定义的只读字符串型特性：
 
 ```C++
 CUSTOM_CHAR(Voltage, E863F10A-079E-48FF-8F27-9C2605A29F52, PR+EV, UINT16, 120, 0, 240, false);
 CUSTOM_CHAR_STRING(UserTag, AAAAAAAA-BBBB-AAAA-AAAA-AAAAAAAAAAAA, PR, "Tag 123");
 ...
 new Service::LightBulb();
-  new Characteristic::Name("Low-Voltage Lamp");
-  new Characteristic::On(0);
-  new Characteristic::Brightness(50);
-  new Characteristic::Voltage(12);      // adds Voltage Characteristic and sets initial value to 12 volts
-  new Characteristic::UserTag();        // adds UserTag Characteristic and retains default initial value of "Tag 123"
+new Characteristic::Name("Low-Voltage Lamp");
+new Characteristic::On(0);
+new Characteristic::Brightness(50);
+new Characteristic::Voltage(12); // 添加电压特征并将初始值设置为 12 伏
+new Characteristic::UserTag(); // 添加用户标签特征并保留默认初始值“标签 123”
 ```
 
-Note that Custom Characteristics must be created at the global level (i.e. not inside `setup()`) and prior to calling `homeSpan.begin()`
+请注意，必须在全局级别（即不在 `setup()` 内）创建自定义特征，并在调用 `homeSpan.begin()` 之前创建
 
-> Advanced Tip 1: When presented with an unrecognized Custom Characteristic, *Eve for HomeKit* helpfully displays a *generic control* allowing you to interact with any Custom Characteristic you create in HomeSpan.  However, since Eve does not recognize the Characteristic, it will only render the generic control if the Characteristic includes a **description** field, which you can add to any Characteristic using the `setDescription()` method described above.  You may also want to use `setUnit()` and `setRange()` so that the Eve App displays a control with appropriate ranges for your Custom Characteristic.
- 
-> Advanced Tip 2: The DATA format is not currently used by any native Home App Characteristic, though it is part of the HAP-R2 specifications.  This format is included in HomeSpan because other applications, such as *Eve for HomeKit* do use these types of Characteristics to create functionality beyond that of the Home App, and are thus provided for advanced users to experiment.
- 
-> Advanced Tip 3: When using multi-file sketches, the compiler will throw a "redefinition error" if you define the same Custom Characteristic in more than one file.  To avoid this error and allow the same Custom Characteristic to be used across more than one file, add the line `#define CUSTOM_CHAR_HEADER` *before* `#include "HomeSpan.h"` in each file containing a *duplicate* definition of a previously-defined Custom Characteristic.
+> 高级提示 1：当出现无法识别的自定义特征时，*Eve 应用*会显示一个 *通用控件*，允许你与在 HomeSpan 中创建的任何自定义特征进行交互。但是，由于 Eve 无法识别该特征，因此只有在特征包含 **description** 字段时，它才会呈现通用控件，你可以使用上述 `setDescription()` 方法将其添加到任何特征中。你可能还想使用 `setUnit()` 和 `setRange()`，以便 Eve 应用显示具有适合你的自定义特征范围的控件。
+
+> 高级提示 2：尽管 DATA 格式是 HAP-R2 规范的一部分，但目前任何原生 “家庭”应用特性均未使用该格式。HomeSpan 中包含此格式是因为其他应用程序（例如 *Eve 应用*）确实使用这些类型的特性来创建 “家庭”应用之外的功能，因此可供高级用户进行实验。
+
+> 高级提示 3：使用多文件草图时，如果你在多个文件中定义相同的自定义特性，编译器将抛出“重新定义错误”。为避免此错误并允许在多个文件中使用相同的自定义特性，请在包含先前定义的自定义特性的*重复*定义的每个文件中的 `#include "HomeSpan.h"` *之前*添加行 `#define CUSTOM_CHAR_HEADER`。
 
 ### *CUSTOM_SERV(name,uuid)*
 
-Creates a custom Service for use with third-party applications (such as *Eve for HomeKit*).  Custom Services will be displayed in the native Apple Home App with a Tile labeled "Not Supported", but otherwise the Service will be safely ignored by the Home App.  Parameters are as follows (note that quotes should NOT be used in either of the macro parameters):
+创建自定义服务以用于第三方应用程序（例如 *Eve 应用*）。自定义服务将在原生 Apple Home 应用中显示，其 Tile 标记为“不支持”，否则 Home 应用将安全地忽略该服务。参数如下（请注意，任何宏参数中都不应使用引号）：
 
-* *name* - the name of the custom Service.  This will be added to the Service namespace so that it is accessed the same as any HomeSpan Service.  For example, if *name*="Vent", HomeSpan would recognize `Service::Vent` as a new service class
-* *uuid* - the UUID of the Service as defined by the manufacturer.  Must be *exactly* 36 characters in the form XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX, where *X* represent a valid hexidecimal digit.  Leading zeros are required if needed as described more fully in HAP-R2 Section 6.6.1
+* *name* - 自定义服务的名称。这将添加到服务命名空间，以便像任何 HomeSpan 服务一样对其进行访问。例如，如果 *name*="Vent"，HomeSpan 会将 `Service::Vent` 识别为新服务类
+* *uuid* - 制造商定义的服务的 UUID。必须 *正好* 为 36 个字符，格式为 XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX，其中 *X* 代表有效的十六进制数字。如果需要，则需要前导零，如 HAP-R2 第 6.6.1 节中更详细地描述的那样
 
-Custom Services may contain a mix of both Custom Characteristics and standard HAP Characteristics, though since the Service itself is custom, the Home App will ignore the entire Service even if it contains some standard HAP Characterstics.  Note that Custom Services must be created prior to calling `homeSpan.begin()`
+自定义服务可能包含自定义特性和标准 HAP 特性的混合，但由于服务本身是自定义的，因此即使服务包含一些标准 HAP 特性，“家庭”应用也会忽略整个服务。请注意，必须在调用 `homeSpan.begin()` 之前创建自定义服务
 
-A fully worked example showing how to use both the ***CUSTOM_SERV()*** and ***CUSTOM_CHAR()*** macros to create a Pressure Sensor Accessory that is recognized by *Eve for HomeKit* can be found in the Arduino IDE under [*File → Examples → HomeSpan → Other Examples → CustomService*](../examples/Other%20Examples/CustomService).
+可以在 Arduino IDE 下的 [*文件→示例→HomeSpan→其他示例→CustomService*](../examples/Other%20Examples/CustomService/CustomService.ino) 下找到一个完整的示例，该示例展示了如何使用 ***CUSTOM_SERV()*** 和 ***CUSTOM_CHAR()*** 宏来创建 *Eve 应用*识别的压力传感器配件。
 
-## Other Macros
+## 其他宏
 
-### *SPAN_ACCESSORY()* and *SPAN_ACCESSORY(NAME)*
- 
-A "convenience" macro that implements the following very common code snippet used when creating Accessories.  The last line is only included if *NAME* (a C-style string) has been included as an argument to the macro:
+### *SPAN_ACCESSORY()* 和 *SPAN_ACCESSORY(NAME)*
+
+一个“便利”宏，它实现了创建配件时使用的以下非常常见的代码片段。仅当 *NAME*（C 样式字符串）已作为宏的参数包含时，才会包含最后一行：
 
 ```C++
 new SpanAccessory();
- new Service::AccessoryInformation();
- new Characteristic::Identify();
- new Characteristic::Name(NAME);   // included only in the second form of the macro
+new Service::AccessoryInformation();
+new Characteristic::Identify();
+new Characteristic::Name(NAME); // 仅包含在宏的第二种形式中
 ```
 
-## User-Definable Macros
- 
+## 用户可定义的宏
+
 ### *#define REQUIRED VERSION(major,minor,patch)*
 
-If REQUIRED is defined in the main sketch *prior* to including the HomeSpan library with `#include "HomeSpan.h"`, HomeSpan will throw a compile-time error unless the version of the library included is equal to, or later than, the version specified using the VERSION macro.  Example:
+如果在使用 `#include "HomeSpan.h"` 包含 HomeSpan 库*之前*在主草图中定义了 REQUIRED，则 HomeSpan 将抛出编译时错误，除非包含的库版本等于或晚于使用 VERSION 宏指定的版本。示例：
 
 ```C++
-#define REQUIRED VERSION(1,3,0)   // throws a compile-time error unless HomeSpan library used is version 1.3.0 or later
+#define REQUIRED VERSION(1,3,0) // 抛出编译时错误，除非使用的 HomeSpan 库是版本 1.3.0 或更高版本
 #include "HomeSpan.h"
 ```
 
 ---
 
-[↩️](../README.md) Back to the Welcome page
+[↩️](../README.md#resources) 返回欢迎页面
