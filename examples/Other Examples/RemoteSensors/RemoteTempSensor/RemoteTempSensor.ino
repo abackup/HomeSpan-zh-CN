@@ -1,70 +1,55 @@
-
 /*********************************************************************************
- *  MIT License
+ *  MIT 许可证
  *  
- *  Copyright (c) 2020-2022 Gregg E. Berman
+ *  Copyright (c) 2020-2024 Gregg E. Berman
  *  
  *  https://github.com/HomeSpan/HomeSpan
  *  
- *  Permission is hereby granted, free of charge, to any person obtaining a copy
- *  of this software and associated documentation files (the "Software"), to deal
- *  in the Software without restriction, including without limitation the rights
- *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- *  copies of the Software, and to permit persons to whom the Software is
- *  furnished to do so, subject to the following conditions:
+ *  特此授予获得此软件和相关文档文件（“软件”）副本的任何人免费许可，以无限制方式处理软件，
+ *  包括但不限于使用、复制、修改、合并、发布、分发、再许可和/或销售软件副本的权利，并允许
+ *  向其提供软件的人员这样做，但须遵守以下条件：
  *  
- *  The above copyright notice and this permission notice shall be included in all
- *  copies or substantial portions of the Software.
+ *  上述版权声明和本许可声明均应包含在软件的所有副本或重要部分中。
  *  
- *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- *  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- *  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- *  SOFTWARE.
+ *  软件按“原样”提供，不作任何明示或暗示的保证，包括但不限于适销性、特定用途的适用性和不
+ *  侵权性的保证。在任何情况下，作者或版权持有者均不对因软件或使用或其他处理软件而引起的
+ *  或与之相关的任何索赔、损害或其他责任承担责任，无论是合同行为、侵权行为还是其他行为。
  *  
  ********************************************************************************/
  
 ////////////////////////////////////////////////////////////
 //                                                        //
-//    HomeSpan: A HomeKit implementation for the ESP32    //
+//              HomeSpan：ESP32 的 HomeKit 实现          //
 //    ------------------------------------------------    //
 //                                                        //
-//     This sketch is for a Remote Temperature Sensor to  //
-//     be used in conjunction with the "MainDevice.ino"   //
-//     sketch running on a separate ESP32                 //
+//     此草图用于远程温度传感器，与在单独的 ESP32
+//     上运行的“MainDevice.ino”草图一起使用                 //
 //                                                        //
-//     The purpose of these sketches is to demonstrate    //
-//     how to use SpanPoint() to communication between    //
-//     a remote ESP32 device that takes measurements from //
-//     a sensor, and a separate "main" ESP32 device that  //
-//     is running the full HomeSpan code, and thus        //
-//     connects to HomeKit.                               //
+//     这些草图的目的是演示如何使用 SpanPoint() 
+//     在从传感器获取测量值的远程 ESP32 设备与运行完整     //
+//     HomeSpan 代码的单独“主”ESP32 设备之间进行通信，    //
+//     从而连接到 HomeKit。                               //
 //                                                        //
-//     This sketch implements an Adafruit ADT7410 I2C     //
-//     Temperature Sensor.  If you don't have such a      //
-//     device, please use the sketch "RemoteDevice.ino"   //
-//     instead.  That sketch SIMULATES a temperature      //
-//     sensor and therefore allows you to learn how       //
-//     SpanPoint() works even though the temperature data //
-//     itself isn't real.                                 //
+//     此草图实现了 Adafruit ADT7410 I2C 温度传感器。      //
+//     如果您没有这样的设备，请使用草图“RemoteDevice.ino”。 //
+//     该草图模拟温度传感器，因此即使温度数据本身不是真实的， //
+//     您也可以了解 SpanPoint() 的工作原理。              //
 //                                                        //
 ////////////////////////////////////////////////////////////
 
 #include "HomeSpan.h"
-#include <Wire.h>           // include the I2C library
+#include <Wire.h>           // 包括 I2C 库
 
 #define DIAGNOSTIC_MODE
 
-#define SAMPLE_TIME   30000     // Time between temperature samples (in milliseconds)
-#define I2C_ADD       0x48      // I2C Address to use for the Adafruit ADT7410
+#define SAMPLE_TIME   30000     // 温度采样之间的时间（毫秒）
+#define I2C_ADD       0x48      // 用于 Adafruit ADT7410 的 I2C 地址
 
 SpanPoint *mainDevice;
 
 void setup() {
 
-  setCpuFrequencyMhz(80);       // reduce CPU frequency to save battery power  
+  setCpuFrequencyMhz(80);       // 降低 CPU 频率以节省电池电量
 
 #if defined(DIAGNOSTIC_MODE)  
   homeSpan.setLogLevel(1);
@@ -73,37 +58,37 @@ void setup() {
   Serial.printf("Starting Remote Temperature Sensor.  MAC Address of this device = %s\n",WiFi.macAddress().c_str());
 #endif
 
-  // In the line below, replace the MAC Address with that of your MAIN HOMESPAN DEVICE
+  // 在下面的行中，将 MAC 地址替换为您的主 HOMESPAN 设备的 MAC 地址
 
-  mainDevice=new SpanPoint("7C:DF:A1:61:E4:A8",sizeof(float),0);    // create a SpanPoint with send size=sizeof(float) and receive size=0     
+  mainDevice=new SpanPoint("7C:DF:A1:61:E4:A8",sizeof(float),0);    // 创建一个 SpanPoint，发送大小 size=sizeof(float) 且接收大小 size=0    
 
-  Wire.begin();                         // start I2C in Controller Mode
+  Wire.begin();                         // 在控制器模式下启动 I2C
   
 #if defined(DIAGNOSTIC_MODE)  
-  Wire.beginTransmission(I2C_ADD);      // setup transmission
-  Wire.write(0x0B);                     // ADT7410 Identification Register
-  Wire.endTransmission(0);              // transmit and leave in restart mode to allow reading
-  Wire.requestFrom(I2C_ADD,1);          // request read of single byte
-  uint8_t id = Wire.read();             // receive a byte
+  Wire.beginTransmission(I2C_ADD);      // 设置传输
+  Wire.write(0x0B);                     // ADT7410 识别寄存器
+  Wire.endTransmission(0);              // 传输并保持重启模式以允许读取
+  Wire.requestFrom(I2C_ADD,1);          // 请求读取单个字节
+  uint8_t id = Wire.read();             // 接收一个字节
   LOG1("Configuring Temperature Sensor ADT7410 version 0x%02X with address 0x%02X.\n",id,I2C_ADD);           // initialization message
 #endif
 
-  Wire.beginTransmission(I2C_ADD);      // setup transmission
-  Wire.write(0x03);                     // ADT740 Configuration Register
-  Wire.write(0xC0);                     // set 16-bit temperature resolution, 1 sample per second
-  Wire.endTransmission();               // transmit
+  Wire.beginTransmission(I2C_ADD);      // 设置传输
+  Wire.write(0x03);                     // ADT740 配置寄存器
+  Wire.write(0xC0);                     // 设置16位温度分辨率，每秒1个样本
+  Wire.endTransmission();               // 发送
           
-  Wire.beginTransmission(I2C_ADD);      // setup transmission
-  Wire.write(0x00);                     // ADT7410 2-byte Temperature
-  Wire.endTransmission(0);              // transmit and leave in restart mode to allow reading
-  Wire.requestFrom(I2C_ADD,2);          // request read of two bytes
+  Wire.beginTransmission(I2C_ADD);      // 设置传输
+  Wire.write(0x00);                     // ADT7410 2字节温度
+  Wire.endTransmission(0);              // 传输并保持重启模式以允许读取
+  Wire.requestFrom(I2C_ADD,2);          // 请求读取两个字节
 
   int16_t iTemp = ((int16_t)Wire.read()<<8)+Wire.read();    
   float temperature = iTemp/128.0;
   
-  boolean success = mainDevice->send(&temperature);                 // send temperature to main device
+  boolean success = mainDevice->send(&temperature);                 // 将温度发送到主设备
   
   LOG1("Send temp update of %0.2f F: %s\n",temperature*9/5+32,success?"Succeded":"Failed");  
 
-  esp_deep_sleep(SAMPLE_TIME*1000);     // enter deep sleep mode -- reboot after resuming
+  esp_deep_sleep(SAMPLE_TIME*1000);     // 进入深度睡眠模式——恢复后重新启动
 }
