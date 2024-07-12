@@ -59,7 +59,7 @@ HomeSpan 目前与 Arduino-ESP32 开发板管理的 3.X 版本不兼容，因为
   * 启动 WiFi 接入点
 * 独立、详细的最终用户指南
 
-[HomeSpan 更新列表](docs/updatelist.md)
+[HomeSpan 更新列表](updatelist.md)
 
 # HomeSpan 资源<a name="resources"></a>
 
