@@ -1,46 +1,37 @@
 /*********************************************************************************
- *  MIT License
+ *  MIT 许可证
  *  
- *  Copyright (c) 2022 Gregg E. Berman
+ *  Copyright (c) 2020-2024 Gregg E. Berman
  *  
  *  https://github.com/HomeSpan/HomeSpan
  *  
- *  Permission is hereby granted, free of charge, to any person obtaining a copy
- *  of this software and associated documentation files (the "Software"), to deal
- *  in the Software without restriction, including without limitation the rights
- *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- *  copies of the Software, and to permit persons to whom the Software is
- *  furnished to do so, subject to the following conditions:
+ *  特此授予获得此软件和相关文档文件（“软件”）副本的任何人免费许可，以无限制方式处理软件，
+ *  包括但不限于使用、复制、修改、合并、发布、分发、再许可和/或销售软件副本的权利，并允许
+ *  向其提供软件的人员这样做，但须遵守以下条件：
  *  
- *  The above copyright notice and this permission notice shall be included in all
- *  copies or substantial portions of the Software.
+ *  上述版权声明和本许可声明均应包含在软件的所有副本或重要部分中。
  *  
- *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- *  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- *  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- *  SOFTWARE.
+ *  软件按“原样”提供，不作任何明示或暗示的保证，包括但不限于适销性、特定用途的适用性和不
+ *  侵权性的保证。在任何情况下，作者或版权持有者均不对因软件或使用或其他处理软件而引起的
+ *  或与之相关的任何索赔、损害或其他责任承担责任，无论是合同行为、侵权行为还是其他行为。
  *  
  ********************************************************************************/
 
 //////////////////////////////////////////////////////////////////
 //                                                              //
-//       HomeSpan: A HomeKit implementation for the ESP32       //
+//       HomeSpan：ESP32 的 HomeKit 实现                         //
 //       ------------------------------------------------       //
 //                                                              //
-//      Demonstrates how to implement a Web Server alongside    //
-//      of HomeSpan to create a Programmable Hub serving up to  //
-//      12 Configurable Lights.  Allows for dynamic changes     //
-//      to Accessories without needing to reboot                //
+//      演示如何与 HomeSpan 一起实现 Web 服务器，以创建可编程       //
+//      集线器，最多可配置 12 个灯。允许动态更改附件，              //
+//      而无需重新启动                                           //
 //                                                              //
 //////////////////////////////////////////////////////////////////
 
 #include "HomeSpan.h"
-#include <WebServer.h>                    // include WebServer library
+#include <WebServer.h>                    // 包含 WebServer 库
 
-WebServer webServer(80);                  // create WebServer on port 80
+WebServer webServer(80);                  // 在端口 80 上创建 WebServer
  
 #define MAX_LIGHTS        12
 #define MAX_NAME_LENGTH   32
@@ -52,7 +43,7 @@ enum colorType_t : uint8_t {
   FULL_RGB
 };
 
-uint32_t aidStore=2;                      // keep track of unique AID numbers -  start with AID=2
+uint32_t aidStore=2;                     // 跟踪唯一的 AID 号码 - 从 AID=2 开始
 
 struct lightData_t {
   char name[MAX_NAME_LENGTH+1]="";
@@ -70,28 +61,28 @@ void setup() {
   Serial.begin(115200);
 
   size_t len;  
-  nvs_open("SAVED_DATA",NVS_READWRITE,&savedData);       // open a new namespace called SAVED_DATA in the NVS
+  nvs_open("SAVED_DATA",NVS_READWRITE,&savedData);       // 在 NVS 中打开一个名为 SAVED_DATA 的新命名空间
   
-  if(!nvs_get_blob(savedData,"LIGHTDATA",NULL,&len))        // if LIGHTDATA data found
-    nvs_get_blob(savedData,"LIGHTDATA",&lightData,&len);       // retrieve data
+  if(!nvs_get_blob(savedData,"LIGHTDATA",NULL,&len))        // 如果找到 LIGHTDATA 数据
+    nvs_get_blob(savedData,"LIGHTDATA",&lightData,&len);       // 检索数据
 
-  nvs_get_u32(savedData,"AID",&aidStore);                   // get AID, if it exists
+  nvs_get_u32(savedData,"AID",&aidStore);                   // 获取 AID（如果存在）
 
   homeSpan.setLogLevel(1);
 
-  homeSpan.setHostNameSuffix("");         // use null string for suffix (rather than the HomeSpan device ID)
-  homeSpan.setPortNum(1201);              // change port number for HomeSpan so we can use port 80 for the Web Server
-  homeSpan.setWifiCallback(setupWeb);     // need to start Web Server after WiFi is established   
+  homeSpan.setHostNameSuffix("");         // 使用空字符串作为后缀（而不是 HomeSpan 设备 ID）
+  homeSpan.setPortNum(1201);              // 更改 HomeSpan 的端口号，以便我们可以将端口 80 用于 Web 服务器
+  homeSpan.setWifiCallback(setupWeb);     // 需要在 WiFi 建立后启动 Web 服务器
 
   homeSpan.begin(Category::Lighting,"HomeSpan Light Hub",HUB_NAME);
 
-  new SpanAccessory(1);                                   // here we specified the AID=1 for clarity (it would default to 1 anyway if left blank)
+  new SpanAccessory(1);                                   // 为清楚起见，我们在此指定 AID=1（如果留空，则默认为 1）
     new Service::AccessoryInformation();
       new Characteristic::Identify();
       new Characteristic::Model("HomeSpan Programmable Hub");
       new Characteristic::AccessoryFlags();
 
-  for(int i=0;i<MAX_LIGHTS;i++){                         // create Light Accessories based on saved data
+  for(int i=0;i<MAX_LIGHTS;i++){                         // 根据保存的数据创建灯光配件
     if(lightData[i].aid)
       addLight(i);
   }
@@ -108,13 +99,13 @@ void setup() {
   new SpanUserCommand('D'," - delete ALL light accessories",deleteAllAccessories);  
   new SpanUserCommand('u',"- update accessories database",updateAccessories);
  
-} // end of setup()
+} // setup() 结束
 
 ///////////////////////////
 
 void loop(){
   homeSpan.poll();
-  webServer.handleClient();           // handle incoming web server traffic
+  webServer.handleClient();           // 处理传入的 Web 服务器流量
 }
 
 ///////////////////////////
@@ -171,7 +162,7 @@ int addLight(const char *name, boolean isDimmable, colorType_t colorType){
   lightData[index].colorType=colorType;
   lightData[index].aid=aidStore++;
 
-  nvs_set_blob(savedData,"LIGHTDATA",&lightData,sizeof(lightData));      // update data in the NVS
+  nvs_set_blob(savedData,"LIGHTDATA",&lightData,sizeof(lightData));      // 更新 NVS 中的数据
   nvs_set_u32(savedData,"AID",aidStore);
   nvs_commit(savedData); 
 
@@ -183,19 +174,19 @@ int addLight(const char *name, boolean isDimmable, colorType_t colorType){
 
 size_t strncpy_trim(char *dest, const char *src, size_t dSize){
 
-  while(*src==' ')                            // skip over any leading spaces
+  while(*src==' ')                            // 跳过任何前导空格
     src++;
 
-  size_t sLen=strlen(src);                    // string length of src after skipping over leading spaces
-  while(sLen>0 && src[sLen-1]==' ')           // shorten length to remove trailing spaces
+  size_t sLen=strlen(src);                    // 跳过前导空格后的 src 字符串长度
+  while(sLen>0 && src[sLen-1]==' ')           // 缩短长度以删除尾随空格
     sLen--;
 
-  size_t sSize=sLen+1;                        // add room for null terminator
+  size_t sSize=sLen+1;                        // 为空终止符添加空间
     
   if(dest!=NULL)
     *stpncpy(dest,src,(dSize<sSize?dSize:sSize)-1)='\0';
     
-  return(sSize);                              // return total size needed for entire trimmed string, including null terminator
+  return(sSize);                              // 返回整个修剪字符串所需的总大小，包括空终止符
 }
 
 ///////////////////////////
@@ -207,11 +198,11 @@ void deleteAccessory(int index){
     return;
   }
 
-  if(homeSpan.deleteAccessory(lightData[index].aid)){                            // if deleteAccessory() is true, a match has been found
+  if(homeSpan.deleteAccessory(lightData[index].aid)){                            // 如果 deleteAccessory() 为真，则表示找到匹配项
     Serial.printf("Deleting Light Accessory:  Name='%s'\n",lightData[index].name);
 
     lightData[index].aid=0;
-    nvs_set_blob(savedData,"LIGHTDATA",&lightData,sizeof(lightData));      // update data in the NVS
+    nvs_set_blob(savedData,"LIGHTDATA",&lightData,sizeof(lightData));     // 更新 NVS 中的数据
     nvs_commit(savedData);
     
   } else {   
@@ -228,7 +219,7 @@ void deleteAllAccessories(const char *buf){
     lightData[i].aid=0;
   }
   
-  nvs_set_blob(savedData,"LIGHTDATA",&lightData,sizeof(lightData));      // update data in the NVS
+  nvs_set_blob(savedData,"LIGHTDATA",&lightData,sizeof(lightData));      // 更新 NVS 中的数据
   nvs_commit(savedData);
 
   Serial.printf("All Light Accessories deleted!\n");
@@ -308,7 +299,7 @@ void setupWeb(){
       response += "<p>Can't add any more Light Accessories.  Max="+ String(MAX_LIGHTS) + "</p>";
 
     response += "<p>Press here to delete ALL Light Accessories: <button type='button' onclick=\"document.location='/deleteAll'\">Delete All Lights</button></p>";
-    response += "<p>Press here to update the Home App when finished making changes: <button type='button' onclick=\"document.location='/update'\">Upddate HomeKit</button></p>";
+    response += "<p>Press here to update the “家庭”应用when finished making changes: <button type='button' onclick=\"document.location='/update'\">Upddate HomeKit</button></p>";
     
     response += "</body></html>";
     webServer.send(200, "text/html", response);
