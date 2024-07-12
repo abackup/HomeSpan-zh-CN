@@ -1,43 +1,43 @@
-# Over-the-Air (OTA) Updates
+<!--  原文时间：2023.3.19，翻译时间：2024.5.13，校对时间：2024.7.12 -->
 
-HomeSpan supports Over-the-Air (OTA) updates, which allows you to *wirelessly* upload sketches directly from the Arduino IDE - no serial connection needed.  To activate this feature for your sketch, simply call the method `homeSpan.enableOTA()` prior to calling `homeSpan.begin()`.
+# 无线 (OTA) 更新
 
-When a HomeSpan sketch is run with OTA enabled, the device shows up as a "network" port that can be selected under the *Tools → Port* menu in the Arduino IDE.  Once selected, the IDE will direct all uploads to the device via WiFi instead of looking for it on a serial port.  Note that you can upload via OTA even if your device is still connected to a serial port, but the Arduino IDE does not presently support multiple port connections at the same time.  If you select a "network" port, the IDE will automatically close the Serial Monitor if it is open.  To re-instate uploads via the "serial" port, simply choose that port from the *Tools → Port* menu in the Arduino IDE.  Uploading via the serial port is always possible regardless of whether you have enabled OTA for a sketch.
+HomeSpan 支持无线 (OTA) 更新，它允许你直接从 Arduino IDE *无线*上传草图——无需串口连接。要为你的草图激活此功能，只需在调用 `homeSpan.begin()` 之前调用方法 `homeSpan.enableOTA()`。
 
-By default, HomeSpan requires the use of a password whenever you begin an OTA upload.  The default OTA password is "homespan-ota".  The Arduino will prompt you for this password upon your first attempt to upload a sketch to a newly-connected device.  However, once the password for a specific device is entered, the Arduino IDE retains it in memory as long as the IDE is running, thereby saving you from having to type it again every time you re-upload a sketch via OTA.
+在启用 OTA 的情况下运行 HomeSpan 草图时，设备显示为“网络”端口，可以在 Arduino IDE 的 *工具→端口* 菜单下选择该端口。选择后，IDE 将通过 WiFi 将所有上传内容定向到设备，而不是在串口端口上查找。请注意，即使你的设备仍连接到串口端口，你也可以通过 OTA 上传，但 Arduino IDE 目前不支持同时连接多个端口。如果你选择“网络”端口，IDE 将自动关闭串口监视器（如果它是打开的）。要通过“串口”端口恢复上传，只需从 Arduino IDE 的 *工具→端口* 菜单中选择该端口。无论你是否为草图启用了 OTA，始终可以通过串口端口上传。
 
-You can change the password for a HomeSpan device from the [HomeSpan CLI](CLI.md) with the 'O' command.  Similar to a device's Setup Code, HomeSpan saves a non-recoverable hashed version of the OTA password you specify in non-volatile storage (NVS).  If you forget the password you specified, you'll need to create a new one using the 'O' command, or you can restore the default OTA password by fully erasing the NVS with the 'E' command.
+默认情况下，每当你开始 OTA 上传时，HomeSpan 都需要使用密码。默认 OTA 密码为 "homespan-ota"。在你第一次尝试将草图上传到新连接的设备时，Arduino 会提示你输入此密码。但是，一旦输入特定设备的密码，只要 IDE 运行，Arduino IDE 就会将其保留在内存中，从而使你不必在每次通过 OTA 重新上传草图时再次输入密码。
 
-You can also change the password programmatically from within a sketch by calling `homeSpan.enableOTA(const char *pwd)`.  This is not as secure as setting the password using the method above since your sketch will contain a plaintext-version, instead of a hashed-version, or your password.  Note that setting your password this way causes HomeSpan to ignore, but does not alter, any password you have saved in NVS using the 'O' command.
+你可以使用 "O" 命令从 [命令行界面](docs/CLI.md) 更改 HomeSpan 设备的密码。与设备的设置代码类似，HomeSpan 将你指定的 OTA 密码的不可恢复散列版本保存在非易失性存储 (NVS) 中。如果你忘记了你指定的密码，你需要使用 "O" 命令创建一个新密码，或者你可以通过使用 "E" 命令完全擦除 NVS 来恢复默认的 OTA 密码。
 
-> :exclamation: Though not recommended, you can override the requirement for a password when enabling OTA for your sketch by including *false* as a parameter to the enabling method as such: `homeSpan.enableOTA(false)`.  Use with caution!  Anyone who can access the device over your network will now be able to upload a new sketch.
+还可以通过调用 `homeSpan.enableOTA(const char *pwd)` 从草图中以编程方式更改密码。这不如使用上述方法设置密码安全，因为你的草图将包含纯文本版本，而不是散列版本或密码。请注意，以这种方式设置密码会导致 HomeSpan 忽略但不会更改你使用 "O" 命令保存在 NVS 中的任何密码。
 
-Note that in in order for OTA to properly operate, your sketch must be compiled with a partition scheme that includes OTA partitions.  Partition schemes are found under the *Tools → Partition Scheme* menu of the Arduino IDE.  Select a scheme that indicates it supports OTA.  Note that schemes labeled "default" usually include OTA partitions.  If unsure, try it out.  HomeSpan will let you know if it does or does not.
+> :exclamation: 虽然不推荐，但你可以在为你的草图启用 OTA 时覆盖密码要求，方法是将 *false* 作为启用方法的参数，如下所示： `homeSpan.enableOTA(false)`。谨慎使用！任何可以通过你的网络访问该设备的人现在都可以上传新草图。
 
-This is because HomeSpan checks that a sketch has been compiled with OTA partitions if OTA has been enabled for that sketch.  If OTA has been enabled but HomeSpan does not find any OTA partitions, it will indicate it cannot start the OTA Server via a warning message sent to the Serial Monitor immediately after WiFi connectivity has been established.  Otherwise it will output a confirmation message indicating the OTA Server has sucessfully started.
+请注意，为了使 OTA 正常运行，你的草图必须使用包含 OTA 分区的分区方案进行编译。分区方案位于 Arduino IDE 的 *工具→Partition Scheme* 菜单下。选择一个表明它支持 OTA 的方案。请注意，标记为“默认”的方案通常包括 OTA 分区。如果不确定，请尝试一下。HomeSpan 会通知你是否这样做。
 
-### OTA Safe Load
+这是因为如果已为该草图启用 OTA，HomeSpan 会检查该草图是否已使用 OTA 分区编译。如果 OTA 已启用，但 HomeSpan 未找到任何 OTA 分区，它将通过在 WiFi 连接建立后立即发送到串口监视器的警告消息指示它无法启动 OTA 服务器。否则，它会输出一条确认消息，表明 OTA 服务已成功启动。
 
-HomeSpan includes two additional safety checks when using OTA to upload a sketch:
+### OTA 安全加载
 
-1. HomeSpan checks to make sure the new sketch being uploaded is also another HomeSpan sketch. If not, HomeSpan will reject the new sketch and report an OTA error back to the Arduino IDE after the new sketch is uploaded, but before the device reboots.  Instead, HomeSpan will close the OTA connection and resume normal operations based on the existing sketch without rebooting.  The purpose of this safety check is to prevent you from accidentally uploading a non-HomeSpan sketch onto a remote device, making it impossible for you to re-upload the correct sketch without retreiving the remote device and connecting to you computer via the serial port.
+HomeSpan 在使用 OTA 上传草图时包括两项额外的安全检查：
 
-1. After a successful upload of a new HomeSpan sketch via OTA, HomeSpan will check that the new HomeSpan sketch just loaded *also* has OTA enabled.  This check occurs after HomeSpan is rebooted with the new sketch.  If HomeSpan does not find OTA enabled, it will mark the current partition as invalid and reboot the device, causing the device to "roll back" to the previous version of the sketch that had OTA enabled.  The purpose of this safety check is to ensure you do not use OTA to upload a new HomeSpan sketch to a remote device, but failed to enable OTA in the new HomeSpan sketch.  If you did this you would be locked out of making any further updated via OTA and would instead need to retreive the remote device and connect it to your computer via the serial port.
+1. HomeSpan 检查以确保上传的新草图也是另一个 HomeSpan 草图。如果没有，HomeSpan 将拒绝新的草图，并在新草图上传后但在设备重新启动之前向 Arduino IDE 报告 OTA 错误。相反，HomeSpan 将关闭 OTA 连接并根据现有草图恢复正常操作，而无需重新启动。此安全检查的目的是防止你不小心将非 HomeSpan 草图上传到远程设备上，使你无法在不检索远程设备并通过串口端口连接到你的电脑的情况下重新上传正确的草图。
 
-Note that these check are *only* applicable when uploading sketches via OTA.  They are ignored whenever sketches are uploaded via the serial port.  Also, though these safety checks are enabled by default, they can be disabled when you first enable OTA by setting the second (optional) argument to *false* as such: `homeSpan.enableOTA(..., false)`.  See the API for details.
+1. 通过 OTA 成功上传新的 HomeSpan 草图后，HomeSpan 将检查刚刚加载的新 HomeSpan 草图*也*已启用 OTA。此检查在使用新草图重新启动 HomeSpan 后进行。如果 HomeSpan 没有发现 OTA 启用，它会将当前分区标记为无效并重新启动设备，导致设备“回滚”到启用 OTA 的先前版本的草图。此安全检查的目的是确保你不使用 OTA 将新的 HomeSpan 草图上传到远程设备，但未能在新的 HomeSpan 草图中启用 OTA。如果你这样做，你将无法通过 OTA 进行任何进一步更新，而是需要检索远程设备并通过串口端口将其连接到你的电脑。
 
-### OTA Tips and Tricks
+请注意，这些检查*仅*适用于通过 OTA 上传草图时。只要通过串口端口上传草图，它们就会被忽略。此外，虽然这些安全检查默认启用，但当你首次启用 OTA 时，可以通过将第二个（可选）参数设置为 *false* 来禁用它们： `homeSpan.enableOTA(..., false)`。有关详细信息，请参阅 [API 参考](docs/Reference.md)。
 
-* The name of the device HomeSpan uses for OTA is the same as the name you assigned in your call to `homeSpan.begin()`.  If you have multiple devices you intend to maintain with OTA, use `homeSpan.begin()` to give them each different names so you can tell them apart when selecting which one to connect to from the Arduino IDE.
+### OTA 提示和技巧
 
-* Use the `homeSpan.setSketchVersion()` method to set a version for your sketch (see the [HomeSpan API](Reference.md) for details).  If specified, HomeSpan will include the sketch version as part of its HAP MDNS broadcast.  This allows you determine which version of a sketch is running on a remote HomeSpan device, even if you can't plug it into a serial port for use with the Arduino Serial Monitor.  In addition to the sketch version, HomeSpan also includes other fields in its MDNS broadcast that are useful in identifying the device: the version number of the HomeSpan *library* used to compile the sketch, a field indicating whether or not OTA is enabled for the sketch, the version number of the Arduino-ESP32 library used when compiling, and the type of board (e.g. *feather_esp32*).
+* HomeSpan 用于 OTA 的设备名称与你在调用 `homeSpan.begin()` 时分配的名称相同。如果你打算使用 OTA 维护多个设备，请使用 `homeSpan.begin()` 为它们指定不同的名称，以便在从 Arduino IDE 选择要连接的设备时区分它们。
 
-* If a sketch you've uploaded with OTA does not operate as expected, you can continue making modifications to the code and re-upload again.  Or, you can upload a prior version that was working properly.  However, the Safe Load features described above cannot protect against a HomeSpan sketch that has major run-time problems, such as causing a kernel panic that leads to an endless cycle of device reboots.  If this happens, HomeSpan won't be able to run the OTA Server code, and further OTA updates will *not* be possible.  Instead, you'll have to connect the device through a serial port to upload a new, working sketch.  **For this reason you should always fully test out a new sketch on a local device connected to your computer *before* uploading it to a remote, hard-to-access device via OTA.**
+* 使用 `homeSpan.setSketchVersion()` 方法为你的草图设置版本（有关详细信息，请参阅 [API 参考](docs/Reference.md)）。如果指定，HomeSpan 将包含草图版本作为其 HAP MDNS 广播的一部分。这允许你确定哪个版本的草图正在远程 HomeSpan 设备上运行，即使你无法将其插入串口端口以与 Arduino 串口监视器一起使用。除了草图版本，HomeSpan 还在其 MDNS 广播中包含其他有助于识别设备的字段：用于编译草图的 HomeSpan *library* 的版本号，该字段指示是否为草图，编译时使用的 Arduino-ESP32 库的版本号，以及板的类型（例如 *feather_esp32*）。
 
-* Note that though the ESP IDF supports "automated" rollbacks that are designed to solve the problem of endless reboots after a bad upload, this feature is *not* enabled in the latest version of the Arudino-ESP32 library (2.0.2 at the time of this posting).
+* 如果你使用 OTA 上传的草图没有按预期运行，你可以继续修改代码并重新上传。或者，你可以上传正常工作的早期版本。但是，上述安全加载功能无法防止存在重大运行时问题的 HomeSpan 草图，例如导致内核恐慌导致设备无休止的重启循环。如果发生这种情况，HomeSpan 将无法运行 OTA 服务器代码，并且*无法*进行进一步的 OTA 更新。相反，你必须通过串口端口连接设备才能上传新的工作草图。**因此，你应该始终在连接到你电脑的本地设备上对新草图进行全面测试*之前*，然后通过 OTA 将其上传到远程、难以访问的设备。**
+
+* 请注意，尽管 ESP IDF 支持旨在解决上传错误后无休止重启问题的*自动*回滚，但此功能*未*在最新版本的 Arudino-ESP32 库中启用（本帖发布时库版本为 2.0.2）。
 
 ---
 
-[↩️](../README.md) Back to the Welcome page
-
-
+[↩️](../README.md#resources) 返回欢迎页面
