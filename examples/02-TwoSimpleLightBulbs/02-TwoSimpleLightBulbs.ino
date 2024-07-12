@@ -1,93 +1,82 @@
 /*********************************************************************************
- *  MIT License
+ *  MIT 许可证
  *  
- *  Copyright (c) 2020-2024 Gregg E. Berman
+ *  Copyright (c) 2020-2022 Gregg E. Berman
  *  
  *  https://github.com/HomeSpan/HomeSpan
  *  
- *  Permission is hereby granted, free of charge, to any person obtaining a copy
- *  of this software and associated documentation files (the "Software"), to deal
- *  in the Software without restriction, including without limitation the rights
- *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- *  copies of the Software, and to permit persons to whom the Software is
- *  furnished to do so, subject to the following conditions:
+ *  特此授予获得此软件和相关文档文件（“软件”）副本的任何人免费许可，以无限制方式处理软件，
+ *  包括但不限于使用、复制、修改、合并、发布、分发、再许可和/或销售软件副本的权利，并允许
+ *  向其提供软件的人员这样做，但须遵守以下条件：
  *  
- *  The above copyright notice and this permission notice shall be included in all
- *  copies or substantial portions of the Software.
+ *  上述版权声明和本许可声明均应包含在软件的所有副本或重要部分中。
  *  
- *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- *  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- *  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- *  SOFTWARE.
+ *  软件按“原样”提供，不作任何明示或暗示的保证，包括但不限于适销性、特定用途的适用性和不
+ *  侵权性的保证。在任何情况下，作者或版权持有者均不对因软件或使用或其他处理软件而引起的
+ *  或与之相关的任何索赔、损害或其他责任承担责任，无论是合同行为、侵权行为还是其他行为。
  *  
  ********************************************************************************/
  
 ////////////////////////////////////////////////////////////
 //                                                        //
-//    HomeSpan: A HomeKit implementation for the ESP32    //
+//              HomeSpan：ESP32 的 HomeKit 实现           //
 //    ------------------------------------------------    //
 //                                                        //
-// Example 2: Two non-functioning on/off light bulbs      //
-//            constructed from basic HomeSpan components  //
+// 示例 2：由基本 HomeSpan 组件构成的两个不工作的开/关灯泡 //
+//                                                        //
 //                                                        //
 ////////////////////////////////////////////////////////////
 
 
-#include "HomeSpan.h"         // Always start by including the HomeSpan library
+#include "HomeSpan.h"        // 始终从包含 HomeSpan 库开始
 
 void setup() {
 
-  // Example 2 expands on Example 1 by implementing two LightBulbs, each as their own Accessory
+  // 示例 2 在示例 1 的基础上进行了扩展，实现了两个灯泡，每个灯泡都是一个配件
  
   Serial.begin(115200);
 
-  homeSpan.begin(Category::Lighting,"HomeSpan LightBulb");   // initializes a HomeSpan device named "HomeSpan Lightbulb" with Category set to Lighting
+  homeSpan.begin(Category::Lighting,"HomeSpan LightBulb");   // 初始化一个名为“HomeSpan Lightbulb”的 HomeSpan 设备，并将类别设置为照明
 
-  // Here we create the first LightBulb Accessory just as in Example 1
+  // 在这里我们创建第一个灯泡配件，就像示例 1 一样
 
-  new SpanAccessory();                              // Begin by creating a new Accessory using SpanAccessory(), no arguments needed
+  new SpanAccessory();                              // 首先使用 SpanAccessory() 创建一个新的附件，不需要任何参数
   
-    new Service::AccessoryInformation();            // HAP requires every Accessory to implement an AccessoryInformation Service, with the required Identify Characteristic
-      new Characteristic::Identify();                 // Create the required Identify  
+    new Service::AccessoryInformation();            // HAP 要求每个配件都实现配件信息服务，并具有所需的识别特征
+      new Characteristic::Identify();                 // 创建所需的标识
 
-    new Service::LightBulb();                       // Create the Light Bulb Service
-      new Characteristic::On();                       // This Service requires the "On" Characterstic to turn the light on and off
+    new Service::LightBulb();                       // 创建灯泡服务
+      new Characteristic::On();                       // 此服务需要“开启”特性来打开和关闭灯
 
-  // Now we create a second Accessory, which is just a duplicate of the first Accessory
+  // 现在我们创建第二个附件，它只是第一个附件的副本
 
-  new SpanAccessory();                              // Begin by creating a new Accessory using SpanAccessory(), no arguments needed
+  new SpanAccessory();                              // 首先使用 SpanAccessory() 创建一个新的附件，不需要任何参数
   
-    new Service::AccessoryInformation();            // HAP requires every Accessory to implement an AccessoryInformation Service, with the required Identify Characteristic
-      new Characteristic::Identify();                 // Create the required Identify  
+    new Service::AccessoryInformation();            // HAP 要求每个配件都实现配件信息服务，并具备所需的识别特征
+      new Characteristic::Identify();                 // 创建所需的标识  
 
-    new Service::LightBulb();                       // Create the Light Bulb Service
-      new Characteristic::On();                       // This Service requires the "On" Characterstic to turn the light on and off
+    new Service::LightBulb();                       // 创建灯泡服务
+      new Characteristic::On();                       // 此服务需要“On”特性来打开和关闭灯
 
-  // That's it - our device now has two Accessories, each displayed up as a separate Tile in the Home App!
+  // 就是这样 - 我们的设备现在有两个配件，每个配件在 “家庭”应用中显示为单独的图块！
 
-  // Note that for a device with multiple Accessories, the Home App generates a default name for each Accessory Tile from the Name
-  // specified in homeSpan.begin().  In this case, the default name for the first Accessory Tile will be "HomeSpan Lightbulb",
-  // just as it was in Example 1, and the default name for the second Accessory Tile will be "HomeSpan Lightbulb 2".
+  // 请注意，对于具有多个附件的设备，“家庭”应用会根据 homeSpan.begin() 中指定的名称为每个附件图块生成一个默认名称。
+  // 在本例中，第一个附件图块的默认名称将为“HomeSpan Lightbulb”（与示例 1 中一样），第二个附件图块的默认名称
+  // 将为“HomeSpan Lightbulb 2”。
 
-  // You can of course change the name of each Accessory Tile from these defaults when prompted by the Home App during pairing.  You
-  // can also change the name of any Accessory Tile, even after pairing, directly from the Home App by opening the settings page
-  // for any given Tile.
+  // 当然，在配对期间，当 “家庭”应用提示时，您可以更改每个附件图块的名称，使其不再是这些默认名称。
+  // 即使在配对后，您也可以直接从 “家庭”应用打开任何给定图块的设置页面来更改任何附件图块的名称。
 
-  // In Example 7 we will demonstrate how the default names can be changed from within a HomeSpan sketch.
+  // 在示例 7 中，我们将演示如何在 HomeSpan 草图中更改默认名称。
 
-  // IMPORTANT: You should NOT have to re-pair your device with HomeKit when moving from Example 1 to Example 2.  HomeSpan will note
-  // that the Attribute Database has been updated, and will broadcast a new configuration number when the program restarts.  This should
-  // cause all iOS and MacOS HomeKit Controllers to automatically update and reflect the new configuration above.
-
-} // end of setup()
+  // 重要提示：从示例 1 移至示例 2 时，您无需重新将设备与 HomeKit 配对。HomeSpan 将注意到属性数据库已更新，
+  // 并将在程序重新启动时广播新的配置编号。这应该会导致所有 iOS 和 MacOS HomeKit 控制器自动更新并反映上述新配置。
+} // setup() 结束
 
 //////////////////////////////////////
 
 void loop(){
   
-  homeSpan.poll();         // run HomeSpan!
+  homeSpan.poll();         // 运行 HomeSpan!
   
-} // end of loop()
+} // loop() 结束
