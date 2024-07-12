@@ -1,99 +1,103 @@
-# SpanPoint: Point-to-Point Communication between ESP32 Devices
+<!--  原文时间：2024.3.8，翻译时间：2024.5.6，校对时间：2024.7.12  -->
 
-SpanPoint is HomeSpan's easy-to-use implementation of the Espressif ESP-NOW protocol.  SpanPoint provides bi-directional, point-to-point communication of small, fixed-size messages directly between ESP32 devices based on their MAC Addresses without the need for a central WiFi network.  SpanPoint can also be used on an ESP-8266 when configured as a remote device.
+# SpanPoint：ESP32 设备之间的点对点通信
 
-To establish connectivity between any two devices simply instantiate a SpanPoint object on each device that references the MAC Address of the other device, as well as specifies the (potentially different) sizes of the messages that each device is expected to send to, and receive from, the other.
+SpanPoint 是 HomeSpan 对乐鑫 ESP-NOW 协议的易于使用的实现。SpanPoint 根据 MAC 地址直接在 ESP32 设备之间提供小型、固定大小消息的双向点对点通信，无需家庭 WiFi。当配置为远程设备时，SpanPoint 也可以在 ESP-8266 上使用。
 
-SpanPoint creates all the internal data queues needed to manage message flow, configures ESP-NOW to encrypt all message traffic, and auto-sets the WiFi channel used by ESP-NOW for transmission to match whatever is needed by any devices that are also connected to HomeKit through your central WiFi network.
+要在任意两个设备之间建立连接，只需在每个设备上实例化一个 SpanPoint 对象，该对象引用另一个设备的 MAC 地址，并指定每个设备预期发送或接收到另一个设备的消息的大小（可能不同）。
 
-SpanPoint is part of the main HomeSpan library and is accessible by adding `#include "HomeSpan.h"` near the top of your sketch.  Detailed descriptions of the SpanPoint class and all of its methods are provided below.
+SpanPoint 创建管理消息流所需的所有内部数据队列，配置 ESP-NOW 以加密所有消息流量，并自动设置 ESP-NOW 用于传输的 WiFi 通道，以匹配也连接到的任何设备所需的任何内容 HomeKit 通过你的家庭 WiFi。
+
+SpanPoint 是 HomeSpan 库的一部分，可以通过在草图顶部附近添加 `#include "HomeSpan.h"` 来访问。下面提供了 SpanPoint 类及其所有方法的详细描述。
 
 ## *SpanPoint(const char \*macAddress, int sendSize, int receiveSize [, int queueDepth=1 [, boolean useAPaddress=false]])*
 
-Creating an instance of this **class** enables the device to send messages to, and/or receive messages from, a "complementary" instance of *SpanPoint* on another ESP32 device.  Arguments, along with their defaults if left unspecified, are as follows:
+创建此**类**的实例使设备能够向另一个 ESP32 设备上的 *SpanPoint* 的“补充”实例发送消息和/或从其接收消息。参数及其默认值（如果未指定）如下：
 
-  * *macAddress* - the MAC Address of the *other* device to which you want to send data to, and/or receive data from, in the standard 6-byte format "XX:XX:XX:XX:XX:XX", where each XX represents a single 2-digit hexidecimal byte from 00 to FF
-  * *sendSize* - the size, in bytes, of any messages that will be sent from this device to the *other* device. Allowed range is 0 to 200, where a value of 0 is used to indicate to SpanPoint that you will **not** be using `send()` to transmit any messages from this device to the *other* device
-  * *receiveSize* - the size, in bytes, of any messages that will be received by this device from the *other* device.  Allowed range is 0 to 200, where a value of 0 is used to indicate to SpanPoint that you will **not** be using `get()` to retreive any messages transmitted by the *other* device to this device
-  * *queueDepth* - the depth of the queue reserved to hold messages of *receiveSize* bytes that were received by this device from the *other* device, but not yet retreived using `get()`. Default=1 if left unspecified, which should be sufficient for most applications.  See `get()` below for further details
-  * *useAPaddress* - SpanPoint normally communicates via the ESP32's WiFi Station (STA) Interface using the STA MAC Address.  Setting *useAPaddress* to *true* causes SpanPoint to instead communicate via the ESP32's WiFi Access Point (AP) Interface using the AP MAC Address.  This is needed when using an ESP-8266 as a Remote Device (see below).  Default=*false* if left unspecified
+   * *macAddress* - 你想要向其发送数据和/或从中接收数据的*其他*设备的 MAC 地址，采用标准 6 字节格式 "XX:XX:XX:XX:XX:XX"，其中每个 XX 代表从 00 到 FF 的单个 2 位十六进制字节
+   * *sendSize* - 将从该设备发送到*其他*设备的任何消息的大小（以字节为单位）。允许的范围是 0 到 200，其中值 0 用于向 SpanPoint 表示你**不会**使用 `send()` 将任何消息从该设备传输到*其他*设备
+   * *receiveSize* - 该设备将从*其他*设备接收的任何消息的大小（以字节为单位）。允许的范围是 0 到 200，其中值 0 用于向 SpanPoint 表示你**不会**使用 `get()` 来检索由*其他*设备传输到此设备的任何消息
+   * *queueDepth* - 保留的队列深度，用于保存该设备从*其他*设备接收到的 *receiveSize* 字节的消息，但尚未使用 `get()` 检索。如果未指定，则默认=1，这对于大多数应用来说应该足够了。有关更多详细信息，请参阅下面的 `get()`
+   * *useAPaddress* - SpanPoint 通常使用 STA MAC 地址通过 ESP32 的 WiFi 站 (STA) 接口进行通信。将 *useAPaddress* 设置为 *true* 会导致 SpanPoint 使用 AP MAC 地址通过 ESP32 的 WiFi 接入点 (AP) 接口进行通信。当使用 ESP-8266 作为远程设备时需要这样做（见下文）。如果未指定，则默认为 *false*
 
-A list of all SpanPoint objects instantiated in a sketch, their parameters as specified above, and the specific MAC Address each Remote Device should use to connect back to the Main HomeSpan Device, is displayed in the Serial Monitor by typing 'i' into the CLI
+通过在 CLI 中键入"i"，将在草图中实例化的所有 SpanPoint 对象的列表、上面指定的参数以及每个远程设备用于连接回主 HomeSpan 设备的特定 MAC 地址显示在串口监视器中
 
-> SpanPoint objects created on two separate devices are considered "complementary" if the MAC Addresses specified in each SpanPoint object references each other's devices, and the *sendSize* and *receiveSize* of the SpanPoint object on one device matches, respectively, the *receiveSize* and *sendSize* of the SpanPoint object on the *other* device, with the exception that it is always okay to set either the *sendSize* or *receiveSize* to zero regardless of the value set on the *other* device
+> 如果每个 SpanPoint 对象中指定的 MAC 地址引用彼此的设备，并且一台设备上的 SpanPoint 对象的 *sendSize* 和 *receiveSize* 分别与另一台设备上的 *sendSize* 和 *receiveSize* 匹配，则在两个单独设备上创建的 SpanPoint 对象被视为“互补”。但是，无论另一个设备上的值如何设置，始终可以将 *sendSize* 和 *receiveSize* 设置为零。
 
-SpanPoint will throw a fatal error during instantiation and halt the sketch if:
-  * the *macAddress* specified is ill-formed, or
-  * either *sendSize* or *receiveSize* is set to greater than 200, or
-  * both *sendSize* and *receiveSize* are set to 0, since there is no purpose for a SpanPoint that will neither transmit nor receive data
+如果发生以下情况，SpanPoint 将在实例化期间抛出致命错误并停止草图：
+   * 指定的 *macAddress* 格式不正确，或者
+   * *sendSize* 或 *receiveSize* 设置为大于 200，或者
+   * *sendSize* 和 *receiveSize* 均设置为 0，因为 SpanPoint 既不发送也不接收数据
    
-**The following SpanPoint methods are used to transmit and receive messages from a SpanPoint object on one device to a complementary SpanPoint object on the *other* device:**
+**以下 SpanPoint 方法用于从一个设备上的 SpanPoint 对象向*其他*设备上的互补 SpanPoint 对象传输和接收消息：**
 
 * `boolean send(const void *data)`
 
-  * transmits a message using data pointed to by *data* (which may be a standard data type, such as *uint16_t*, or a user-defined *struct*) to the *other* device
-  * the size of the *data* element to be transmitted much match the *sendSize* parameter specified when the SpanPoint object was created
-  * returns **true** if transmission was successful, otherwise **false** if transmission failed.  Note that a transmission is considered successful as long as the device can find and connect to the *other* device based on its MAC Address, regardless of whether or not the other device has a corresponding SpanPoint object
+   * 使用 *data* 指向的数据（可以是标准数据类型，例如 *uint16_t* 或用户定义的 *struct*）向 *其他* 设备传输消息
+   * 要传输的 *data* 元素的大小与创建 SpanPoint 对象时指定的 *sendSize* 参数非常匹配
+   * 如果传输成功则返回**true**，如果传输失败则返回**false**。请注意，只要设备可以根据其 MAC 地址找到并连接到*其他*设备，则传输被视为成功，无论其他设备是否具有相应的 SpanPoint 对象
   
 * `boolean get(void *dataBuf)`
 
-  * checks to see if a message has been received into SpanPoint's internal message queue from the *other* device
-  * if no message is available, the method returns **false** and *dataBuf* is unmodified
-  * if a message is available, it is **moved** from the internal message queue into *dataBuf* and the method returns **true**
-  * the size of the message will always be equal to the *receiveSize* parameter specified when the SpanPoint object was created, so make sure *dataBuf* is sufficiently sized to store such a message
+   * 检查消息是否已从*其他*设备接收到 SpanPoint 的内部消息队列
+   * 如果没有可用的消息，该方法返回 **false** 并且 *dataBuf* 未修改
+   * 如果消息可用，则将其从内部消息队列 **移动** 到 *dataBuf* 并且该方法返回 **true**
+   * 消息的大小始终等于创建 SpanPoint 对象时指定的 *receiveSize* 参数，因此请确保 *dataBuf* 的大小足以存储此类消息
 
-Note that whether or or not you call the `get()` method, SpanPoint is configured to store (in an internal queue) any SpanPoint messages it receives from *other* devices, provided that (a) there is room in the internal queue, and (b) the size of the message received matches the *receiveSize* parameter specified when the relevant SpanPoint object was instantiated.  If the internal queue is full when a message is received, the message is *not* moved to the queue and is instead discarded before it can ever be retreived by the `get()` method.  To avoid this, make sure you call `get()` more frequently than you expect to receive messages, or set the *queueDepth* parameter to something greater than 1 when instantating the SpanPoint object.
+请注意，无论你是否调用 `get()` 方法，SpanPoint 都会配置为存储（在内部队列中）从*其他*设备接收到的任何 SpanPoint 消息，前提是 (a) 内部队列中有空间，以及 (b) 接收到的消息的大小与实例化相关 SpanPoint 对象时指定的 *receiveSize* 参数相匹配。如果收到消息时内部队列已满，则该消息*不会*移动到队列中，而是在通过`get()`方法检索之前被丢弃。为了避免这种情况，请确保你调用 `get() `的频率高于预期接收消息的频率，或者在实例化 SpanPoint 对象时将 *queueDepth* 参数设置为大于 1 的值。
 
-Also note that regardless of whether or not the queue if full, if the size of a received message does not match the *receiveSize* parameter specified for this instance of the SpanPoint object, the message will be discarded.  If *receiveSize* is greater than zero, a non-fatal run-time warning about size mismatches will also be output on the Serial Monitor.
+另请注意，无论队列是否已满，如果接收到的消息的大小与为此 SpanPoint 对象实例指定的 *receiveSize* 参数不匹配，则该消息将被丢弃。如果 *receiveSize* 大于零，则还将在串口监视器上输出有关大小不匹配的非致命运行时警告。
 
-**Other methods supported by SpanPoint are as follows:**
+**SpanPoint支持的其他方法如下：**
 
 * `uint32_t time()`
 
-  * returns the time elapsed (in millis) since a SpanPoint object last received a valid message
-  * valid messages are those that can be properly decrypted and whose size matches the *receiveSize* parameter, regardless of whether or not there is room in the queue to store the message
-  * reading a message in the queue with `get()` has no impact on the elapsed time calculation
-  * this method is typically used to check whether messages from a transmitting device are overdue (suggesting a potential problem with that device)
+   * 返回自 SpanPoint 对象上次收到有效消息以来经过的时间（以毫秒为单位）
+   * 有效消息是那些可以正确解密且大小与 *receiveSize* 参数匹配的消息，无论队列中是否有空间存储该消息
+   * 使用 get() 读取队列中的消息对经过的时间计算没有影响
+   * 此方法通常用于检查来自传输设备的消息是否过期（表明该设备存在潜在问题）
 
 * `static void setPassword(const char *pwd)`
 
-  * this *optional* **class-level** method changes the default passphrase used to generate ESP-NOW encryption keys for all SpanPoint objects from the default passphrase ("HomeSpan") to *pwd*, which can be a character string of any length
-  * if used, this method must be called *before* the instantiation of any SpanPoint objects.  Example: `SpanPoint::setPassword("MyPassword");`
-  * the same passphrase must be used among all devices that are communicating via SpanPoint, else the receiving device will not be able to decrypt messages it receives
+   * 此*可选***类级**方法将用于为所有 SpanPoint 对象生成 ESP-NOW 加密密钥的默认密码短语从默认密码短语 ( "HomeSpan" ) 更改为 *pwd*，它可以是以下字符串 任意长度
+   * 如果使用，必须在实例化任何 SpanPoint 对象之前调用此方法。示例： `SpanPoint::setPassword("MyPassword");`
+   * 通过 SpanPoint 进行通信的所有设备必须使用相同的密码，否则接收设备将无法解密其收到的消息
+
 
 * `static void setEncryption(boolean encrypt)`
 
-  * this *optional* **class-level** method provides the ability to enable or disable encryption according to whether *encrypt* is set to *true* or *false*
-  * by default, encryption is normally enabled (using the password above)
-  * if used, this method must be called *before* the instantiation of any SpanPoint objects.  Example: `SpanPoint::setEncryption(false);` disables encryption for all SpanPoint connections
-  * note that this is a global setting - if SpanPoint encryption is disabled on the main device, it must also be disabled on every remote device, else communication between devices will fail
-  * enabling/disabling encryption impacts that total number of SpanPoint connections that can be supported by the ESP32's ESP-NOW functionality:
-    * with encryption enabled, the ESP32 can support a maximum of 7 ESP-NOW links (i.e. 7 instances of SpanPoint)
-    * with encryption disabled, the ESP32 can support a maximum of 20 ESP-NOW links (i.e. 20 instances of SpanPoint)
+  * 此*可选*的*类级*方法提供了根据 encrypt 设置为 true 还是 false 启用或禁用加密的功能
+  * 默认情况下，通常启用加密（使用上面的密码）
+  * 如果使用，则必须在实例化任何 SpanPoint 对象*之前*调用此方法。示例：`SpanPoint::setEncryption(false);` 禁用所有 SpanPoint 连接的加密
+  * 请注意，这是一个全局设置——如果在主设备上禁用了 SpanPoint 加密，则还必须在每个远程设备上禁用它，否则设备之间的通信将失败
+  * 启用/禁用加密会影响 ESP32 的 ESP-NOW 功能可以支持的 SpanPoint 连接总数：
+    * 启用加密后，ESP32 最多可以支持 7 个 ESP-NOW 链路（即 7 个 SpanPoint 实例）
+    * 禁用加密后，ESP32 最多可以支持 20 个 ESP-NOW 链路（即 20 个 SpanPoint 实例）
+
 
 * `static void setChannelMask(uint16_t mask)`
 
-  * this *optional* **class-level** method changes the default channel bitmask from 0x3FFE (i.e. 0011 1111 1111 1110) to *mask*
-  * the channel bitmask is used to limit which of the standard channels (1-13) supported by the ESP32 WiFi radio should be tried whenever SpanPoint needs to reset the ESP-NOW channel after a transmission failure
-  * setting bit number *N* to 1 in the bitmask, where N=[1,13], enables the use of WiFi channel number *N*
-  * setting bit number *N* to 0 in the bitmask, where N=[1,13], disables the use of WiFi channel number *N*
-  * example: `SpanPoint::setChannelMask(1<<1 | 1<<6 | 1<<11);` causes SpanPoint to try only WiFi channels 1, 6, and 11 when transmitting messages
-  * this method will throw a fatal error and halt the sketch if called with a *mask* that does not enable at least one channel
-  * this method has no effect on SpanPoint if used within a full HomeSpan sketch that connects to HomeKit via a central WiFi network, since under these conditions the WiFi channel must remain set to whatever the central WiFi network requires
+   * 这个*可选***类级**方法将默认通道位掩码从 0x3FFE（即 0011 1111 1111 1110）更改为*掩码*
+   * 通道位掩码用于限制每当 SpanPoint 在传输失败后需要重置 ESP-NOW 通道时应尝试 ESP32 WiFi 无线电支持的标准通道 (1-13)
+   * 将位掩码中的位号 *N* 设置为 1，其中 N=[1,13]，启用 WiFi 通道号 *N*
+   * 将位掩码中的位号 *N* 设置为 0，其中 N=[1,13]，禁用 WiFi 通道号 *N* 的使用
+   * 示例： `SpanPoint::setChannelMask(1<<1 | 1<<6 | 1<<11);` 导致 SpanPoint 在传输消息时仅尝试 WiFi 通道 1、6 和 11
+   * 如果使用不启用至少一个通道的 *mask* 调用此方法，则会引发致命错误并停止草图
+   * 如果在通过家庭 WiFi 网络连接到 HomeKit 的完整 HomeSpan 草图中使用此方法，则对 SpanPoint 没有影响，因为在这些条件下，WiFi 通道必须保持设置为家庭 WiFi 网络所需的任何值
 
-## Typical Use Cases
+## 典型用例
 
-One of the primary reasons for using SpanPoint is to enable the deployement of battery-powered devices.  Since HomeKit requires an always-on WiFi connection, wall-power is a must.  But ESP-NOW does not require always-on connectivity to a central WiFi network, which makes it possible to power things like remote-sensor devices with just a battery.  Such battery-powered "Remote Devices" can take periodic local measurements and transmit them via SpanPoint messages to a wall-powered "Main Device" that is running a full HomeSpan sketch connected to HomeKit via a central WiFi network.
+使用 SpanPoint 的主要原因之一是支持电池供电设备的部署。由于 HomeKit 需要始终在线的 WiFi 连接，因此壁式电源是必须的。但 ESP-NOW 不需要始终连接到家庭 WiFi 网络，这使得只需电池即可为远程传感器设备等设备供电。这种电池供电的“远程设备”可以定期进行本地测量，并通过 SpanPoint 消息将它们传输到墙上供电的“主设备”，该“主设备”正在运行通过家庭 WiFi 网络连接到 HomeKit 的完整 HomeSpan 草图。
 
-Examples showing such a configuration can be found in the Arduino IDE under [*File → Examples → HomeSpan → Other Examples → RemoteSensors*](../examples/Other%20Examples/RemoteSensors).  This folder contains the following sketches:
+显示此类配置的示例可以在 Arduino IDE 中的 [*文件→例子→HomeSpan→其他示例→RemoteSensors*](../examples/Other%20Examples/RemoteSensors) 下找到。该文件夹包含以下草图：
 
-* *MainDevice.ino* - a full HomeSpan sketch that implements two Temperature Sensor Accessories, but instead of taking its own temperature measurements, it uses SpanPoint to read messages containing temperature updates from other Remote Devices
-* *RemoteDevice.ino* - a lightweight sketch that simulates taking periodic temperature measurements, which are then transmitted to the Main Device via SpanPoint
-* *RemoteTempSensor.ino* - a lightweight sketch that is similar to *RemoteDevice.ino*, except that instead of simulating a temperature sensor, it implements an actual Adafruit ADT7410 I2C-based temperature sensor.  This sketch also uses some power-management techniques to extend battery life, such as lowering the CPU frequency and entering into deep-sleep after each measurement is taken
-* *RemoteDevice8266.ino* - similar in function to *RemoteDevice.ino*, but implemented to run on an ESP8266 device using native ESP-NOW commands (since neither HomeSpan nor SpanPoint support the ESP8266).  Note that the "complementary" SpanPoint object on the ESP32 that receives data from the ESP8266 must be configured to use the ESP32's *AP MAC Address* (instead of the *STA MAC Address*) by setting *useAPaddress* to *true* in the SpanPoint constructor
+* *MainDevice.ino* - 一个完整的 HomeSpan 草图，实现了两个温度传感器附件，但它不是进行自己的温度测量，而是使用 SpanPoint 读取包含来自其他远程设备的温度更新的消息
+* *RemoteDevice.ino* - 一个轻量级草图，模拟定期进行温度测量，然后通过 SpanPoint 传输到主设备
+* *RemoteTempSensor.ino* - 一个类似于 *RemoteDevice.ino* 的轻量级草图，不同之处在于它不是模拟温度传感器，而是实现了实际的 Adafruit ADT7410 基于 I2C 的温度传感器。该草图还使用了一些电源管理技术来延长电池寿命，例如降低 CPU 频率并在每次测量后进入深度睡眠
+* *RemoteDevice8266.ino* - 功能与 *RemoteDevice.ino* 类似，但使用本机 ESP-NOW 命令在 ESP8266 设备上运行（因为 HomeSpan 和 SpanPoint 都不支持 ESP8266）。请注意，必须将 ESP32 上从 ESP8266 接收数据的“互补”SpanPoint 对象配置为使用 ESP32 的 *AP MAC 地址*（而不是 *STA MAC 地址*），方法是在 SpanPoint 构造函数将 *useAPaddress* 设置为 *true* 
 
-Please also see the [SpanPointLightSwitch Repository](https://github.com/HomeSpan/SpanPointLightSwitch/tree/main) for a detailed example that shows how to use SpanPoint for *bi-directional communication* between an ESP32 "Central Hub" device implementing two HomeKit Lighbulb Accessories, an remote ESP32 device controlling an LED, and a separate ESP8266 device controlling another LED.
-  
+另请参阅 [SpanPointLightSwitch 库](https://github.com/abackup/SpanPointLightSwitch-Chinese)，了解如何使用 SpanPoint 在实现两个 HomeKit 灯泡配件的 ESP32 “家庭中心”设备、控制 LED 的远程 ESP32 设备和控制另一个 LED 的单独 ESP8266 设备之间进行双向通信。
+
 ---
 
-[↩️](../README.md) Back to the Welcome page
+[↩️](../README.md#resources) 返回欢迎页面
