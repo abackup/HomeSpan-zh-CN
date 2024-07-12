@@ -1,72 +1,53 @@
 /*********************************************************************************
- *  MIT License
+ *  MIT 许可证
  *  
- *  Copyright (c) 2024 Gregg E. Berman
+ *  Copyright (c) 2020-2024 Gregg E. Berman
  *  
  *  https://github.com/HomeSpan/HomeSpan
  *  
- *  Permission is hereby granted, free of charge, to any person obtaining a copy
- *  of this software and associated documentation files (the "Software"), to deal
- *  in the Software without restriction, including without limitation the rights
- *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- *  copies of the Software, and to permit persons to whom the Software is
- *  furnished to do so, subject to the following conditions:
+ *  特此授予获得此软件和相关文档文件（“软件”）副本的任何人免费许可，以无限制方式处理软件，
+ *  包括但不限于使用、复制、修改、合并、发布、分发、再许可和/或销售软件副本的权利，并允许
+ *  向其提供软件的人员这样做，但须遵守以下条件：
  *  
- *  The above copyright notice and this permission notice shall be included in all
- *  copies or substantial portions of the Software.
+ *  上述版权声明和本许可声明均应包含在软件的所有副本或重要部分中。
  *  
- *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- *  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- *  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- *  SOFTWARE.
+ *  软件按“原样”提供，不作任何明示或暗示的保证，包括但不限于适销性、特定用途的适用性和不
+ *  侵权性的保证。在任何情况下，作者或版权持有者均不对因软件或使用或其他处理软件而引起的
+ *  或与之相关的任何索赔、损害或其他责任承担责任，无论是合同行为、侵权行为还是其他行为。
  *  
  ********************************************************************************/
 
-/////////////////////// PIXEL TESTER //////////////////////////
+/////////////////////// 彩灯测试仪 //////////////////////////
 
-// This sketch is designed to help identify the proper settings to use for a NeoPixel, NeoPixel Strip,
-// or any device containing one or more single-wire addressable RGB or RGBW LEDs (the "Pixel Device").
+// 该草图旨在帮助识别 NeoPixel、NeoPixel Strip 或任何包含一个或多个单线可寻址 RGB 或 RGBW LED 的设备（“像素设备”）的正确设置。
 
-// Before compiling, set PIXEL_PIN to the ESP32 pin that is connected to your Pixel Device, and set NPIXELS to
-// the numnber of Pixels in the Pixel Device.  Note that for some strips a single chip controls more than one LED,
-// in which case NPIXELS should be set to the number of controlling chips, NOT the number of LEDs.
+// 编译之前，将 PIXEL_PIN 设置为连接到像素设备的 ESP32 引脚，并将 NPIXELS 设置为像素设备中的像素数量。请注意，对于某些灯带，
+// 单个芯片控制多个 LED，在这种情况下，应将 NPIXELS 设置为控制芯片的数量，而不是 LED 的数量。
 
-// To start, the second argument of the Pixel constructor for the testPixel object below should remain
-// set to PixelType::RGBW
+// 首先，下面 testPixel 对象的 Pixel 构造函数的第二个参数应保持设置为 PixelType::RGBW
 
-// When run, the sketch will repeatedly cycle colors by setting ALL pixels in the device first to RED, then GREEN,
-// followed by BLUE, and then finally WHITE.  After a short pause, the cycle repeats.
+// 运行时，草图将重复循环颜色，方法是先将设备中的所有像素设置为红色，然后是绿色，然后是蓝色，最后是白色。短暂暂停后，循环重复。
 
-// For each color the brightness will increase from 0 through MAX_BRIGHTNESS, and then back to 0. You can change
-// MAX_BRIGHTNESS to something lower than 255 if you want to limit how bright the pixels get.
+// 对于每种颜色，亮度都会从 0 增加到 MAX_BRIGHTNESS，然后再回到 0。如果您想限制像素的亮度，可以将 MAX_BRIGHTNESS 更改为低于 255 的值。
 
-// For Pixel Devices with more than one pixel, diagnostics are as follows:
+// 对于具有多个像素的像素设备，诊断如下：
 //
-// * If all 4 colors repeatedly flash in the order expected, this means the base setting of PixelType::RGBW is correct!
+// * 如果所有 4 种颜色按照预期的顺序重复闪烁，则表示 PixelType::RGBW 的基本设置是正确的！
 //
-// * If instead of each pixel being set to the same color, the pixels in the strip each light up with a different color
-//   (or no color at all), this means you have an RGB LED, not an RGBW LED.  Change the second parameter of the constructor
-//   to PixelType::RGB and re-run the sketch.
+// * 如果不是将每个像素设置为相同的颜色，而是条带中的像素分别以不同的颜色点亮（或根本没有颜色），则意味着您拥有的是 RGB LED，
+// 而不是 RGBW LED。将构造函数的第二个参数更改为 PixelType::RGB 并重新运行草图。
 //
-// * If all of the pixels are being set to the same color, but the sequence is NOT in the order RED, GREEN, BLUE, change
-//   the second parameter of the constructor so that the order of the PixelType colors match the sequence of the colors
-//   that appear on the Pixel Device.  For example, if your RGBW Pixel Device flashes GREEN, RED, BLUE, and than WHITE, use
-//   PixelType::GRBW.
+// * 如果所有像素都设置为相同的颜色，但顺序不是红色、绿色、蓝色，则更改构造函数的第二个参数，以使 PixelType 颜色的顺序与像素设
+// 备上显示的颜色顺序相匹配。例如，如果您的 RGBW 像素设备闪烁绿色、红色、蓝色，然后是白色，请使用 PixelType::GRBW。
 
-// For Pixel Devices with only a single pixel, diagnostics are as follows:
+// 对于仅有一个像素的像素设备，诊断如下：
 
-// * If all 4 colors repeatedly flash in the order expected, this means the base setting of PixelType::RGBW is correct!
+// * 如果所有 4 种颜色按照预期的顺序重复闪烁，则表示 PixelType::RGBW 的基本设置是正确的！
 //
-// * If the pixel does not light at all when set to WHITE this means you have an RGB LED, not an RGBW LED.  Change the
-//   second parameter of the constructor to PixelType::RGB and re-run the sketch.
+// * 如果像素设置为白色时根本不亮，则意味着您有一个 RGB LED，而不是 RGBW LED。将构造函数的第二个参数更改为 PixelType::RGB 并重新运行草图。
 //
-// * If all of the pixels are being set to the same color, but the sequence is NOT in the order RED, GREEN, BLUE, change
-//   the second parameter of the constructor so that the order of the PixelType colors match the sequence of the colors
-//   that appear on the Pixel Device.  For example, if your RGB Pixel Device flashes GREEN, RED, and then BLUE, use
-//   PixelType::GRB.
+// * 如果所有像素都设置为相同的颜色，但顺序不是红色、绿色、蓝色，则更改构造函数的第二个参数，以使 PixelType 颜色的顺序
+// 与 Pixel Device 上显示的颜色顺序相匹配。例如，如果您的 RGB Pixel Device 闪烁绿色、红色，然后闪烁蓝色，请使用 PixelType::GRB。
 
 //////////////////////////////////////
 
@@ -74,12 +55,12 @@
 
 //////////////////////////////////////
 
-#define MAX_BRIGHTNESS  255           // maximum brightness when flashing RGBW [0-255]
+#define MAX_BRIGHTNESS  255           // RGBW闪烁时最大亮度[0-255]
 
-#define PIXEL_PIN 26                  // set this to whatever pin you are using - note pin cannot be "input only"
-#define NPIXELS   8                   // set to number of pixels in strip
+#define PIXEL_PIN 26                  // 将其设置为您正在使用的任何密码 - 注意密码不能是“仅输入”
+#define NPIXELS   8                   // 设置为条带中的像素数
 
-Pixel testPixel(PIXEL_PIN, PixelType::RGBW);      // change the second argument until device operates with correct colors
+Pixel testPixel(PIXEL_PIN, PixelType::RGBW);      // 改变第二个参数直到设备以正确的颜色运行
 
 //////////////////////////////////////
 
