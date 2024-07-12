@@ -1,67 +1,64 @@
-
 ////////////////////////////////////
-//   DEVICE-SPECIFIC LED SERVICES //
+//       设备专用 LED 服务        //
 ////////////////////////////////////
 
-struct DEV_LED : Service::LightBulb {               // ON/OFF LED
+struct DEV_LED : Service::LightBulb {               // 开/关 LED
 
-  int ledPin;                                       // pin number defined for this LED
-  SpanCharacteristic *power;                        // reference to the On Characteristic
+  int ledPin;                                       // 为此 LED 定义的引脚编号
+  SpanCharacteristic *power;                        // 引用 On 特性
   
-  DEV_LED(int ledPin) : Service::LightBulb(){       // constructor() method
+  DEV_LED(int ledPin) : Service::LightBulb(){       // 构造函数（）方法
 
     power=new Characteristic::On();                 
     this->ledPin=ledPin;                            
     pinMode(ledPin,OUTPUT);                         
     
-  } // end constructor
+  } // 结束构造函数
 
-  boolean update(){                              // update() method
+  boolean update(){                              // update() 方法
 
     digitalWrite(ledPin,power->getNewVal());      
    
-    return(true);                               // return true
+    return(true);                               // 返回 true
   
-  } // update
+  } //  更新
 };
       
 //////////////////////////////////
 
-// Here's the new code defining DEV_DimmableLED - changes from above are noted in the comments
+// 这是定义 DEV_DimmableLED 的新代码 - 上面的更改已在注释中注明
 
-struct DEV_DimmableLED : Service::LightBulb {       // Dimmable LED
+struct DEV_DimmableLED : Service::LightBulb {       // 可调光 LED
 
-  LedPin *ledPin;                                   // NEW! Create reference to LED Pin instantiated below
-  SpanCharacteristic *power;                        // reference to the On Characteristic
-  SpanCharacteristic *level;                        // NEW! Create a reference to the Brightness Characteristic instantiated below
+  LedPin *ledPin;                                   // 新功能！创建对下面实例化的 LED 引脚的引用
+  SpanCharacteristic *power;                        // 引用 On 特性
+  SpanCharacteristic *level;                        // 新功能！创建对下面实例化的亮度特征的引用
   
-  DEV_DimmableLED(int pin) : Service::LightBulb(){       // constructor() method
+  DEV_DimmableLED(int pin) : Service::LightBulb(){       // 构造函数（）方法
 
     power=new Characteristic::On();     
                 
-    level=new Characteristic::Brightness(50);       // NEW! Instantiate the Brightness Characteristic with an initial value of 50% (same as we did in Example 4)
-    level->setRange(5,100,1);                       // NEW! This sets the range of the Brightness to be from a min of 5%, to a max of 100%, in steps of 1% (different from Example 4 values)
+    level=new Characteristic::Brightness(50);       // 新功能！实例化亮度特征，初始值为 50%（与示例 4 中相同）
+    level->setRange(5,100,1);                       // 新功能！亮度范围设置为最小 5% 到最大 100%，步长为 1%（与示例 4 的值不同）
 
-    this->ledPin=new LedPin(pin);                   // NEW! Configures a PWM LED for output to the specified pin.  Note pinMode() does NOT need to be called in advance
+    this->ledPin=new LedPin(pin);                   // 新功能！配置 PWM LED 以输出到指定引脚。注意无需提前调用 pinMode()
     
-  } // end constructor
+  } // 结束构造函数
 
-  boolean update(){                              // update() method
+  boolean update(){                              // update() 方法
 
-    // Here we set the brightness of the LED by calling ledPin->set(brightness), where brightness=0-100.
-    // Note HomeKit sets the on/off status of a LightBulb separately from its brightness, which means HomeKit
-    // can request a LightBulb be turned off, but still retains the brightness level so that it does not need
-    // to be resent once the LightBulb is turned back on.
-    
-    // Multiplying the newValue of the On Characteristic ("power", which is a boolean) with the newValue of the
-    // Brightness Characteristic ("level", which is an integer) is a short-hand way of creating the logic to
-    // set the LED level to zero when the LightBulb is off, or to the current brightness level when it is on.
-    
+    // 在这里，我们通过调用 ledPin->set(brightness) 来设置 LED 的亮度，其中亮度 = 0-100。
+    // 注意 HomeKit 会单独设置灯泡的开/关状态，而不是亮度，这意味着 HomeKit 可以请求关闭灯泡，
+    // 但仍保留亮度级别，这样灯泡重新打开后就无需重新发送请求。
+
+    // 将开启特性的新值（“power”，布尔值）与亮度特性的新值（“level”，整数）相乘是一种简便方法，
+    // 可以创建逻辑，在灯泡关闭时将 LED 级别设置为零，在灯泡打开时将其设置为当前亮度级别。
+
     ledPin->set(power->getNewVal()*level->getNewVal());    
    
-    return(true);                               // return true
+    return(true);                               // 返回 true
   
-  } // update
+  } //  更新
 };
       
 //////////////////////////////////
