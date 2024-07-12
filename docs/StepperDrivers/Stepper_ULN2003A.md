@@ -1,37 +1,36 @@
 # Stepper_ULN2003A
 
-This is a derived class of **StepperControl** designed to operate stepper motors driven by a [Texas Instruments ULN2003A](https://www.ti.com/lit/ds/symlink/uln2003a.pdf) (or equivalent) chip.
+这是 **StepperControl** 的派生类，旨在操作由 [Texas Instruments ULN2003A](https://www.ti.com/lit/ds/symlink/uln2003a.pdf)（或同等芯片）驱动的步进电机。
 
-The Texas Instruments ULN2003A chip containins an array of seven Darlington transistor pairs each capable of converting low-voltage/low-current digital signals into higher-voltage/higher-current outputs suitable for driving a stepper motor.[^1]
+Texas Instruments ULN2003A 芯片包含七个达林顿晶体管对阵列，每个晶体管对都能够将低压/低电流数字信号转换为适合驱动步进电机的高压/高电流输出。[^1]
 
-[^1]: Only four of the seven Darlington transistor pairs in the ULN2003A are needed to drive a typical unipolar stepper motor.
+[^1]: 仅需 ULN2003A 中的七个达林顿晶体管对中的四个即可驱动典型的单极步进电机。
 
-Various manufacturers have incorporated this chip into a dedicated stepper motor board designed to drive unipolar motors such the [28BYJ&#8209;48 5&#8209;Volt Stepper](https://opencircuit.shop/product/28byj-48-5v-stepper-motor-4-phase-5-wire) and [28BYJ&#8209;48 12&#8209;Volt Stepper](https://opencircuit.shop/product/28byj-48-12v-stepper-motor-4-phase-5-wire).  Wiring for the [Opencircuit ULN2003 Stepper Motor Driver Board](https://opencircuit.shop/product/uln2003-stepper-motor-driver-module) that uses this chip is as follows:
+各个制造商已将该芯片纳入专用的步进电机板中，用于驱动单极电机，例如 [28BYJ&#8209;48 5&#8209;伏步进电机](https://opencircuit.shop/product/28byj-48-5v-stepper-motor-4-phase-5-wire) 和 [28BYJ&#8209;48 12&#8209;伏步进电机](https://opencircuit.shop/product/28byj-48-12v-stepper-motor-4-phase-5-wire)。使用此芯片的 [Opencircuit ULN2003 步进电机驱动板](https://opencircuit.shop/product/uln2003-stepper-motor-driver-module) 的接线如下：
 
-#### **Power Connections**[^2]
-  * ➕ - connect to an external DC power supply that will drive stepper motor (5-12V)
-  * ➖ - connect to GND on the ESP32, and to ground of external DC power supply
-#### **Motor Connections**
-  *  plug the motor directly into the board's 5-pin connector
-#### **Control Connections**
-  * *IN1, IN2, IN3, IN4* - connect to four digital pins on the ESP32 - used to step the motor in either direction
- 
-The **Stepper_ULN2003A** class includes the following constructors:
-  * `Stepper_ULN2003A(int IN1, int IN2, int IN3, int IN4)`
-    * controls the driver board using only 4 digital pins from the ESP32, where the parameters specify the pin numbers.  Supports the following step type modes:
-      
-      * FULL_STEP_ONE_PHASE
-      * FULL_STEP_TWO_PHASE
-      * HALF_STEP
-        
-❗Note: The ULN2003A chip does not support a short brake state.  Calls to the `brake()` method, as well as setting the *endAction* parameter in the `move()` and `moveTo()` methods to **StepperControl::BRAKE** have no effect on the motor driver.<br><br>
+#### **电源连接**[^2]
+* ➕ - 连接到驱动步进电机的外部直流电源 (5-12V)
+* ➖ - 连接到 ESP32 上的 GND，以及外部直流电源的接地
+#### **电机连接**
+* 将电机直接插入电路板的 5 针连接器
+#### **控制连接**
+* *IN1、IN2、IN3、IN4* - 连接到 ESP32 上的四个数字引脚 - 用于使电机朝任一方向步进
+
+**Stepper_ULN2003A** 类包括以下构造函数：
+* `Stepper_ULN2003A(int IN1, int IN2, int IN3, int IN4)`
+  * 仅使用 ESP32 的 4 个数字引脚控制驱动板，其中参数指定引脚编号。支持以下步骤类型模式：
+
+    * FULL_STEP_ONE_PHASE
+    * FULL_STEP_TWO_PHASE
+    * HALF_STEP
+
+❗注意：ULN2003A 芯片不支持短制动状态。调用 `brake()` 方法以及将 `move()` 和 `moveTo()` 方法中的 *endAction* 参数设置为 **StepperControl::BRAKE** 对电机驱动器没有影响。<br><br>
 
 > [!TIP]
-> If you set the motor to move very slowly (e.g. 500ms per step) you will be able to track how the current is turned on and off for each phase of the motor coils depending on the *step mode* selected by observing the four LEDs (labeled *A, B, C, D*) built into the driver board.  See also this [Last Minute Engineers Tutorial](https://lastminuteengineers.com/28byj48-stepper-motor-arduino-tutorial) for a detailed presentation of the ULN2003A and its use to drive a 28BYJ&#8209;48 5&#8209;Volt Stepper Motor.
+> 如果您将电机设置为非常缓慢地移动（例如每步 500 毫秒），您将能够通过观察内置在驱动板上的四个 LED（标记为 *A、B、C、D*）来跟踪电机线圈每个相的电流如何打开和关闭，具体取决于所选的*步进模式*。另请参阅此 [Last Minute Engineers 教程](https://lastminuteengineers.com/28byj48-stepper-motor-arduino-tutorial)，详细了解 ULN2003A 及其用于驱动 28BYJ&#8209;48 5&#8209;伏步进电机的用途。
 
-
-[^2]: the ULN2003A is a passive chip - there is no VCC power connection between the driver board and the ESP32
+[^2]: ULN2003A 是无源芯片 - 驱动板和 ESP32 之间没有 VCC 电源连接
 
 ---
 
-[↩️](../Stepper.md) Back to the Stepper Motor Control page
+[↩️](../Stepper.md) 返回步进电机控制页面
