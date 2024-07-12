@@ -1,80 +1,60 @@
 /*********************************************************************************
- *  MIT License
+ *  MIT 许可证
  *  
- *  Copyright (c) 2020-2023 Gregg E. Berman
+ *  Copyright (c) 2020-2024 Gregg E. Berman
  *  
  *  https://github.com/HomeSpan/HomeSpan
  *  
- *  Permission is hereby granted, free of charge, to any person obtaining a copy
- *  of this software and associated documentation files (the "Software"), to deal
- *  in the Software without restriction, including without limitation the rights
- *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- *  copies of the Software, and to permit persons to whom the Software is
- *  furnished to do so, subject to the following conditions:
+ *  特此授予获得此软件和相关文档文件（“软件”）副本的任何人免费许可，以无限制方式处理软件，
+ *  包括但不限于使用、复制、修改、合并、发布、分发、再许可和/或销售软件副本的权利，并允许
+ *  向其提供软件的人员这样做，但须遵守以下条件：
  *  
- *  The above copyright notice and this permission notice shall be included in all
- *  copies or substantial portions of the Software.
+ *  上述版权声明和本许可声明均应包含在软件的所有副本或重要部分中。
  *  
- *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- *  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- *  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- *  SOFTWARE.
+ *  软件按“原样”提供，不作任何明示或暗示的保证，包括但不限于适销性、特定用途的适用性和不
+ *  侵权性的保证。在任何情况下，作者或版权持有者均不对因软件或使用或其他处理软件而引起的
+ *  或与之相关的任何索赔、损害或其他责任承担责任，无论是合同行为、侵权行为还是其他行为。
  *  
  ********************************************************************************/
 
-// This example demonstrates the use of a custom Partition Scheme file: "partitions.csv"
+// 此示例演示了如何使用自定义分区方案文件：“partitions.csv”
 
-// During compilation, if a file with this EXACT name is placed in the sketch folder,
-// the esptool performing the compilation will use the partition scheme found
-// in "partitions.csv" regardless of what partition scheme you selected in the Arduino IDE.
+// 在编译期间，如果将具有此确切名称的文件放在草图文件夹中，则执行编译的 esptool 将使用“partitions.csv”中的分区方案，无论您在 Arduino IDE 中选择了哪种分区方案。
 
-// Note if you change the partition scheme it is highly recommended that you fully erase the flash
-// upon your next compile/upload by enabling the "Erase All Flash" option from the Arduino IDE menu.
-// NOTE: remember to turn OFF this option after you've successully uploaded a sketch with the new
-// partition scheme, else you will continue to erase everything saved in the NVS every time you upload
-// a new sketch (which is likely NOT what you want to occur).
+// 请注意，如果您更改了分区方案，强烈建议您在下次编译/上传时通过从 Arduino IDE 菜单中启用“擦除所有闪存”选项完全擦除闪存。
+// 注意：成功上传具有新分区方案的草图后，请记住关闭此选项，否则每次上传新草图时，您都会继续擦除 NVS 中保存的所有内容（这可能不是您想要发生的）。
 
-// The main reason for wanting to create your own partition scheme is to expand the NVS space.
-// All of the pre-configured partition scheme you can select from the Arduino IDE provide
-// for 504 records of NVS space. This is usuall sufficient for most HomeSpan projects, but if
-// you have a LOT of Accessories (as per below) AND you are saving their states in NVS, you can
-// use up all the NVS space.  If this occurs, HomeSpan will warn you of low NVS space upon boot-up.
+// 想要创建自己的分区方案的主要原因是扩展 NVS 空间。您可以从 Arduino IDE 中选择的所有预配置分区方案都提供了 504 条 NVS 空间记录。对于大多数 HomeSpan 项目来说，
+// 这通常已经足够了，但如果您有大量附件（如下所示）并且您正在 NVS 中保存它们的状态，则可能会用尽所有 NVS 空间。如果发生这种情况，HomeSpan 会在启动时警告您 NVS 空间不足。
 
-// The custom partition scheme included in this sketch folder solves this problem by eliminating
-// the SPIFFs partition (which is generally not used by HomeSpan) and using this portion of the flash
-// to provide an NVS space with 3906 records --- more than enough for even the largest projects.
+// 此草图文件夹中包含的自定义分区方案通过消除
+// SPIFFs 分区（HomeSpan 通常不使用）并使用闪存的这一部分
+// 来提供具有 3906 条记录的 NVS 空间来解决此问题 --- 甚至对于最大的项目来说也绰绰有余。
 
-// For reference, in addition to HomeSpan's internal use of NVS (about 32 records), saving a
-// numerical Characteristic consumes one additional NVS record, and saving a string Characteristic (of
-// less than 32 characters) consumes two NVS records.  Also, the ESP32 WiFi stack consumes about 130
-// additional NVS records once initialized.  As such, the sketch below requires:
+// 作为参考，除了 HomeSpan 内部使用的 NVS（约 32 条记录）外，保存数字特征会消耗一条额外的 NVS 记录，保存字符串特征（少于 32 个字符）会消耗两条 NVS 记录。
+// 此外，ESP32 WiFi 堆栈在初始化后会消耗大约 130 条额外的 NVS 记录。因此，下面的草图需要：
 
-//       32 records (internal HomeSpan use)
-//    + 320 records (80 Accessories * 4 saved numerical Characterstics)
-//    + 160 records (80 Accessories * 2 records per saved string Characterstic)
-//    + 130 records (with WiFi initialized)
-//    ----------------------------------------
-//    = 642 NVS records needed (which exceeds the normal 504 limit, unless a custom partition scheme is used)
+// 32 条记录（HomeSpan 内部使用）
+// + 320 条记录（80 个附件 * 4 个保存的数字 Characterstic）
+// + 160 条记录（80 个附件 * 每个保存的字符串 Characterstic 2 条记录）
+// + 130 条记录（初始化 WiFi）
+// ----------------------------------------
+// = 需要 642 条 NVS 记录（超过正常的 504 条限制，除非使用自定义分区方案）
 
-// Note that once HomeSpan is paired with HomeKit, additional NVS records will be consumed to store the
-// pairing information for each verified HomeKit Controller.
+// 请注意，一旦 HomeSpan 与 HomeKit 配对，将使用额外的 NVS 记录来存储每个经过验证的 HomeKit 控制器的配对信息。
 
-// Note also that when compiling under the Arduino IDE, the IDE reports the size of partition based on the
-// Partition Scheme you selected in the IDE menu, even though that scheme is not actually used if you have your
-// own "partition.csv" file, as in this example.  This may lead the IDE to report an incorrect partition size.
+// 还要注意，在 Arduino IDE 下编译时，IDE 会根据您在 IDE 菜单中选择的分区方案报告分区大小，即使如果您有自己的“partition.csv”文件，实际上不会使用该方案，
+// 如本例所示。这可能会导致 IDE 报告错误的分区大小。
 
 ///////////////////////////////////////////////////////////////////////////////////////////
 
 #include "HomeSpan.h"
 
-#define MAX_LIGHTS  80                            // configure for 80 Light Accessories
+#define MAX_LIGHTS  80                            // 配置 80 个灯珠配件
 
 struct RGB_Light : Service::LightBulb {
 
-  Characteristic::On power{0,true};               // save these 4 numerical Characteristics  (4*80 = 320 NVS records)
+  Characteristic::On power{0,true};               // 保存这 4 个数值特征（4*80 = 320 个 NVS 记录）
   Characteristic::Hue H{0,true};
   Characteristic::Saturation S{0,true};
   Characteristic::Brightness V{0,true};
@@ -123,7 +103,7 @@ void setup() {
     new SpanAccessory();
       new Service::AccessoryInformation();
         new Characteristic::Identify();
-        new Characteristic::Name(c,true);         // save this string Characteristic (2*80 = 160 NVS records)
+        new Characteristic::Name(c,true);        // 保存此字符串特征（2*80 = 160 个 NVS 记录）
         
       new RGB_Light(i);
   }
