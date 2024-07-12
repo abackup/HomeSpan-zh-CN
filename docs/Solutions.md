@@ -1,58 +1,59 @@
-# Common Problems and Potential Solutions
+<!--  原文时间：2024.3.9，翻译时间：2024.5.7，校对时间：2024.7.12  -->
 
-### *My HomeSpan device does not appear in the Home App when I try to pair it*
+# 常见问题和可能的解决方案
 
-* There are a few reasons this may occur:
+### *当我尝试配对 HomeSpan 设备时，它未出现在“家庭”应用中*
 
-  * **You have not yet entered your WiFi credentials**.  HomeSpan can't connect to your WiFi network until you provide it with your WiFi&nbsp;SSID and password. If HomeSpan can't find these Credentials it outputs a warning message to the Serial Monitor during start-up.  You can enter your WiFi Credentials into HomeSpan either directly from the Serial Monitor by using the 'W' CLI command, or via the HomeSpan Access Point Setup Page, or by hardcoding it into your sketch with the `homeSpan.setWifiCredentials()` function, though this last method is not recommended for security reasons.
+* 以下是可能发生这种情况的几个原因:
 
-  * **You are out of range of your WiFi network, or entered the wrong WiFi Credentials**.  When HomeSpan first boots, if you've previously entered your WiFi Credentials (see above) it will use them to connect to your WiFi network.  Check the Serial Monitor for status on whether a connection has been successfully made.  If not, make sure your device is in the range of your WiFi network, and re-enter your WiFi Credentials in case you entered them incorrectly the first time.  To double-check that your HomeSpan device is indeed connected to your network after HomeSpan reports a successful connection, open up a terminal window on your computer and use the `ping` command to confirm you can reach the device. 
+  * **你尚未输入 WiFi 凭证**。HomeSpan 无法连接到你的 WiFi 网络，除非你提供 WiFi SSID 和密码。如果 HomeSpan 找不到这些凭证，它会在启动期间向串口监视器输出警告消息。你可以直接从串口监视器使用 "W" CLI 命令或通过 HomeSpan 接入点设置页面将你的 WiFi 凭证输入 HomeSpan，或者使用 `homeSpan.setWifiCredentials()` 函数将其硬编码到你的草图中，但出于安全原因，不建议使用最后一种方法。
+
+  * **你超出了 WiFi 网络范围，或者输入了错误的 WiFi 凭据**。HomeSpan 首次启动时，如果你之前输入过 WiFi 凭据（见上文），它将使用它们连接到你的 WiFi 网络。检查串口监视器的状态，确定是否已成功建立连接。如果没有，请确保你的设备在 WiFi 网络范围内，并重新输入 WiFi 凭据，以防你第一次输入错误。要在 HomeSpan 报告连接成功后再次检查你的 HomeSpan 设备是否确实连接到你的网络，请在你的计算机上打开一个终端窗口并使用 `ping` 命令确认你可以访问该设备。
  
-  * **Your iPhone and ESP32 device are not connected to the same WiFi network**.  Make sure your HomeSpan device is connected to the same SSID as your iPhone and any HomeKit Hubs (e.g. HomePods or Apple TV).  Some routers provide a separate SSID to use for IoT ("Internet of Things") devices. If you decide to use a separate SSID, make sure to configure your router so that message traffic flows unimpeded between your main SSID and your dedicated IoT SSID with absolutely no filtering of any messages. Also note that like most commercial HomeKit devices, ESP32 devices operate only on the 2.4 GHz WiFi band.  Most iPhones can operate on either the 2.4 GHz or the 5.0 GHz WiFi bands, so if your router provides multi-band access, you need to make sure it is configured to allow unimpeded cross-traffic between the bands.
+  * **你的 iPhone 和 ESP32 设备未连接到同一个 WiFi 网络**。确保你的 HomeSpan 设备连接到与你的 iPhone 和任何 HomeKit 集线器（例如 HomePod 或 Apple TV）相同的 SSID。某些路由器提供单独的 SSID 供 IoT（“物联网”）设备使用。如果你决定使用单独的 SSID，请确保配置路由器，以便消息流量在你的主 SSID 和专用 IoT SSID 之间畅通无阻，并且绝对不会过滤任何消息。另请注意，与大多数商用 HomeKit 设备一样，ESP32 设备仅在 2.4 GHz WiFi 频段上运行。大多数 iPhone 可以在 2.4 GHz 或 5.0 GHz WiFi 频段上运行，因此如果你的路由器提供多频段访问，你需要确保它已配置为允许频段之间畅通无阻的交叉流量。
     
-  * **Your device thinks it is already paired (this is the most common reason)**.  Check the Serial Monitor when HomeSpan first boots - it will let you know if the device is currently *paired* or *unpaired*.  If its already *paired* you must unpair it before it can be paired again with the Home App.  Normally you would unpair the device from the Home App itself, but if for whatever reason you can't (perhaps the device is no longer showing up in the Home App) you can force HomeSpan to forget all its pairing data and reset its state to *unpaired* by typing either the 'U' or 'H' CLI command into the Serial Monitor.  The 'U' command instructs HomeSpan to simply erase all its *Controller* pairing data and reset its state to *unpaired*.  The 'H' command instructs HomeSpan to  erase all its *Controller* pairing data **and** its *HomeKit Device ID*, after which it reboots into the *unpaired* state and generates a new *HomeKit Device ID*.  Typing 'H' is recommended to get the cleanest refresh.  Note that your WiFi Credentials and Pairing Setup Code are not changed by either of these commands.
+  * **你的设备认为它已经配对（这是最常见的原因）**。HomeSpan 首次启动时检查串口监视器 - 它会让你知道设备当前是*配对*还是*未配对*。如果它已经*配对*，你必须先取消配对，然后才能将其与“家庭”应用再次配对。通常，你会将设备与“家庭”应用本身取消配对，但如果出于某种原因你无法取消配对（也许设备不再显示在“家庭”应用中），你可以通过在串口监视器中输入 "U" 或 "H" CLI 命令强制 HomeSpan 忘记其所有配对数据并将其状态重置为*未配对*。"U" 命令指示 HomeSpan 简单地擦除其所有*控制端*配对数据并将其状态重置为*未配对*。"H" 命令指示 HomeSpan 清除其所有*控制端*配对数据**和**其 *HomeKit 设备 ID*，然后重新启动进入*未配对* 状态并生成新的 *HomeKit 设备 ID*。建议输入 "H" 以获得最干净的刷新。请注意，这两个命令都不会更改你的 WiFi 凭据和配对设置代码。
 
-### *HomeSpan works correctly when my ESP32 is plugged into a computer or separately powered through the USB port, but it fails to work when powered directly through the ESP32 5V pin without any USB connection*
+#### *当我的 ESP32 插入电脑或通过 USB 端口单独供电时，HomeSpan 可以正常工作，但在没有任何 USB 连接的情况下，直接通过 ESP32 5V 引脚供电时，它无法正常工作*
 
-* On some ESP32 boards, the USB-UART chip only receives power if power is applied through the USB port, and thus remains unpowered if the ESP32 is powered solely through the ESP32 5V pin.  As a result, the Serial RX pin associated with UART0 on the ESP32, which is normally driven by the USB-UART chip, is free to float at any voltage.  If this pin floats low, the ESP32 thinks there is data to be read from the Serial Monitor, and HomeSpan falls into an infinite loop trying to read this non-existent data.
+* 在某些 ESP32 板上，USB-UART 芯片仅在通过 USB 端口供电时才接收电源，因此，如果 ESP32 仅通过 ESP32 5V 引脚供电，则保持不供电。因此，与 ESP32 上的 UART0 相关的串口 RX 引脚（通常由 USB-UART 芯片驱动）在任何电压下都可以自由浮动。如果此引脚浮空为低电平，则 ESP32 认为有数据要从串口监视器读取，而 HomeSpan 则陷入无限循环，试图读取此不存在的数据。
 
-* **Resolution:**  Add a pull-up resistor (10 kΩ should be fine) connecting the UART0 RX pin on your board to +3.3V.  For most boards the default UART0 RX pin is as follows:
+* **解决方法:** 添加一个上拉电阻（10 kΩ 即可），将电路板上的 UART0 RX 引脚连接到 +3.3V 对于大多数板，默认的 UART0 RX 引脚如下：
 
-  * Pin 3 for the ESP32
-  * Pin 44 for the ESP32-S2 and ESP32-S3
-  * Pin 20 for the ESP32-C3
+  * ESP32 的针脚 3
+  * ESP32-S2 和 ESP32-S3 的针脚 44
+  * ESP32-C3 的针脚 20
 
-* Note that adding this pull-up resistor should **not** interefere with normal serial operation of the board, such as using the Serial Monitor or uploading sketches.
+* 请注意，添加此上拉电阻会**不**干扰电路板的正常串口操作，例如使用串口监视器或上传草图。
 
-* *As an alternative*, instead of adding a pull-up resistor, you can simply exclude (or comment out) the `Serial.begin()` line in your sketch, or call `homeSpan.setSerialInputDisable(false)` to disable HomeSpan reading from the Serial port.  This should prevent the problem of HomeSpan hanging when you power it through the 5V pin, but it unfortunately means the Serial Monitor will not function when you connect the board to your computer, and you will need to add back `Serial.begin()`, or remove `homeSpan.setSerialInputDisable(false)` whenever you want to use the Serial Monitor.
+* *作为替代方案*，而不是添加上拉电阻，你可以简单地排除（或注释掉）草图中的 `Serial.begin()` 线。当你通过 5V 引脚为其供电时，这可以防止 HomeSpan 挂起的问题，但不幸的是，这意味着当你将主板连接到电脑时，串口显示器将无法正常工作，并且每当你想要使用串口显示器时，你都需要重新添加 `Serial.begin()`。
 
-### *HomeSpan crashes when I enable PSRAM, but works fine if I disable PSRAM*
+### *当我启用 PSRAM 时 HomeSpan 崩溃，但如果我禁用 PSRAM 则运行正常*
 
-* If your ESP32 comes with Quad or Octal PSRAM, the chip will likely need to use one or more additional I/O pins so that it can access the PSRAM using an extended SPI bus, as required for these types of PSRAM.  If you happen to use one of those pins for something else (e.g an input button, an LED, etc.) the ESP32 will likely crash whenever PSRAM is enabled.
+* 如果你的 ESP32 配备四路或八路 PSRAM，则芯片可能需要使用一个或多个额外的 I/O 引脚，以便它可以使用扩展的 SPI 总线访问 PSRAM，这是这些类型的 PSRAM 所必需的。如果你碰巧将其中一个引脚用于其他用途（例如输入按钮、LED 等），则每当启用 PSRAM 时，ESP32 可能会崩溃。
   
-* **Resolution:**  Check the documentation for your board to see what pins are reserved for use when PSRAM is enabled, and *don't use those pins for anything else.*
+* **解决方法:**  检查你的主板文档以查看在启用 PSRAM 时保留使用哪些引脚，并且*不要将这些引脚用于其他任何用途*。
 
-### *The Serial Monitor is reporting* "gpio: gpio_set_level(226): GPIO output gpio_num error"
+### *串口监视器报告* "gpio: gpio_set_level(226): GPIO output gpio_num error"
 
-* This is an ESP32-generated error message and it occurs if you try to set the output of a pin that either does not exist on your chip, or does exist but it is input-only (i.e. it cannot be used as a output).  This typically occurs when you try to compile code for one chip (such as an ESP32-S2) on another chip (such as an ESP32-C3).  The code will compile fine, but may produce the above error during run-time.
+* 这是 ESP32 生成的错误消息，如果你尝试设置芯片上不存在的引脚的输出，或者存在但仅用于输入（即不能用作输出）的引脚，就会出现此错误。当你尝试在另一个芯片（例如 ESP32-C3）上编译一个芯片（例如 ESP32-S2）的代码时，通常会发生这种情况。代码可以正常编译，但在运行时可能会产生上述错误。
   
-* **Resolution:**  Check the documentation for your board and *use only pins that exist for your chip, and are not reserved for internal functions, and are not input-only.*
+* **解决方法:**  检查你的主板文档并*仅使用你的芯片中存在的引脚，并且不为内部功能保留，也不仅用于输入。*
 
-### *My sketch is too large to be uploaded (error when trying to upload)*
+### *我的草图太大，无法上传（尝试上传时出错）*
 
-* Though all ESP32 chips have a minimum of 4MB of flash memory, the amount that can be used to store a program depends on the *partition scheme* selected.  By default, the ESP32 uses a parition scheme that reserves 1408 KB for a SPIFFS partition (SPI Flash File Storage) and splits the majority of the remaining flash into two equal OTA partitions of 1280 KB each for program storage.  Most HomeSpan sketches come close to filling up an entire OTA partition, and if you add a lot of other libraries you will likely exceed 1280&nbsp;KB.
+* 虽然所有 ESP32 芯片都至少有 4MB 的闪存，但可用于存储程序的容量取决于所选的*分区方案*。默认情况下，ESP32 使用分区方案，为 SPIFFS 分区（SPI 闪存文件存储）保留 1408 KB，并将剩余闪存的大部分分成两个相等的 OTA 分区，每个分区 1280 KB 用于存储程序。大多数 HomeSpan 草图几乎填满整个 OTA 分区，如果你添加大量其他库，则可能会超过 1280 KB。
 
-* **Resolution:**  Select a different partition table that does not reserve so much flash memory for a SPIFFS partition since SPIFFS is not used at all by HomeSpan and *this partition is just wasting space.*
+* **解决方法:**  选择不同的分区表，该分区表不会为 SPIFFS 分区保留太多闪存，因为 HomeSpan 根本不使用 SPIFFS，并且*该分区只是在浪费空间*。
 
-* From within the Arduino IDE, the easiest way to reduce the SPIFFS partition is to select the *Minimal SPIFFS* partition scheme from under the Tools menu, and then simply recompile and upload your sketch.  This scheme reserves only 128 KB for the SPIFFS partition, which leaves a full 1920 KB of program storage for each OTA partition.  This represents a 50% increase in program size, which should suffice for most applications.
+* 在 Arduino IDE 中，减少 SPIFFS 分区的最简单方法是从“工具”菜单下选择“最小 SPIFFS”分区方案，然后只需重新编译并上传你的草图即可。此方案仅为 SPIFFS 分区保留 128 KB，为每个 OTA 分区留下完整的 1920 KB 程序存储空间。这意味着程序大小增加了 50%，这对于大多数应用程序来说已经足够了。
   
-* If for some reason you still need more space, and you only have 4MB of flash, you can try selecting the *Huge App* partition scheme, which reserves 896 KB for SPIFFS and leaves a *single* partition of 3072 KB for program storage. OTA will unfortunately *not* be available in this scheme. 
+* 如果出于某种原因你仍然需要更多空间，并且你只有 4MB 的闪存，你可以尝试选择 *Huge App* 分区方案，该方案为 SPIFFS 保留 896 KB，并留下 3072 KB 的 *单个* 分区用于程序存储。不幸的是，OTA 在该方案中不可用。
 
-* Note: if you are not using the Arduino IDE to compile and upload HomeSpan sketches, please consult the documentation for your IDE to learn how to change the partition scheme. 
+* 注意：如果你没有使用 Arduino IDE 来编译和上传 HomeSpan 草图，请查阅 IDE 的文档以了解如何更改分区方案。
 
-* Note: if none of the built-in partition schemes contain the right balance of partition sizes for your sketch, you can always create a custom partition scheme as demonstrated in HomeSpan's  [CustomNVSParititon Example](../examples/Other%20Examples/CustomNVSPartition).  This technique should work even if not using the Arduino IDE.
-
+* 注意：如果内置分区方案中没有一个包含适合你的草图的分区大小平衡，你可以随时创建自定义分区方案，如 HomeSpan 的 [CustomNVSParititon 示例](../examples/Other%20Examples/CustomNVSPartition/CustomNVSPartition.ino) 中所示。即使不使用 Arduino IDE，此技术也应该有效。
+ 
 ---
 
-[↩️](../README.md) Back to the Welcome page
-
+[↩️](../README.md#resources) 返回欢迎页面
