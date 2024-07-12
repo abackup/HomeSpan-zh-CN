@@ -1,168 +1,166 @@
-# HomeSpan Tutorials
+<!--原文时间：2024.2.18，翻译时间：2024.7.10，校对时间：2024.7.12   -->
 
-The HomeSpan library includes many tutorial sketches of increasing complexity that take you through all the functions and features of HomeSpan.  The sketches are extensively annotated, and you'll even learn a lot about HomeKit itself by working through all the examples.  If you've already loaded HomeSpan into your Arduino IDE, the tutorials will be found under *File → Examples → HomeSpan*.  Each sketch is ready to be compiled and uploaded to your ESP32 device so you can see them in action.  Alternatively, you can explore just the code within GitHub by clicking on any of titles below.  Note: you may want to first read through the [HomeSpan API Overview](Overview.md) before exploring the tutorials.  They will probably make a lot more sense if you do!
+# HomeSpan 教程
 
->[!TIP]
->Each example is designed to be operated after pairing your ESP32 to HomeKit so you can control HomeSpan from the Home App on your iPhone, iPad, or Mac.  In principle, once you configure and pair your device to HomeKit, your Home App should automatically reflect all changes in your configuration whenever you upload a different tutorial.  However, in practice this is not always the case as it seems HomeKit sometimes caches information about devices, which means what you see in your Home App may not be fully in sync with your sketch.  If this occurs, unpairing and then re-pairing the ESP32 device usually fixes the issue.  If not, you may have to reset the HomeKit Device ID on the ESP32 device so that HomeKit thinks it is a new device and will not use any cached data.  This is very easy to do - see the [HomeSpan Command-Line Interface (CLI)](CLI.md) page for details.
+HomeSpan 库包括许多逐渐复杂的教程草图，带你了解 HomeSpan 的所有功能和特征。这些草图带有大量注释，你甚至可以通过阅读所有示例来了解很多关于 HomeKit 本身的知识。如果你已经将 HomeSpan 加载到 Arduino IDE 中，则可以在 *文件→示例→HomeSpan* 下找到教程。每个草图都可以编译并上传到你的 ESP32，这样你就可以看到它们的运行情况。或者你可以通过点击下面的任何标题来探索 GitHub 中的代码。注意：在浏览教程之前，你可能需要先通读 [API 概述](Overview.md)。如果你这样做，它们可能会更有意义！
 
-### [Example 1 - SimpleLightBulb](../examples/01-SimpleLightBulb)
-This first example introduces the HomeSpan library and demonstrates how to implement a simple on/off light control using a combination of HomeSpan Accessory, Service, and Characteristic objects.  Once this sketch has been uploaded to your HomeSpan device and the device is paired to your home, a new "lightbulb" tile will appear in the Home App of your iPhone, iPad, or Mac. Though the tile will be fully operational (i.e. you can change the status of the lightbulb from "on" or "off"), we won't yet connect an actual light or LED to the HomeSpan device, so nothing real will light up.  Instead, in this and the next few examples, we'll focus on learning about the different ways HomeKit controls can be configured.  Starting in Example 5, we'll connect an LED to the device and introduce the methods that actually turn the LED on and off from your Home App.  HomeSpan API topics covered in this example include:
+>[!TIP] 
+>每个示例都设计为在将 ESP32 与 HomeKit 配对后进行操作，以便你可以从 iPhone、iPad 或 Mac 上的“家庭”应用控制 HomeSpan。理论上，一旦你配置设备并将其与 HomeKit 配对，你的“家庭”应用应该会在你上传不同的教程时自动更新配置中的所有更改。**然而实际上情况并非总是如此**，因为 HomeKit 有时会缓存有关设备的信息，这意味着你在“家庭”应用中看到的内容可能与你的草图不完全同步。如果发生这种情况，取消配对然后重新配对 ESP32 通常可以解决问题。如果没有，你可能需要重置 ESP32 上的 ID，以便 HomeKit 认为它是新设备并且不会使用任何缓存数据。这很容易做到——请参阅 [命令行界面](CLI.md) 了解详细信息。
 
-* the `homeSpan` global object, and it's `begin()` and `poll()` methods
-* referencing HomeSpan categories defined in the `Categories::` namespace
-* instantiating a new `SpanAccessory`
-* instantiating HomeSpan Services and Characteristics defined in the `Service::` and `Characteristic::` namespaces
+### [示例 1 - 简单灯泡](../examples/01-SimpleLightBulb/01-SimpleLightBulb.ino)
+第一个示例介绍了 HomeSpan 库，并演示了如何使用 HomeSpan 附件、服务和特征对象的组合来实现简单的开/关灯控制。将此草图上传到你的 HomeSpan 设备并且与你的“家庭”应用配对后，你的 iPhone、iPad 或 Mac 的“家庭”应用中将出现一个新的“灯泡”图块。虽然图块完全可操作（即你可以将灯泡的状态从“开”或“关”更改），但我们尚未将实际的灯或 LED 连接到 HomeSpan 设备，因此不会亮起任何真实的东西。相反，在这个和接下来的几个示例中，我们将专注于了解配置 HomeKit 控件的不同方式。从示例 5 开始，我们将把 LED 连接到设备，并介绍在“家庭”应用中实际打开和关闭 LED 的方法。此示例中涵盖的 HomeSpan API 主题包括：
 
-### [Example 2 - TwoSimpleLightBulbs](../examples/02-TwoSimpleLightBulbs)
-Example 2 expands on Example 1 by implementing two LightBulbs, each as their own Accessory.
+* 全局对象 `homeSpan`，还有它的 `begin()` 和 `poll()` 方法
+* 引用在 `Categories::` 命名空间中定义的 HomeSpan 类别
+* 实例化一个新的 `SpanAccessory`
+* 实例化在 `Service::` 和 `Characteristic::` 命名空间中定义的 HomeSpan 服务和特征
 
-### [Example 3 - CeilingFanWithLight](../examples/03-CeilingFanWithLight)
-Example 3 shows how adding multiple Services to a single Accessory allows us to create a multi-featured Accessory, such as a ceiling fan wih a ceiling light.
+### [示例 2 - 两个简单灯泡](../examples/02-TwoSimpleLightBulbs/02-TwoSimpleLightBulbs.ino)
+示例 2 通过实现两个灯泡来扩展示例 1，每个灯泡都作为自己的附件。
 
-### [Example 4 - AdvancedCeilingFan](../examples/04-AdvancedCeilingFan)
-Example 4 expands on Example 3 by adding Characteristics to set fan speed, fan rotation direction, and light brightness.  New HomeSpan API topics covered in this example include:
+### [示例 3 - 带灯的吊扇](../examples/03-CeilingFanWithLight/03-CeilingFanWithLight.ino)
+示例 3 展示了如何将多个服务添加到单个附件中，从而使我们能够创建多功能附件，例如带吸顶灯的吊扇。
 
-* using `setRange()` to set the allowable range and increment values for a Characteristic
+### [示例 4 - 高级吊扇](../examples/04-AdvancedCeilingFan/04-AdvancedCeilingFan.ino)
+示例 4 通过添加特征来设置风扇速度、风扇旋转方向和灯光亮度，从而扩展了示例 3。此示例中涵盖的新 HomeSpan API 主题包括：
 
-### [Example 5 - WorkingLED](../examples/05-WorkingLED)
-Example 5 expands on Example 2 by adding in the code needed to actually control LEDs connected to the ESP32 from HomeKit. In Example 2 we built out all the functionality to create a "Tile" Acessories inside HomeKit that displayed an on/off light, but these control did not actually operate anything on the ESP32.  To operate actual devices HomeSpan needs to be programmed to respond to "update" requests from HomeKit by performing some form of operation.  New HomeSpan API topics covered in this example include:
+* 使用 `setRange()` 设置特征的允许范围和增量值
 
-* creating derived device-specific Service structures (classes) from a base HomeSpan Service class
-* placing derived Service classes in their own \*.h files for readability and portability
-* implementing the virtual `update()` method for your derived Services
-* saving references to Characteristic objects with a `SpanCharacteristic *` pointer
-* retrieving new and updated Characteristic values with the `getVal()` and `getNewVal()` methods
+### [示例 5 - 工作指示灯](../examples/05-WorkingLED/05-WorkingLED.ino)
+示例 5 通过添加实际控制从 HomeKit 连接到 ESP32 的 LED 所需的代码来扩展示例 2。在示例 2 中，我们构建了所有功能，以在 HomeKit 中创建一个显示开/关灯的附件图块，但这些控件实际上并未对 ESP32 进行任何操作。要操作真实设备，需要对 HomeSpan 进行编程，以通过执行某种形式的操作来响应来自 HomeKit 的“更新”请求。此示例中涵盖的新 HomeSpan API 主题包括：
 
-### [Example 6 - DimmableLED](../examples/06-DimmableLED)
-Example 6 changes Example 5 so that LED #2 is now dimmable, instead of just on/off.  New HomeSpan API topics covered in this example include:
+* 从基础 HomeSpan 服务类创建派生的特定于设备的服务结构（类）
+* 将派生的服务类放在它们自己的 `\*.h` 文件中以提高可读性和可移植性
+* 为你的派生服务实现虚拟 `update()` 方法
+* 使用 `SpanCharacteristic *` 指针保存对特征对象的引用
+* 使用 `getVal()` 和 `getNewVal()` 方法检索当前和新的特征值
 
-* implementing pulse-width-modulation (PWM) to control an LED attached to any ESP32 pin by instantiating an `LedPin()` object
-* setting the brightness of an LED using the LedPin `set()` method
-* storing similar derived Service classes in the same \*.h file for ease of use
+### [示例 6 - 可调光指示灯](../examples/06-DimmableLED/06-DimmableLED.ino)
+示例 6 更改了示例 5，使得 LED #2 现在可以调光，而不仅仅是开/关。此示例中涵盖的新 HomeSpan API 主题包括：
 
-### [Example 7 - AccessoryNames](../examples/07-AccessoryNames)
-Example 7 demonstrates how the names of two LED Accessories created in Example 6 can be changed from the defaults generated by the Home App to something more useful and customized.
+* 实现脉宽调制 (PWM) 以通过实例化 `LedPin()` 对象来控制连接到 ESP32 引脚的 LED
+* 使用 LedPin `set()` 方法设置 LED 的亮度
+* 将类似的派生服务类存储在同一个 \*.h 文件中以便于使用
 
-### [Example 8 - Bridges](../examples/08-Bridges)
-Example 8 is functionally identical to Example 7, except that instead of defining two Accessories (one for the on/off LED and one for the dimmable LED), we define three Accessories, where the first acts as a HomeKit Bridge.
+### [示例 7 - 附件名称](../examples/07-AccessoryNames/07-AccessoryNames.ino)
+示例 7 演示了如何将示例 6 中创建的两个 LED 配件的名称从“家庭”应用生成的默认值更改为更实用和自定义的名称。
 
-### [Example 9 - MessageLogging](../examples/09-MessageLogging)
-Example 9 illustrates how to add log messages to your HomeSpan sketch.  The code is identical to Example 8 except for the inclusion of new log messages.  New HomeSpan API topics covered in this example include:
+### [示例 8 - 桥接](../examples/08-Bridges/08-Bridges.ino)
+示例 8 在功能上与示例 7 相同，只是我们没有定义两个附件（一个用于开/关 LED，一个用于可调光 LED ），而是定义了三个附件，其中第一个充当 HomeKit 桥接器。
 
-* using the `LOG0()`, `LOG1()`, and `LOG2()` macros to create log messages for different log levels
-* setting the initial log level for a sketch with the `homeSpan.setLogLevel()` method
+### [示例 9 - 消息日志](../examples/09-MessageLogging/09-MessageLogging.ino)
+示例 9 说明了如何将日志消息添加到 HomeSpan 草图。除了包含新的日志消息外，该代码与示例 8 相同。此示例中涵盖的新 HomeSpan API 主题包括：
 
-### [Example 10 - RGB_LED](../examples/10-RGB_LED)
-Example 10 illustrates how to control an RGB LED to set any color and brightness.  New HomeSpan API topics covered in this example include:
+* 使用 `LOG0()`、`LOG1()` 和 `LOG2()` 宏来为不同的日志级别创建日志消息
+* 使用 `homeSpan.setLogLevel()` 方法设置草图的初始日志级别
 
-* converting HomeKit Hue/Saturation/Brightness levels to Red/Green/Blue levels using `PwmPin::HSVtoRGB()`
-* using the optional template functionality of `getVal()`, such as `getVal<float>()`
+### [示例 10 - 全彩 LED](../examples/10-RGB_LED/10-RGB_LED.ino)
+示例 10 说明了如何控制全彩 LED 来设置任何颜色和亮度。此示例中涵盖的新 HomeSpan API 主题包括：
 
-### [Example 11 - ServiceNames](../examples/11-ServiceNames)
-Example 11 demonstrates how the names of the different Services in a multi-Service Accessory can be changed from the defaults generated by the Home App to something more useful and customized.  The examples also explores how and when these names are displayed by the Home App, as well as how the Home App chooses an appropriate icon for an Accessory Tile when the device is configured as a Bridge.
+* 使用 `PwmPin::HSVtoRGB()` 将 HomeKit 的色相/饱和度/亮度转换为红/绿/蓝
+* 使用 `getVal()` 的可选模板功能，例如 `getVal<float>()`
 
-### [Example 12 - ServiceLoops](../examples/12-ServiceLoops)
-Example 12 introduces HomeKit *Event Notifications* to implement two new accessories - a Temperature Sensor and an Air Quality Sensor.  Of course we won't actually have these physical devices attached to the ESP32 for the purpose of this example, but we will simulate "reading" their properties on a periodic basis, and notify HomeKit of any changed values.  New HomeSpan API topics covered in this example include:
+### [示例 11 - 服务名称](../examples/11-ServiceNames/11-ServiceNames.ino)
+示例 11 演示了如何将多服务附件中不同服务的名称从“家庭”应用生成的默认值更改为更实用和自定义的名称。这些示例还探讨了“家庭”应用显示这些名称的方式和时间，以及当设备配置为桥接时“家庭”应用如何为附件图块选择适当的图标。
 
-* implementing the virtual `loop()` method in a derived Service
-* keeping track of elapsed time since the last update of a Characteristic with the `timeVal()` method
-* setting the value of a Characteristic and triggering an Event Notification with the `setVal()` method
+### [示例 12 - 服务循环](../examples/12-ServiceLoops/12-ServiceLoops.ino)
+示例 12 引入了 HomeKit **事件通知**来实现两个新附件——温度传感器和空气质量传感器。当然，出于本示例的目的，我们实际上不会将这些物理设备连接到 ESP32，但我们将模拟定期“读取”它们的属性，并通知 HomeKit 更新的值。此示例中涵盖的新 HomeSpan API 主题包括：
 
-### [Example 13 - TargetStates](../examples/13-TargetStates)
-Example 13 demonstrates the simultaneous use of both the `update()` and `loop()` methods by implementing two new Services: a Garage Door Opener and a motorized Window Shade.  Both examples showcase HomeKit's Target-State/Current-State framework.  New HomeSpan API topics covered in this example include:
+* 在派生服务中实现虚拟 `loop()` 方法
+* 使用 `timeVal()` 方法跟踪自上次更新特征以来经过的时间
+* 使用 `setVal()` 方法设置特征值并触发事件通知
 
-* using Enumerated Constants to set the values of Characteristics that represent discrete states (e.g. "raising", "closing")
+### [示例 13 - 目标状态](../examples/13-TargetStates/13-TargetStates.ino)
+示例 13 我们通过实现两个新服务来演示同时使用 `update()` 和 `loop()` 方法：车库门开启器和电动窗帘。这两个示例都展示了 HomeKit 的目标状态/当前状态的框架。
 
-### [Example 14 - EmulatedPushButtons](../examples/14-EmulatedPushButtons)
-Example 14 demonstrates how you can use the `setVal()` and `timeVal()` methods inside a Service's `loop()` method to create a tile in the Home App that emulates a pushbutton switch.  In this example pressing the tile in the Home App will cause it to turn on, blink an LED 3 times, and then turn off (just like a real pushbutton might do).
+### [示例 14 - 模拟按钮](../examples/14-EmulatedPushButtons/14-EmulatedPushButtons.ino)
+示例 14 演示了如何使用服务的 `loop()` 方法中的 `setVal()` 和 `timeVal()` 方法在“家庭”应用中创建一个模拟按钮开关的图块。在此示例中，按下“家庭”应用中的图块将使其打开，LED 闪烁 3 次，然后关闭（就像真正的按钮可能会做的那样）。
 
-### [Example 15 - RealPushButtons](../examples/15-RealPushButtons)
-This example introduces HomeSpan functionality that lets you easily connect real pushbuttons to any pin on your ESP32 device.  These pushbuttons can then be used to  manually control any appliance connected to the device, such as a lamp or fan.  In this example we implement 3 pushbuttons to control the power, brightness, and a "favorites" setting of an LED, using a combination of single, double, and long button presses.  Event Notifications are sent back to HomeKit using the `setVal()` method after each pushbutton press so that the Home App tiles immediately reflect your manual changes to the power and brightness of the LED.  New HomeSpan API topics covered in this example include:
+### [示例 15 - 真实按钮](../examples/15-RealPushButtons/15-RealPushButtons.ino)
+此示例介绍了 HomeSpan 功能，可让你轻松地将真正的按钮连接到 ESP32 上的任何引脚。然后，这些按钮可用于手动控制连接到设备的任何设备，例如灯或风扇。在此示例中，我们实现了 3 个按钮来控制 LED 的开关、亮度和“收藏”设置，使用单击、双击和长按按钮的组合。每次按下按钮后，使用 `setVal()` 方法将事件通知发送回 HomeKit，以便“家庭”应用图块立即反映你对 LED 功率和亮度的手动更改。此示例中涵盖的新 HomeSpan API 主题包括：
 
-* creating pushbutton objects on any ESP32 pin with `SpanButton()`
-* implementing the virtual `button()` method in a derived Service
-* parsing SINGLE, DOUBLE, and LONG button presses
+* 使用 `SpanButton()` 在任何 ESP32 引脚上创建按钮对象
+* 在派生服务中实现虚拟 `button()` 方法
+* 解析单击、双击和长按按钮按下
 
-### [Example 16 - ProgrammableSwitches](../examples/16-ProgrammableSwitches)
-Example 16 does not introduce any new HomeSpan functionality, but instead showcases a unique feature of HomeKit that you can readily access with HomeSpan.  In all prior examples we used the ESP32 to control a local appliance - something connected directly to the ESP32 device.  We've then seen how you can control the device via HomeKit's iOS or MacOS Home App, or by the addition of local pushbuttons connected directly to the ESP32 device. In this example we do the opposite, and use pushbuttons connected to the ESP32 to control OTHER HomeKit devices of any type.  To do so, we use HomeKit's Stateless Programmable Switch Service.
+### [示例 16 - 可编程开关](../examples/16-ProgrammableSwitches/16-ProgrammableSwitches.ino)
+示例 16 没有引入任何新的 HomeSpan 功能，而是展示了 HomeKit 的一个独特功能，你可以使用 HomeSpan 轻松访问该功能。在之前的所有示例中，我们使用 ESP32 来控制本地设备——直接连接到 ESP32 的设备。然后我们了解了如何通过 iOS 或 MacOS 的 HomeKit “家庭”应用或通过添加直接连接到 ESP32 的本地按钮来控制设备。在这个例子中，我们做相反的事情，并使用连接到 ESP32 的按钮来控制任何类型的其他 HomeKit 设备。为此，我们使用 HomeKit 的可编程开关。
 
-### [Example 17 - LinkedServices](../examples/17-LinkedServices)
-Example 17 introduces the HAP concept of Linked Services and demonstrates how they are used through the implementation of a multi-head Shower.  This example also illustrates some different coding styles that showcase the power and flexibility of HomeSpan's C++ *structure-based* design paradigm.  New HomeSpan API topics covered in this example include:
+### [示例 17 - 链接服务](../examples/17-LinkedServices/17-LinkedServices.ino)
+示例 17 介绍了链接服务的 HAP 概念，并演示了如何通过实现多头淋浴来使用它们。此示例还说明了一些不同的编码风格，展示了 HomeSpan 的 C++ *基于结构*设计范例的强大功能和灵活性。此示例中涵盖的新 HomeSpan API 主题包括：
 
-* creating Linked Services using the `addLink()` method
+* 使用 `addLink()` 方法创建链接服务
 
-### [Example 18 - SavingStatus](../examples/18-SavingStatus)
-Example 18 demonstrates, through the implementation of two Dimmable LEDs, how the values of Characteristics can be automatically saved in the device's non-volatile storage (NVS) for restoration upon start-up if the device is loses power.   New HomeSpan API topics covered in this example include:
+### [示例 18 - 保存状态](../examples/18-SavingStatus/18-SavingStatus.ino)
+示例 18 演示了通过两个可调光 LED 的实现，如何将特征值自动保存在非易失性存储器 (NVS) 中，以便在设备断电时在启动时恢复。此示例中涵盖的新 HomeSpan API 主题包括：
 
-* instructing HomeSpan to store the value of a Characteristic in NVS by setting the second parameter of the constuctor to `true`
+* 通过将构造函数的第二个参数设置为 `true` 来指示 HomeSpan 在 NVS 中存储特征的值
 
-### [Example 19 - WebLog](../examples/19-WebLog)
-Example 19 illustrates, through the implementation of two On/Off LEDs, how to add a Web Log to your HomeSpan sketch, how to syncronize the internal clock of your device using an NTP time server, and how to create your own Web Log messages.  New HomeSpan API topics covered in this example include:
+### [示例 19 - 网页日志](../examples/19-WebLog/19-WebLog.ino)
+示例 19 通过实现两个可开关 LED 说明如何将网页日志添加到 HomeSpan 草图中，如何使用 NTP 时间服务器同步设备的内部时钟，以及如何创建自己的网页日志消息。此示例中涵盖的新 HomeSpan API 主题包括：
+* 启用 HomeSpan 网页日志并使用 `homeSpan.enableWebLog()` 方法指定可选的 NTP 时间服务器
+* 使用`WEBLOG()`宏创建网页日志消息
 
-* enabling the HomeSpan Web Log and specifying an optional NTP time server with the `homeSpan.enableWebLog()` method
-* using the `WEBLOG()` macro to create Web Log messages
+### [示例 20 - 高级技术](../examples/20-AdvancedTechniques/20-AdvancedTechniques.ino)
+示例 20 通过实现**动态**桥接说明了许多高级技术，该桥接允许随时**交互地**添加和删除灯光配件，而无需重新启动设备。此示例中涵盖的新 HomeSpan API 主题包括:
 
-### [Example 20 - AdvancedTechniques](../examples/20-AdvancedTechniques)
-Example 20 illustrates a number of advanced techniques through the implementation of a "dynamic" bridge that allows Light Accessories to be *interactively* added and deleted at any time without the need to reboot the device.  New HomeSpan API topics covered in this example include:
+* 使用 `SpanUserCommand()` 创建自定义 CLI 命令
+* 使用 `homeSpan.deleteAccessory()` 动态删除附件
+* 使用 `homeSpan.updateDatabase()` 刷新附件数据库（自动更新“家庭”应用）
+* 使用 `homeSpan.autoPoll()` 在后台（以及在第二个内核上，如果可用）实现 HomeSpan 轮询
 
-* creating custom CLI commands using `SpanUserCommand()`
-* dynamically deleting Accessories with `homeSpan.deleteAccessory()`
-* refreshing the Accessory database (which automatically updates the Home App) using `homeSpan.updateDatabase()`
-* using `homeSpan.autoPoll()` to implement HomeSpan Polling in the background (and on the second core, if available)
+### [示例 21 - 配件标识符](../examples/21-AccessoryIdentifier%20/21-AccessoryIdentifier.ino)
+示例 21 展示了如何使用每个配件所需的 AccessoryInformation 服务中始终存在的标识符特征来创建自定义“识别例程”，该例程可在配对设备时从“家庭”应用中触发。此示例未使用任何新的 HomeSpan 方法。
 
-### [Example 21 - AccessoryIdentifier](../examples/21-AccessoryIdentifier)
-Example 21 shows how the Identifier Characteristic that is always present in each Accessory's required AccessoryInformation Service can be used to create a custom "identification routine" that can be triggered from within the Home App when pairing a device.  This example does not use any new HomeSpan methods.
+### [示例 22 - TLV8 特征](../examples/22-TLV8_Characteristics%20/22-TLV8_Characteristics.ino)
+示例 22 演示了如何通过实现 DisplayOrder 特征来创建和利用基于 TLV8 的特征，该特征用于设置电视服务输入源在“家庭”应用中的显示顺序。此示例中涵盖的新 HomeSpan API 主题包括：
 
-### [Example 22 - TLV8 Characteristics](../examples/22-TLV8_Characteristics)
-Example 22 demonstrates how to create and utilize TLV8-based Characteristics through the implementation of the DisplayOrder Characteristic used to set the order in which input sources for a Television Service are presented in the Home App.  New HomeSpan API topics covered in this example include:
+* 使用 HomeSpan 的 TLV8 类创建 TLV8 对象
+* 使用 `setTLV()` 更新 TLV8 特征
 
-* creating TLV8 objects using HomeSpan's TLV8 class
-* updating TLV8 Characteristics using `setTLV()`
+## 其他示例
 
- 
-## Other Examples
+以下示例展示了 HomeSpan 文档的不同部分中引用的各种 HomeSpan 和 HomeKit 功能。这些草图可以在 Arduino IDE 中的 *文件→示例→HomeSpan→其他示例* 下找到
 
-The following examples showcase a variety of HomeSpan and HomeKit functionality as referenced in different sections of the HomeSpan documentation.  The sketches can be found in the Arduino IDE under *File → Examples → HomeSpan → Other Examples*
+### [台灯](../examples/Other%20Examples/TableLamp/TableLamp.ino)
+台灯配件的基本实现。用作 [API 概述](Overview.md) 中的教程
 
-### [TableLamp](../examples/Other%20Examples/TableLamp)
-A basic implementation of a Table Lamp Accessory. Used as the tutorial in [HomeSpan API Overview](Overview.md)
+### [控制远程](../examples/Other%20Examples/RemoteControl/RemoteControl.ino)
+一个独立的示例，展示了如何使用 HomeSpan 的 *RFControl* 类来生成自定义脉冲序列。出于说明目的，脉冲宽度非常长，适合输出到 LED，因此你可以“看到”脉冲序列。请参阅 [射频控制](RMT.md) 了解完整详情
 
-### [RemoteControl](../examples/Other%20Examples/RemoteControl)
-A standalone example that shows how to use HomeSpan's *RFControl* class to produce a custom pulse train.  For illustrative purposes the pulse widths are very long and suitable for output to an LED so you can "see" the pulse train. See the [RF/IR Generation](RMT.md) page for full details
+### [控制舵机](../examples/Other%20Examples/ServoControl/ServoControl.ino)
+窗帘的实现，它使用 HomeSpan 的 *ServoPin* 类来控制窗条的水平倾斜。有关完整详细信息，请参阅 [ServoPin](PWM.md#servopin)
 
-### [ServoControl](../examples/Other%20Examples/ServoControl)
-An implementation of a Window Shade that uses HomeSpan's *ServoPin* class to control the horizontal tilt of the slats. See [ServoPin](PWM.md#servopinuint8_t-pin-double-initdegrees-uint16_t-minmicros-uint16_t-maxmicros-double-mindegrees-double-maxdegrees) for full details
+### [电视](../examples/Other%20Examples/Television/Television.ino)
+HomeKit *未认证*电视服务的示例，展示了如何使用不同的特征来控制电视的电源、输入源和其他一些功能。请参阅 [电视服务](TVServices.md) 了解完整详情
 
-### [Television](../examples/Other%20Examples/Television)
-An example of HomeKit's *undocumented* Television Service showing how different Characteristics can be used to control a TV's power, input sources, and a few other functions.  See the [Television Services and Characteristics](TVServices.md) page for full details
+### [灯带](../examples/Other%20Examples/Pixel/Pixel.ino)
+演示如何使用 HomeSpan 的 *Pixel* 和 *Dot* 类来控制单线和两线可寻址全彩和 RGBW LED。有关完整详细信息，请参阅 [灯带](Pixels.md) 
 
-### [Pixel](../examples/Other%20Examples/Pixel)
-Demonstrates how to use HomeSpan's *Pixel* and *Dot* classes to control one- and two-wire Addressable RGB and RGBW LEDs.  See the [Addressable RGB LEDs](Pixels.md) page for full details
+### [像素测试仪](../examples/Other%20Examples/PixelTester/PixelTester.ino)
+帮助确定任何 RGB(W) LED 灯带的 *pixelType* 的草图。请参阅 [灯带](Pixels.md) 页面了解完整详情
 
-### [PixelTester](../examples/Other%20Examples/PixelTester)
-A sketch to aid in determining the *pixelType* for any RGB(W) LED Strip.  See the [Addressable RGB LEDs](Pixels.md) page for full details
+### [自定义服务](../examples/Other%20Examples/CustomService/CustomService.ino)
+演示如何在 HomeSpan 中创建自定义服务和自定义特征，以实现 *Eve 应用*识别的大气压力传感器。有关完整详细信息，请参阅 [自定义特征和自定义服务宏](Reference.md#custom)
 
-### [CustomService](../examples/Other%20Examples/CustomService)
-Demonstrates how to create Custom Services and Custom Characteristics in HomeSpan to implement an Atmospheric Pressure Sensor recognized by the *Eve for HomeKit* app.  See [Custom Characteristics and Custom Services Macros](Reference.md#custom-characteristics-and-custom-services-macros) for full details
- 
-### [ProgrammableHub](../examples/Other%20Examples/ProgrammableHub)
-Demonstrates how to implement a fully programmable Light Accessory Hub that allows the user to *dynamically* add/delete up to 12 Light Accessories directly through a device-hosted *web interface* or via HomeSpan's *command-line inteface*.  Each light can be configured as dimmable/non-dimmable with either no color control, full RGB color control, or color-temperature control.  Builds upon many of the techniques used in [Example 20](../examples/20-AdvancedTechniques)
+### [可编程集线器](../examples/Other%20Examples/ProgrammableHub/ProgrammableHub.ino)
+演示如何实现一个完全可编程的灯光配件集线器，允许用户直接通过设备托管的**网页界面**或通过 HomeSpan 的**命令行界面动态**添加或者删除多达 12 个灯光配件。每个灯都可以配置为可调光/非可调光，没有颜色控制、全彩颜色控制或色温控制。建立在许多使用的技术之上 [示例 20](../examples/20-AdvancedTechniques/20-AdvancedTechniques.ino)
 
-### [RemoteSensors](../examples/Other%20Examples/RemoteSensors)
-Demonstrates how *SpanPoint* can be used to transmit messages from battery-powered Remote Devices running light-weight sketches that measure the local temperature, to a wall-powered Main Device running a full HomeSpan sketch implementing Temperature Sensor Accessories.  See [SpanPoint: Point-to-Point Communication between ESP32 Devices](NOW.md) for full details regarding the *SpanPoint* class and all of its methods
+### [远程传感器](../examples/Other%20Examples/RemoteSensors)
+演示如何使用 SpanPoint 将消息从运行测量本地温度的轻量级草图的电池供电远程从设备传输到运行实现温度传感器附件的完整 HomeSpan 草图的电源供电主设备上。请参阅 [Span 热点](NOW.md) 有关 *SpanPoint* 类及其所有方法的完整详细信息
 
-### [FadingLED](../examples/Other%20Examples/FadingLED)
-Demonstrates how the *LedPin* class can use the ESP32's built-in fading control to automatically fade an LED from from one level of brightness to another over a specified period of time. See the [LedPin](PWM.md#pulse-width-modulation-pwm) page for full details
+### [呼吸指示灯](../examples/Other%20Examples/FadingLED/FadingLED.ino)
+演示 *LedPin* 类如何使用 ESP32 的内置淡入淡出控件，在指定的时间段内自动将 LED 从一个亮度级别淡入淡出另一个亮度级别。有关完整详细信息，请参阅 [LedPin](PWM.md#ledpin)
 
-### [MotorizedWindowShade](../examples/Other%20Examples/MotorizedWindowShade)
-Demonstrates how to use the *StepperControl* class to operate a stepper motor.  Implements a motorized window shade based on [Example&nbsp;13](../examples/13-TargetStates) above. See the [Stepper Motor Control](Stepper.md) page for full details
+### [电动窗帘](../examples/Other%20Examples/MotorizedWindowShade/MotorizedWindowShade.ino)
+演示如何使用 *StepperControl* 类操作步进电机。实现基于上述 [示例 13](../examples/13-TargetStates/13-TargetStates.ino) 的电动窗帘。有关完整详细信息，请参阅 [控制步进电机](Stepper.md)
 
-### [CustomNVSPartition](../examples/Other%20Examples/CustomNVSPartition)
-Demonstrates how to create a Custom Partition Scheme for your sketch by adding a *partitions.csv* file to your sketch folder.  Can be used to expand the size of the non-volatile-storage (NVS) partition, which may be needed when creating a HomeSpan device with many Accessories whose Characteristics you want to save in NVS
+### [自定义分区](../examples/Other%20Examples/CustomNVSPartition/CustomNVSPartition.ino)
+演示如何通过将 *Partition.csv* 文件添加到草图文件夹来为草图创建自定义分区方案。可用于扩展非易失性存储（NVS）分区的大小，在创建具有许多附件的 HomeSpan 设备时可能需要该分区，当你想将这些附件的特征保存在 NVS 中时
 
-### [ExternalReference](../examples/Other%20Examples/ExternalReference)
-Demonstrates how to access Characteristics of Services from outside those Services, such as from within the main Arduino `loop()`.  In this sketch we re-create the two LEDs in Example 5 with an added function in the main Arduino `loop()` that checks if both LEDs are on at the same time, and if so, they are automatically turned off
+### [外部引用](../examples/Other%20Examples/ExternalReference%20/ExternalReference.ino)
+演示如何从这些服务外部访问服务的特征（例如在 Arduino 的 `loop()` 中访问）。在此草图中，我们重新创建了示例 5 中的两个 LED，并在 Arduino `loop()` 部分添加一个新功能，用于检查两个 LED 是否同时打开，如果是，则自动关闭
 
 ---
 
-[↩️](../README.md) Back to the Welcome page
+[↩️](../README.md#resources) 返回欢迎页面
