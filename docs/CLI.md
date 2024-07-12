@@ -1,109 +1,109 @@
-# The HomeSpan Command-Line Interface (CLI)
+<!-- 原文时间：2023.4.6，翻译时间：2024.5.6，校对时间：2024.7.12 -->
 
-HomeSpan includes a light-weight Command-Line Interface (CLI) for developers that can be accessed via the Arduino Serial Monitor whenever your Homespan device is connected to a computer by selecting *Tools → Serial Monitor* from the top menu bar of the Arduino IDE.  The HomeSpan CLI allows you view real-time HomeSpan diagnostics, query the device's operating status, inspect its HAP database, and perform some basic functions, such as initiating a Factory Reset.  Most importantly, the CLI can be used to configure HomeSpan's network connectivity and its HomeKit Setup Code.
+# HomeSpan 命令行界面
 
-> :exclamation: When using the Serial Monitor, please make sure you set the baud rate to match whatever you specified in the `Serial.begin()` function in your HomeSpan sketch.  In addition, you'll need to set the Serial Monitor to transmit a \<newline\> as the line ending.
+HomeSpan 包括一个供开发人员使用的轻量级命令行界面，每当你的 Homespan 设备连接到电脑时，可以通过 Arduino 串口监视器进行访问，只需从 Arduino IDE 的顶部菜单栏中选择*工具→串口监视器*即可。HomeSpan命令行界面允许你查看实时 HomeSpan 诊断、查询设备的运行状态、检查其 HAP 数据库以及执行一些基本功能，例如启动恢复出厂设置。最重要的是，命令行界面可用于配置 HomeSpan 的网络连接及其 HomeKit 设置代码。
 
-### Startup Diagnostics
+> :exclamation: 使用串口监视器时，请确保将波特率设置为与你在 HomeSpan 草图中的 `Serial.begin()` 函数中指定的值相匹配。此外，你还需要将串口监视器设置为传输 \<newline\> 作为行尾。
 
-At startup, HomeSpan:
+### 启动诊断
 
-* displays a Welcome Message,
-* reminds you to set the line ending to \<newline\>,
-* performs various initialization routines,
-* provides some general information about the device, and
-* outputs information about the Accessories, Services, and Characteristics you've instantiated in the sketch to create your HAP Accessory Attribute Database.
+在启动时，HomeSpan 诊断输出：
+
+* 显示欢迎信息，
+* 提醒你将行尾设置为 \<newline\>，
+* 执行各种初始化程序，
+* 提供有关设备的一些一般信息，以及
+* 输出有关你在草图中实例化的配件、服务和特征的信息，以创建你的 HAP 配件属性数据库。
   
-If there are any errors with how you constructed your HAP Database, HomeSpan will report them and **halt** the program. 
+如果你构建 HAP 数据库的方式有任何错误，HomeSpan 将报告它们并**停止**程序。
 
-Next, HomeSpan checks to see if the device has been configured with WiFi Credentials.  If none are found, HomeSpan will indicate this, and then complete its initialization routine by indicating is now READY.  If WiFi Credentials are found, HomeSpan repeatedly tries to connect to the specified network in the background and informs you of its progress.  During this time, any of the commands below will work, including those related to re-configuring or erasing the device's WiFi Credentials.
+接下来，HomeSpan 检查设备是否已配置 WiFi 凭据。如果没有找到，HomeSpan 将指示这一点，然后通过指示现在就绪来完成其初始化例程。如果找到 WiFi 凭据，HomeSpan 会在后台反复尝试连接到指定网络并通知你其进度。在此期间，以下任何命令都将起作用，包括与重新配置或擦除设备 WiFi 凭据相关的命令。
 
-### Log Levels
+### 日志级别
 
-In the READY state, if HomeSpan is connected to a WiFi network it will begin to listen for, and process, any incoming HomeKit HAP requests.  As each request is received and processed, HomeSpan provides diagnostic output messages with different levels of detail depending on the Log Level setting.  This setting ranges from  0 (minimal diagnostics) to 2 (hyper-detailed diganostics).  The default Log Level is 0, but this can be changed either in your HomeSpan sketch (see the [HomeSpan API Reference](Reference.md) for details), or during run time as described in the next section.
+在就绪状态下，如果 HomeSpan 连接到 WiFi 网络，它将开始侦听和处理任何传入 HomeKit 的 HAP 请求。在接收和处理每个请求时，HomeSpan 会根据日志级别设置提供具有不同详细级别的诊断输出消息。此设置范围从 0（最小诊断）到 2（超详细诊断）。默认日志级别为 0，但这可以在 HomeSpan 草图中进行更改（有关详细信息，请参阅 [API 参考](Reference.md)），也可以在运行时更改，如下一节所述。
 
-### HomeSpan Commands
+### HomeSpan 命令
 
-In addition to listening for incoming HAP requests, HomeSpan also continuously polls the Serial Monitor for characters you may type.  Note that the Serial Monitor does not actually transmit the characters you type to the device until you hit <return>.  All HomeSpan commands are a single character, and HomeSpan will ignore all but the first character when parsing command requests, with the exception of those commands that also include a value.  HomeSpan supports the following commands:
+除了侦听传入的 HAP 请求外，HomeSpan 还不断地轮询串口
+监视器以查找你可能键入的字符。请注意，串口监视器实际上不会将你键入的字符传输到设备，直到你点击“发送”。所有 HomeSpan 命令都是单个字符，并且 HomeSpan 在解析命令请求时将忽略除第一个字符之外的所有字符，但那些也包含值的命令除外。HomeSpan 支持以下命令：
   
-* **s** - print connection status
-  * HomeSpan supports connections from more than one HomeKit Controller (e.g. a HomePod, or the Home App on an iPhone) at the same time (the default is 8 simultaneous connection *slots*).  This command provides information on all of the Controllers that have open connections to HomeSpan at any given time, and indictes which slots are currently unconnected.  If a Controller tries to connect to HomeSpan when all connection slots are already occupied, HomeSpan will terminate an existing connection and re-assign the slot the requesting Controller.
+* **s** - 打印连接状态
+  * HomeSpan 支持同时连接多个 HomeKit 控制端（例如 HomePod 或 iPhone 上的“家庭”应用）（默认为 8 个同时连接**控制端**）。此命令提供有关在任何给定时间与 HomeSpan 建立连接的所有控制端的信息，并指示当前未连接的控制端。如果控制端在所有控制端都已被占用时尝试连接到 HomeSpan，HomeSpan 将终止现有连接并将控制端重新分配给请求控制端。
   
-* **i** - print summary information about the HAP Database
-  * This provides an outline of the device's HAP Database showing all Accessories, Services, and Characteristics you instantiated in your HomeSpan sketch, followed by a table showing whether you have overridden any of the virtual methods for each Service.  Note this output is also provided at startup after the Welcome Message as HomeSpan check the database for errors.
+* **i** - 打印有关 HAP 数据库的摘要信息
+  * 这提供了设备的 HAP 数据库的摘要，其中显示了你在 HomeSpan 草图中实例化的所有附件、服务和特性，然后是一个表格，显示你是否已重写每个服务的任何虚拟方法。请注意，在欢迎消息之后启动时也会提供此输出，因为 HomeSpan 检查数据库是否有错误。
   
-* **d** - print the full HAP Accessory Attributes Database in JSON format
-  * This outputs the full HAP Database in JSON format, exactly as it is transmitted to any HomeKit device that requests it (with the exception of the newlines and spaces that make it easier to read on the screen).  Note that the value tag for each Characteristic will reflect the *current* value on the device for that Characteristic.
+* **d** - 以 JSON 格式打印完整的 HAP 附件属性数据库
+  * 这会以 JSON 格式输出完整的 HAP 数据库，就像它被传输到任何请求它的 HomeKit 设备一样（换行符和空格除外，它们更容易在屏幕上阅读）。请注意，每个特性的值标签将反映该特征在设备上的**当前**值。
   
-* **m** - print free heap memory (in bytes)
-  * This prints the amount of memory available for use when creating new objects or allocating memory.  Useful for developers only.
+* **m** - 打印空闲堆内存（以字节为单位）
+  * 这会打印出创建新对象或分配内存时可用的内存量。仅对开发人员有用。
   
-* **W** - configure WiFi Credentials and restart
-  * HomeSpan sketches *do not* contain WiFi network names or WiFi passwords.  Rather, this information is separately stored in a dedicated Non-Volatile Storage (NVS) partition in the ESP32's flash memory, where it is permanently retained until updated (with this command) or erased (see below).  When HomeSpan receives this command it first scans for any local WiFi networks.  If your network is found, you can specify it by number when prompted for the WiFi SSID.  Otherwise, you can directly type your WiFi network name.  After you then type your WiFi Password, HomeSpan updates the NVS with these new WiFi Credentials, and restarts the device.
+* **W** - 配置 WiFi 凭据并重新启动
+  * HomeSpan 草图**不**包含 WiFi 网络名称或 WiFi 密码。相反，此信息单独存储在 ESP32 闪存中的专用非易失性存储 (NVS) 分区中，并永久保留，直到更新（使用此命令）或擦除（见下文）。当 HomeSpan 收到此命令时，它首先扫描任何本地 WiFi 网络。如果找到你的网络，你可以在提示你输入 WiFi 网络名称时按数字指定它。否则，你可以直接输入你的 WiFi 网络名称。在你输入你的 WiFi 密码后，HomeSpan 会使用这些新的 WiFi 凭据更新 NVS，并重新启动设备。
   
-* **X** - delete WiFi Credentials and restart
-  * This command deletes whatever WiFi Credentials have been stored in the device NVS, and restarts.
+* **X** - 删除 WiFi 凭据并重新启动
+  * 此命令删除已存储在设备 NVS 中的所有 WiFi 凭据，然后重新启动。
  
-* **S** \<code\> - change the HomeKit Pairing Setup Code to \<code\>
-  * Every HomeKit device requires a unique 8-digit Setup Code used for pairing.  When HomeSpan is run for the first time on a new device it sets the HomeKit Setup Code to a default value of **466-37-726**, and stores it in a dedicated NVS partition.  This command allows you to update the stored Setup Code to any other 8-digit code.  Note that in accordance with HAP specifications, HomeSpan actually stores a hashed version of the Setup Code, rather than the Setup Code itself.  This means the actual value is not recoverable, so if you forget your Setup Code you'll need to run this command and create a new one.  Alternatively, you can restore the default Setup Code by fully erasing the NVS with the 'E' command.
+* **S** \<code\> - 将 HomeKit 配对设置代码更改为 \<code\>
+  * 每个 HomeKit 设备都需要一个唯一的 8 位设置代码用于配对。当 HomeSpan 首次在新设备上运行时，它会将 HomeKit 设置代码设置为默认值 **466-37-726**，并将其存储在专用的 NVS 分区中。此命令允许你将存储的设置代码更新为任何其他 8 位代码。请注意，根据 HAP 规范，HomeSpan 实际上存储了设置代码的散列版本，而不是设置代码本身。这意味着实际值不可恢复，因此如果你忘记了设置代码，则需要运行此命令并创建一个新命令。或者，你可以通过使用 "E" 命令完全擦除 NVS 来恢复默认设置代码。
   
-* **Q** \<id\> - change HomeSpan's default QR-pairing Setup ID to \<id\>
-  * This command changes HomeSpan's default Setup ID, which is used when pairing with a QR Code, from the new-device value of "HSPN" to \<id\>.  See [HomeSpan QR Codes](QRCodes.md) for details on how the Setup ID is used.  The Setup ID must be exactly 4 alphanumeric characters (0-9, A-Z, and a-z).
-  * Note the new Setup ID is retained in HomeSpan's NVS and used as the default for all sketches, unless a specific Setup ID is set in the sketch using the method `homeSpan.setQRID(const char *id)`.  See the [HomeSpan API Reference](Reference.md) for details.
-  * Deleting a device's HomeKit ID and Controller data with the 'H' command (see below) also restores the default Setup ID to "HSPN".
+* **Q** \<id\> - 将 HomeSpan 的默认二维码配对设置 ID 更改为 \<id\>
+  * 此命令将 HomeSpan 的默认设置 ID（与二维码配对时使用）从 "HSPN" 的新设备值更改为 \<id\>。有关如何使用设置 ID 的详细信息，请参阅 [二维码](QRCodes.md)。设置 ID 必须正好是 4 个字母数字字符（0-9、A-Z 和 a-z）。
+  * 请注意，新的设置 ID 保留在 HomeSpan 的 NVS 中并用作所有草图的默认设置，除非使用方法 `homeSpan.setQRID(const char *id)` 在草图中设置了特定的设置 ID。有关详细信息，请参阅 [API 参考](Reference.md)。
+  * 使用 "H" 命令（见下文）删除设备的 HomeKit ID 和控制端数据，也会将默认设置 ID 恢复为 "HSPN"。
   
-* **O** - prompts you to set the password used for Over-the-Air (OTA) Updating
-  * HomeSpan supports [Over-the-Air (OTA) Updating](OTA.md) but, by default, requires the use of a password.  Similar to a device's Setup Code, HomeSpan saves a non-recoverable *hashed* version of the OTA password you set with this command in NVS.  If you forget the password you specified, you'll need to create a new one using this command.  Alternatively, you can restore the default OTA password by fully erasing the NVS with the 'E' command.
-  * HomeSpan uses "homespan-ota" as its default OTA password for new devices.
-  * Changes to the OTA password do not take effect until the device is restarted.
-  * OTA is not active unless specifically enabled for a sketch using the method `homeSpan.enableOTA()`.  
-  * You can disable the use an authorizing password by invoking `homeSpan.enableOTA(false)` instead, though this creates a security risk and is therefore **not** recommended.  See the [HomeSpan API Reference](Reference.md) for details. 
+* **O** - 提示你设置用于无线 (OTA) 更新的密码
+  * HomeSpan 支持 [无线 (OTA) 更新](OTA.md)，但默认情况下需要使用密码。与设备的设置代码类似，HomeSpan 会保存你在 NVS 中使用此命令设置的 OTA 密码的不可恢复的*散列*版本。如果你忘记了指定的密码，则需要使用此命令创建一个新密码。或者，你可以通过使用 "E" 命令完全擦除 NVS 来恢复默认 OTA 密码。
+  * HomeSpan 使用 "homespan-ota" 作为新设备的默认 OTA 密码。
+  * OTA 密码更改在设备重启后才会生效。
+  * OTA 不活动，除非使用方法 `homeSpan.enableOTA()` 专门为草图启用。
+  * 你可以通过调用 `homeSpan.enableOTA(false)` 来禁用授权密码，但这会产生安全风险，因此**不**推荐。有关详细信息，请参阅 [API 参考](Reference.md)。
   
-* **A** - start the HomeSpan Setup Access Point
-  * This command starts HomeSpan's temporary Access Point, which provides users with an alternate methods for configuring a device's WiFi Credentials and HomeKit Setup Code.  Starting the Access Point with this command is identical to starting it via the Control Button.  See the [HomeSpan User Guide](UserGuide.md) for complete details.
+* **A** - 启动 HomeSpan 设置接入点
+  * 此命令启动 HomeSpan 的临时接入点，它为用户提供配置设备 WiFi 凭据和 HomeKit 设置代码的替代方法。使用此命令启动接入点与通过控制按钮启动它相同。有关完整的详细信息，请参阅 [用户指南](UserGuide.md)。
   
-* **V** - erases the values of any saved Characteristics
-  * As Characteristics are updated via the Home App, their latest values can be (optionally) saved in the device's non-volatile storage (NVS).  If the device should ever lose power this allows HomeSpan to restore the latest values of saved Characteristic upon the next start-up.  Typing 'V' from the CLI deletes all previously-saved Characteristic values from the NVS, though it does not alter the current values of those Characteristics.  This is useful in the event that saved Characteristics become out-of-sync with their stored values during the development phase of your sketch when adding, deleting, and changing the configuration of new Accessories, Services, and Characteristics.
+* **V** - 删除任何已保存特征的值
+  * 由于特性是通过“家庭”应用更新的，它们的最新值可以（可选）保存在设备的非易失性存储 (NVS) 中。如果设备断电，这允许 HomeSpan 在下次启动时恢复保存的最新特性值。在 CLI 中键入 "V" 会从 NVS 中删除所有先前保存的特性值，尽管它不会改变这些特性的当前值。如果在草图的开发阶段添加、删除和更改新配件、服务和特征的配置时，保存的特征与其存储的值不同步，这很有用。
   
-* **U** - unpair device by deleting all Controller data
-  * This deletes all data stored about Controllers that have been paired with the device, which forces HomeSpan to reset its internal state to unpaired.  Normally, unpairing is done by HomeKit at the direction of an end-user via the Home App on an iPhone.  However, HomeKit requests to unpair a device are not subject to any confirmation from that device.  HomeKit simply assumes that once it requests a device to unpair, the device has received the message and has reset its pairing state accordingly.  In the event that HomeKit unpairs a HomeSpan device, but the device does not receive or properly process the request, its pairing status will be out of sync with HomeKit.  Forcing HomeKit to reset its internal state to unpaired using this command resolves the issue and allows HomeSpan to be re-paired with HomeKit.
-  * Note that if you run this command when HomeKit thinks it is still paired to the device, pairing status will be out of sync in the opposite direction.  HomeKit Controllers will continue to send HAP requests to the device, thinking it is paired, but HomeSpan will ignore all these requests since it no longer recognizes any of the Controllers as being paired.  To resolve this issue, you must instruct HomeKit to unpair the device via the Home App, after which you can re-pair the device if needed.
+* **U** - 通过删除所有控制端数据取消配对设备
+  * 这将删除存储的有关已与设备配对的控制端的所有数据，这会强制 HomeSpan 将其内部状态重置为未配对。通常情况下，HomeKit 会在最终用户的指导下通过 iPhone 上的“家庭”应用完成取消配对。但是，HomeKit 取消配对设备的请求不受该设备的任何确认。HomeKit 只是假设一旦它请求设备取消配对，设备就会收到消息并相应地重置其配对状态。如果 HomeKit 取消配对 HomeSpan 设备，但设备没有接收或正确处理请求，则其配对状态将与 HomeKit 不同步。使用此命令强制 HomeKit 将其内部状态重置为未配对可解决问题并允许 HomeSpan 与 HomeKit 重新配对。
+  * 请注意，如果你在 HomeKit 认为它仍然与设备配对时运行此命令，则配对状态将在相反方向不同步。HomeKit 控制端将继续向设备发送 HAP 请求，认为它已配对，但 HomeSpan 将忽略所有这些请求，因为它不再将任何控制端识别为已配对。要解决此问题，你必须通过“家庭”应用指示 HomeKit 取消设备配对，之后你可以根据需要重新配对设备。
   
-* **H** - delete HomeKit Device ID as well as all Controller data and restart
-  * In addition to deleting all Controller data (as if the 'U' command was run), this command also deletes the device's HomeKit ID.  This unique ID is broadcast to all HomeKit Controllers so the device can be uniquely recognized.  When HomeSpan first runs on a new device, it creates this unique ID and stores it permanently in an NVS partition.  Normally, this ID should not changed once set.  However, if you are actively developing and testing a HomeSpan sketch, you may find that HomeKit is cacheing information about your device and the changes you have made to your HAP Accessory Database are not always reflected in the Home App.  Sometimes simply unpairing and re-pairing the device solves this HomeKit issue.  If not, deleting your device's HomeKit ID with this command forces HomeSpan to generate a new one after restarting, which means HomeKit will think this is a completely different device, thereby ignoring any prior data it had cached.
-  * This command also restores the device's default Setup ID, which is used for optional pairing with QR codes, to "HSPN".
-  
-* **P** - prints the device's Pairing Data in base-64 chunks
-  * Used for [Cloning](Cloning.md) the Pairing Data from one device to another
-  
-* **C** - prompts you to input the Pairing Data from another device in base-64 chunks
-  * Used for [Cloning](Cloning.md) the Pairing Data from one device to another
+* **H** - 删除 HomeKit 设备 ID 以及所有控制端数据并重新启动
+  * 除了删除所有控制端数据（就像运行了 "U" 命令一样），此命令还会删除设备的 HomeKit ID。这个唯一的 ID 被广播到所有的 HomeKit 控制端，因此设备可以被唯一地识别。当 HomeSpan 首次在新设备上运行时，它会创建此唯一 ID 并将其永久存储在 NVS 分区中。通常，此 ID 一旦设置就不应更改。但是，如果你正在积极开发和测试 HomeSpan 草图，你可能会发现 HomeKit 正在缓存有关你的设备的信息，并且你对 HAP 附件数据库所做的更改并不总是反映在 家庭 应用中。有时只需取消配对并重新配对设备即可解决此 HomeKit 问题。如果不是，使用此命令删除设备的 HomeKit ID 会强制 HomeSpan 在重新启动后生成一个新 ID，这意味着 HomeKit 会认为这是一个完全不同的设备，从而忽略它之前缓存的任何数据。
+  * 此命令还将设备的默认设置 ID（用于与二维码进行可选配对）恢复为 "HSPN"。
 
-* **R** - restart the device
-  * This command simply reboots HomeSpan.
+* **P** - 以 base-64 块打印设备的配对数据
+  * 用于从一台设备的配对数据 [设备克隆](Cloning.md) 到另一台设备。
   
-* **F** - factory reset and restart
-  * This deletes all data stored in the NVS, *except* for the HomeKit Pairing Setup Code and OTA password, and restarts the device.  This is effectively the same as executing the 'X' command followed by the 'H' command.
+* **C** - 提示你以 base-64 块的形式从另一台设备输入配对数据
+  * 用于从一台设备的配对数据 [设备克隆](Cloning.md) 到另一台设备。
   
-* **E** - erase ALL stored data and restart
-  * This completely erases the NVS, deleting all stored data, *including* the HomeKit Pairing Setup code.  The device is then restarted and initialized as if it were new.
+* **R** - 重启设备
+  * 此命令只是重新启动 HomeSpan。
   
-* **L** \<level\> - change the Log Level setting to \<level\>
-  * This command is used to set the Log Level, which controls the level of diagnostic messages output by HomeSpan.  Valid values are:
+* **F** - 恢复出厂设置并重启
+  * 这将删除 NVS 中存储的所有数据，*HomeKit 配对设置代码和 OTA 密码除外*，并重新启动设备。这实际上与执行 "X" 命令后跟 "H" 命令相同。
   
-    * 0 (minimal diagnostics),
-    * 1 (all diagnostics), and 
-    * 2 (all diagnostics plus a real-time stream of all HAP communication between HomeSpan and any connected HomeKit Controllers).
+* **E** - 清除所有存储的数据并重新启动
+  * 这将完全擦除 NVS，删除所有存储的数据，*包括* HomeKit 配对设置代码。然后设备重新启动并初始化，就好像它是新的一样。
+  
+* **L** \<level\> - 将日志级别设置更改为 \<level\>
+  * 该命令用于设置Log Level，控制HomeSpan输出的诊断信息的级别。有效值为：
+  
+    * 0（最小诊断），
+    * 1（所有诊断），以及
+    * 2（所有诊断以及 HomeSpan 和任何连接的 HomeKit 控制端之间的所有 HAP 通信的实时流）。
 
-* **?** - prints a menu of all CLI commands
+* **?** - 打印所有 CLI 命令的菜单
 
-### User-Defined Commands
+### 用户定义的命令
   
-You can extend the HomeSpan CLI with custom functions using `SpanUserCommand()`.  This class allows you to assign a single-character name to any custom function that will be called when you type the '@' symbol following by the single-character name into the CLI.  For example, if you assigned the character 'K' to a custom function, you would type '@K' into the CLI to invoke it.  This allows you to use any single-character name, even if that character is already used by HomeSpan for its built-in commands.  The `SpanUserCommand` class also allows you to include a short text description of your function that will be added to the menu of commands when you type '?' into the CLI. See the the [API Reference](Reference.md#spanusercommandchar-c-const-char-s-void-fconst-char-v) for full details.    
+你可以使用 `SpanUserCommand()` 使用自定义函数扩展 HomeSpan命令行界面。此类允许你为任何自定义函数分配一个单字符名称，当你在命令行界面中键入 "@" 符号后跟单字符名称时将调用该函数。例如，如果你将字符 "K" 分配给自定义函数，则可以在命令行界面中键入 "@K" 来调用它。这允许你使用任何单字符名称，即使 HomeSpan 已将该字符用于其内置命令。`SpanUserCommand` 类还允许你包含函数的简短文本描述，当你键入 "?" 时，该描述将添加到命令菜单中。进入命令行界面。有关完整详细信息，请参阅 [API 参考](Reference.md#spanusercommand)。
   
 ---
 
-[↩️](../README.md) Back to the Welcome page  
-  
-
-
+[↩️](../README.md#resources) 返回欢迎页面
