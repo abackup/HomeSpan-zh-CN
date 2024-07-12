@@ -1,12 +1,14 @@
-# Cloning Pairing Data from one Device to another
+<!--  原文时间：2023.4.6，翻译时间：2024.5.6，校对时间：2024.7.12   -->
 
-### HomeSpan Pairing Data
+# 将配对数据从一台设备克隆到另一台设备
 
-Even though two different ESP32 devices may be running the exact same sketch, they are nevertheless distinct.  This is because every HomeSpan Accessory has unique 17-character Device ID, a unique 32-byte long-term public key (LTPK), and a unique 64-byte long-term secret key (LTSK).  When HomeSpan is run for the first time on a new device, it looks for these data in the device's non-volatile storage (NVS) memory.  If it is found, the data is loaded for use.  If not found, HomeSpan generates a new set of random keys, and saves this data in the NVS.  The data is permanently stored, though can be erased by typing 'H' into the CLI, which causes HomeSpan to generate a new set of random keys upon the next reboot.
+### HomeSpan 配对数据
 
-When HomeSpan is initially paired to HomeKit, the 36-character Device ID and 32-byte LTPK for one or more HomeKit Controllers is securely transmitted to the HomeSpan Accessory.  These keys are then saved in the device's NVS for permanent retention (though can be erased by the 'H' command).
+尽管两个不同的 ESP32 设备可能运行完全相同的草图，但它们仍然是不同的。这是因为每个 HomeSpan 配件都有唯一的 17 字符设备 ID、唯一的 32 字节长期公钥 (LTPK) 和唯一的 64 字节长期密钥 (LTSK)。当 HomeSpan 首次在新设备上运行时，它会在设备的非易失性存储 (NVS) 内存中查找这些数据。如果找到，则加载数据以供使用。如果未找到，HomeSpan 会生成一组新的随机密钥，并将该数据保存在 NVS 中。数据被永久存储，但可以通过在 CLI 中键入 "H" 来删除，这会导致 HomeSpan 在下次重新启动时生成一组新的随机密钥。
 
-Collectively, the Accessory Device ID, LTPK and LTSK, along with the Device ID and LTPK for each paired Controller, is known as the device's *Pairing Data*.  You can view the Pairing Data (except for the LTSK) for any HomeSpan Accessory by typing 'S' into the CLI.  Here is an example:
+当 HomeSpan 最初与 HomeKit 配对时，一个或多个 HomeKit 控制权的 36 字符设备 ID 和 32 字节 LTPK 会安全地传输到 HomeSpan 配件。然后，这些密钥将保存在设备的 NVS 中以永久保留（但可以通过 "H" 命令擦除）。
+
+配件设备 ID、LTPK 和 LTSK 以及每个配对控制权的设备 ID 和 LTPK 统称为设备的*配对数据*。你可以通过在 CLI 中键入 "S" 来查看任何 HomeSpan 配件的配对数据（LTSK 除外）。这是一个例子：
 
 ```
 *** HomeSpan Status ***
@@ -33,23 +35,25 @@ Connection #11 (unconnected)
 *** End Status ***
 ```
 
-### Cloning a HomeSpan Device
+### 克隆 HomeSpan 设备
 
-Because every device has a unique set of Pairing Data, it is not possible to simply swap a device that is already paired to HomeKit with another one that is not yet paired - the Device IDs will be different and the second device will need to be separately paired.
+由于每个设备都有一组唯一的配对数据，因此不可能简单地将已与 HomeKit 配对的设备替换另一台尚未配对的设备 - 设备 ID 会有所不同，并且需要单独对第二个设备进行单独配对。
 
-This can present a problem if you need to swap out a device (perhaps because it has malfunctioned or was damaged) and you have created a lot of custom automations and scenes for the device from within the Home App.  The new device you use to replace the old device will be seen as a completely new Accessory by HomeKit, and will not be connected with any automations or scenes associated with the old device. In fact, if your unpair the old device, automations and scenes specific to that device will be lost.
+如果你需要更换设备（可能是因为设备出现故障或损坏）并且你已从“家庭”应用中为设备创建了许多自定义自动化和场景，这可能会出现问题。你用来替换旧设备的新设备将被 HomeKit 视为全新的附件，并且不会与与旧设备相关的任何自动化或场景连接。事实上，如果你取消与旧设备的配对，特定于该设备的自动化和场景将会丢失。
 
-To solve this problem you need to be able to replace the broken device with a new device, but *without* unpairing the old device or re-pairing the new device.  This requires the new device to be initialized not with a new set of randomly-generated Device IDs, LTPKs and LTSKs, but rather with the *same* Pairing Data as the old device.
+要解决此问题，你需要能够用新设备替换损坏的设备，但*无需*取消旧设备的配对或重新配对新设备。这要求新设备不是使用一组新的随机生成的设备 ID、LTPK 和 LTSK 进行初始化，而是使用与旧设备*相同*的配对数据。
 
-Fortunately, HomeSpan provides a methods for "cloning" the Pairing Data from one device to another.  This means you can swap out a broken device for a new device without HomeKit knowing the difference (provided it is running the same sketch of course).  In fact, you can even swap out an ESP32 for an ESP32-S2, or ESP32-C3.  As long as the sketch is the same, once you clone the Pairing Data the devices are effectively hot-swappable.  
+幸运的是，HomeSpan 提供了一种将配对数据从一个设备“克隆”到另一个设备的方法。这意味着你可以将损坏的设备更换为新设备，而 HomeKit 不知道其中的差异（当然前提是它运行相同的草图）。事实上，你甚至可以将 ESP32 更换为 ESP32-S2 或 ESP32-C3。只要草图相同，一旦克隆了配对数据，设备就可以有效地热替换。
 
-Cloning HomeSpan's Pairing Data is a two-step process.  First you output the Pairing Data from one device to the Serial Monitor, then you copy and paste this data into the Serial Monitor of the second device.  Of course if the first device is completely broken you will not be able to output its Pairing Data.  If you create a lot of automations in HomeKit you may want to output the Pairing Data from each of your devices and save it in a plain text file for later use should any device need to be replaced in the future.
+克隆 HomeSpan 的配对数据分为两步。首先，将配对数据从一个设备输出到串口监视器，然后将此数据复制并粘贴到第二个设备的串口监视器中。当然，如果第一个设备完全损坏，你将无法输出其配对数据。如果你在 HomeKit 中创建了大量自动化功能，你可能希望从每个设备输出配对数据并将其保存在纯文本文件中，以供将来需要更换任何设备时使用。
 
-#### Step 1: Type 'P' into the Serial Monitor CLI of the first device to output its Pairing Data
+#### 步骤 1：在第一个设备的串口监视器 CLI 中键入 "P" 以输出其配对数据
 
-Unlike the 'S' command, the 'P' command compresses all the Pairing Data into *base-64* chunks to make it easier to copy and paste as follows:
+与 "S" 命令不同，"P" 命令将所有配对数据压缩为 *base-64* 块，以便更轻松地复制和粘贴，如下所示：
 
 ```
+*** 用于克隆另一台设备的配对数据
+
 *** Pairing Data used for Cloning another Device
 
 Accessory data:  ZzbH11I8uNx47Y3Bapq3axQfY5uPOrDfC8D2Q6ke2NwWqat/IGa/6ll8xyY8AShMYO2q6h8gZr/qWXzHJjwBKExg7arqFnNsfXUjy43HgNzc6RDI6RjY6OTk6Q0U6NjUb7mHwbmWzrEWca+5frayfmp=
@@ -59,30 +63,28 @@ Controller data: MEUwLTREMEUtODk3Ni0yMjBDREQ2RDUxMjjmah3s+Je0GkmAQE0NDQ1NUE2Ni1E
 *** End Pairing Data
 ```
 
-The first line completely encodes the Pairing Data for the HomeSpan Accessory.  The second two lines encode the Pairing Data for two Controllers that HomeKit is using to control the HomeSpan device.  Note your system may only have one Controller, or it may have more than two.  The number of Controllers depends on your HomeKit network, how it is configured, what devices you have (Apple TVs, HomePods, etc.) and what version of iOS you are running.
+第一行完整编码 HomeSpan 配件的配对数据。后两行对 HomeKit 用于控制 HomeSpan 设备的两个控制权的配对数据进行编码。请注意，你的系统可能只有一个控制权，也可能有两个以上。控制权的数量取决于你的 HomeKit 网络、其配置方式、你拥有的设备（Apple TV、HomePod 等）以及你运行的 iOS 版本。
 
-Copy this data, exactly as is, from the CLI and save it in a text file.  Make sure not to lose any trailing equal signs as they are part of the base&#8209;64 data!
+从 CLI 中按原样复制此数据并将其保存在文本文件中。确保不要丢失任何尾随等号，因为它们是 base&#8209;64 数据的一部分！
 
-Next, power down the first device, or at least remove it from the WiFi network to avoid potential duplications of two devices running on the same network with identical Pairing Data (HomeKit will likely not behave if this occurs).  If the second device is not plugged in, do so now and open its Serial Monitor.
+接下来，关闭第一个设备的电源，或者至少将其从 WiFi 网络中移除，以避免在同一网络上运行且具有相同配对数据的两个设备的潜在重复（如果发生这种情况，HomeKit 可能无法正常工作）。如果第二个设备未插入，请立即插入并打开其串口监视器。
 
-#### Step 2: Type 'C' into the Serial Monitor CLI of the second device to input the Pairing Data you just saved from the first device
+#### 步骤 2：在第二个设备的串口监视器 CLI 中键入 "C" ，以输入你刚刚从第一个设备保存的配对数据
 
-HomeSpan will begin by asking you for the Accessory Pairing Data. Copy and paste this data (it's the first set of base-64 data output in Step 1 above) directly into the Serial Monitor input window and hit return.  If you copied the data correctly it will be accepted and HomeSpan will display the Device ID that was encoded in the data (it does not bother to display the LTPK and LTSK data).  The Device ID should match that of the orignal device.
+HomeSpan 将首先询问你配件配对数据。将此数据（这是上面步骤 1 中输出的第一组 Base-64 数据）直接复制并粘贴到串口监视器输入窗口中，然后按回车键。如果你正确复制了数据，它将被接受，并且 HomeSpan 将显示数据中编码的设备 ID（它不会显示 LTPK 和 LTSK 数据）。设备 ID 应与原始设备的 ID 匹配。
 
-If you copied or pasted the data incorrectly, HomeSpan will let you know there is a problem, cancel the process, and reboot without making any changes.  You can also cancel the process by simply hitting return after typing 'P' *without* entering any data (this does not cause a reboot, since no data was changed).
+如果你错误地复制或粘贴了数据，HomeSpan 将通知你存在问题，取消该过程，然后重新启动而不进行任何更改。你还可以通过在键入 "P" 后单击“回车”来取消该过程，*无需*输入任何数据（这不会导致重新启动，因为没有更改数据）。
 
-After the Accessory data is accepted, HomeSpan will then ask for Controller data.  Copy and paste this base-64 data from one of the Controllers in the saved text file directly into the Serial Monitor input window and hit return.  As before, if you copied and pasted correctly, HomeSpan will accept the data and display the Device ID of the Controller.  If you copied and pasted incorrectly, HomeSpan will inform you of the error, cancel the process, and reboot without making any changes.
+接受配件数据后，HomeSpan 将请求控制权数据。将保存的文本文件中的控制权之一的 Base-64 数据直接复制并粘贴到串口监视器输入窗口中，然后按回车键。和以前一样，如果复制和粘贴正确，HomeSpan 将接受数据并显示控制权的设备 ID。如果你复制和粘贴不正确，HomeSpan 将通知你存在错误，取消该过程，然后重新启动而不进行任何更改。
 
-Assuming the data for the first Controller has been accepted, HomeSpan will ask you to repeat the process for any other Controllers you may have.  Keep repeating the process for copying and pasting the Pairing Data for each Controller.  When you have input the Pairing Data for all Controllers, simply hit return without entering any data when asked for the next Controller.  An empty response tells HomeSpan you are done adding Controller data.
+假设第一个控制权的数据已被接受，HomeSpan 将要求你对你可能拥有的任何其他控制权重复该过程。继续重复复制和粘贴每个控制权的配对数据的过程。输入所有控制权的配对数据后，当询问下一个控制权时，只需按回车键，无需输入任何数据。一个空响应会告知 HomeSpan 你已完成添加控制权数据。
 
-Finally, HomeSpan will ask you to confirm saving the new data.  Type either 'y' to confirm (yes) or 'n' to cancel (no).  If you type 'n', HomeSpan will reboot without saving any of the changes.
+最后，HomeSpan 会要求你确认保存新数据。输入 "y" 确认（是）或输入 "n" 取消（否）。如果你输入 "n"，HomeSpan 将重新启动而不保存任何更改。
 
-If you type 'y', HomeSpan will save all of the new Pairing Data in the device's NVS and reboot.  Upon restarting, this second device will be a perfect clone of the first device and HomeKit should recognize it as if it were the original.  You will not need to re-pair the device or make any other changes to the Home App. 
+如果你键入 "y"，HomeSpan 会将所有新的配对数据保存在设备的 NVS 中并重新启动。重新启动后，第二个设备将是第一个设备的完美克隆，HomeKit 应该将其识别为原始设备。你无需重新配对设备或对“家庭”应用进行任何其他更改。
   
-❗Caution: Do NOT run two devices on the same HomeKit network with the same Pairing Data.  If you want to experiment by Cloning a working device onto a second device, make sure to unplug the first device before cloning the data onto the second device.  When you are finished experimenting, type 'H' into the CLI of one of the devices so the cloned Pairing Data will be erased and re-generated into something once again unique, allowing you to plug both devices in at the same time without conflict.
-  
+❗注意：请勿在同一 HomeKit 网络上使用相同的配对数据运行两个设备。如果你想通过将工作设备克隆到第二个设备上进行实验，请确保在将数据克隆到第二个设备上之前拔下第一个设备的插头。完成实验后，在其中一台设备的 CLI 中输入 "H"，这样克隆的配对数据将被删除并重新生成为唯一的数据，从而允许你同时插入两个设备而不会发生冲突。
+
 ---
 
-[↩️](../README.md) Back to the Welcome page
-
-
+[↩️](../README.md#resources) 返回欢迎页面
