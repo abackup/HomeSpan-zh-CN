@@ -1,101 +1,97 @@
-# Television Services and Characteristics
+<!--  原文时间：2024.7.4，翻译时间：2024.7.7，校对时间：2024.7.12  -->
 
-HomeSpan includes a number of undocumented Television Services and Characteristics that are not part of HAP-R2.  Though the UUID and specifications for each Television Service and Characteristic have been identified by the broader HomeKit community, it is only by trial-and-error that proper usage can be determined.  This page documents the results of experimenting with the different Television Services and Characteristics within HomeSpan using the Home App provided in iOS 15.1.  This documentaiton should be considered reliable, but Apple can of course change the behavior of such Service and Characteristics within the Home App at any time and without notice.
+# 电视服务和特点
+
+HomeSpan 包括许多不属于 [HAP-R2](../master/docs/HAP-R2.pdf) 的未记录的电视服务和特征。尽管更广泛的 HomeKit 社区已经确定了每个电视服务和特性的 UUID 和规范，但只有通过反复试验才能确定正确的使用方法。本页记录了使用 iOS 15.1 中提供的 家庭 应用在 HomeSpan 中试验不同电视服务和特性的结果。本文档应该被认为是可靠的，但苹果当然可以随时更改“家庭”应用中此类服务和特征的行为，而无通知。
 
 ### `Category::Television`
 
-Use `Category::Television` as the category in `homeSpan.begin()` to specify a Television Accessory.  This causes the Home App to display an  TV icon in the Accessory Tile.  However, this only seems to work for the first Accessory implemented.  If you create a device with multiple Television Accessories, or place a Television Accessory behind a Bridge Accessory, the icon for the TV Tile converts to a generic HomeKit symbol.
+使用 `Category::Television` 作为 `homeSpan.begin()` 中的类别来指定电视配件。这会导致“家庭”应用在附件列表中显示电视图标。然而，这似乎只适用于第一个实施的附件。如果你创建具有多个电视配件的设备，或将电视配件放置在桥接配件后面，则电视的图标将转换为通用 HomeKit 符号。
 
 ### `Service::Television()`
 
-Use `Service::Television()` as the Service to create a Television Accessory Tile.  It support two primary Characteristics:
+使用 `Service::Television()` 作为服务来创建电视配件图块。它支持两个主要特征：
 
-* `Characteristic::Active()` - this HAP-R2 standard Characteristic it used to turn the TV on or off.  It is a required Characteristic
+* `Characteristic::Active()` - 这个 HAP-R2 标准特征用于打开或关闭电视。这是必需的特征
 
-* `Characteristic::ConfiguredName()` - this is an optional, TV-specific version of `Characteristic::Name()` that seems to be the only way to set the default name of the TV.  Unlike all other HomeKit Services, the Home App ignores any names specified with `Characeteristic::Name()` when used with `Service::Television()`
+* `Characteristic::ConfiguredName()` - 这是 `Characteristic::Name()` 的可选电视特定版本，似乎是设置电视默认名称的唯一方法。与所有其他 HomeKit 服务不同，“家庭”应用在与 `Service::Television()` 一起使用时会忽略使用 `Characeteristic::Name()` 指定的任何名称
 
-Based on the above, the following code snippet defines a simple TV Accessory with a basic on/off switch:
+基于上述内容，以下代码片段定义了一个带有基本开/关开关的简单电视配件：
 
 ```C++
 new Service::Television();
   new Characteristic::Active(0);                    // set power to OFF at start-up
   new Characteristic::ConfiguredName("Sony TV");    // optional Characteristic to set name of TV
 ```
-More advanced control of a TV can enabled with these *optional* Characteristics:
+可以通过其他两个可选特性启用对电视的更高级控制：
 
-* `Characteristic::RemoteKey()` - this write-only numerical Characteristic enables HomeSpan to read button presses from the Remote Control widget on an iPhone that can be found under the Control Center.  This widget is normally used to control Apple TVs, but it seems any Television Accessory created per above can also be operated from the Remote Control widget.  The layout of the widget (which cannot be modified) includes 4 arrows, a central select button, a play/pause button, a large "back" button, and an "info" button.  When a "key" is pressed, the Home App sends an update to `Characteristic::RemoteKey()` that can be read by HomeSpan using the usual `update()` method.  Values are as follows:
+* `Characteristic::RemoteKey()` - 这个只写的数字特性使 HomeSpan 能够从位于控制中心下的 iPhone 上的远程控制小部件中读取按钮按下。这个小部件通常用于控制 Apple TV，但似乎上面创建的任何电视配件也可以通过远程控制小部件进行操作。小部件的布局（不能修改）包括 4 个箭头、一个中央选择按钮、一个播放/暂停按钮、一个大的“后退”按钮和一个“信息”按钮。当按下“键”时，“家庭”应用会向 `Characteristic::RemoteKey()` 发送更新，HomeSpan 可以使用通常的 `update()` 方法读取该更新。值如下： 
+  * 4 = 向上箭头
+  * 5 = 向下箭头
+  * 6 = 左箭头
+  * 7 = 右箭头
+  * 8 = 中心选择按钮
+  * 9 = 后退按钮
+  * 11 = 播放/暂停按钮
+  * 15 = 信息按钮
   
-  * 4 = up arrow  
-  * 5 = down arrow
-  * 6 = left arrow
-  * 7 = right arrow
-  * 8 = center select button
-  * 9 = back button
-  * 11 = play/pause button
-  * 15 = info button
-  
-* `Characteristic::PowerModeSelection()` - this write-only Characteristic causes the text "View TV Settings" to appear in the Home App under the Settings page for a TV Accessory.  When this text is pressed, the Home App sends an update with value=0 to `Characteristic::PowerModeSelection()` that can be read by HomeSpan using the usual `update()` method
-
-* `Characteristic::ActiveIdentifier()` - this numerical Characteristic is used to control the input source for the TV (e.g. HDMI-1, HDMI-2, Netflix, etc.).  It is only used when input sources are defined and linked using `Service::InputSource()` (see below), in which case it is a *required* Characteristic
-
-* `Characteristic::DisplayOrder()` - this TLV8 Characteristic is used to control the order in which linked Input Sources are displayed in the Home App
-  * absent specifying the order with this Characteristic, the Home App will display the Input Sources in a random order within the selection section (under the power button), and in numerical order on the settings page of the Accessory based on the numeric Identifier for each Input Source
-  * the format of the TLV8 object used by this Characteristic is a series of TLV8 "Identifier" records with TAG=1 and a VALUE set to the Identifer of a particular Input Source; the "Identifier" records should each be separated by an empty TLV8 record with TAG=0
-  * example, the following code snippet sets the display order for three input sources with Identifiers 10, 20, and 30 to be 20, 30, and then 10:
+* `Characteristic::PowerModeSelection()` - 这个只写的特性导致文本“查看电视设置”出现在电视配件设置页面下的“家庭”应用中。当按下此文本时，“家庭”应用会向 `Characteristic::PowerModeSelection()` 发送一个值为 0 的更新，HomeSpan 可以使用通常的 `update()` 方法读取该更新
+* `Characteristic::ActiveIdentifier()` - 此数字 Characteristic 用于控制电视的输入源（例如 HDMI-1、HDMI-2、Netflix 等）。它仅在使用 `Service::InputSource()` 定义和链接输入源时使用（见下文），在这种情况下它是*必需*特性。
+* `Characteristic::DisplayOrder()` - 此 TLV8 特性用于控制链接的输入源在家庭应用程序中的显示顺序
+  * 如果没有指定此特性的顺序，“家庭”应用将在选择部分（电源按钮下方）以随机顺序显示输入源，并根据每个输入源的数字标识符在附件的设置页面上以数字顺序显示输入源
+  * 此特征使用的 TLV8 对象的格式是一系列 TLV8“标识符”记录，其中 TAG=1 且 VALUE 设置为特定输入源的标识符;每个“标识符”记录都应由一个空的 TLV8 记录分隔，TAG=0
+  * 例如，以下代码片段将标识符为 10、20 和 30 的三个输入源的显示顺序设置为 20、30 和 10：
 
 ```C++
-TLV8 orderTLV;             // create an empty TLV8 object named "orderTLV"
+TLV8 orderTLV;             // 创建一个名为“orderTLV”的空 TLV8 对象
+orderTLV.add(1,20);        // TAG=1, VALUE=20（要显示的第一个输入源的标识符）
+orderTLV.add(0);           // TAG=0（使用空记录作为分隔符）
+orderTLV.add(1,30);        // TAG=1, VALUE=30（要显示的第二个输入源的标识符）
+orderTLV.add(0);           // TAG=0（使用空记录作为分隔符）
+orderTLV.add(1,10);        // TAG=1, VALUE=10（要显示的第三个输入源的标识符）
 
-orderTLV.add(1,20);        // TAG=1, VALUE=20 (the Identifier of the first Input Source to be displayed)
-orderTLV.add(0);           // TAG=0  (empty record used as a separator)
-orderTLV.add(1,30);        // TAG=1, VALUE=30 (the Identifier of the second Input Source to be displayed)
-orderTLV.add(0);           // TAG=0  (empty record used as a separator)
-orderTLV.add(1,10);        // TAG=1, VALUE=10 (the Identifier of the third Input Source to be displayed)
-
-new Characteristic::DisplayOrder(orderTLV);    // instantiate the DisplayOrder Characteristic and set its value to the orderTLV object
+new Characteristic::DisplayOrder(orderTLV);    // 实例化 DisplayOrder 特征并将其值设置为 orderTLV 对象
 ```   
 
 ### `Service::InputSource()`
 
-Use `Service::InputSource()` to create a new input source selection for the TV, such as HDMI-1, HDMI-2, Netflix, etc.  The use of `Service::InputSource()` is optional - it is perfectly okay to create a Television Service without the ability to select different Input Sources.  However, if used, each Input Source Service added should be defined in the *same* Accessory as the Television Service to which it applies, and ***must*** be linked to that Television Service using `addLink()`.  The Home App behaves unexpectedly if it finds any Input Source Services that are not linked to a Television Service.
+使用 `Service::InputSource()` 为电视创建新的输入源选择，例如 HDMI-1、HDMI-2、Netflix 等。`Service::InputSource()` 的使用是可选的 - 它是在没有选择不同输入源的能力的情况下创建电视服务完全可以。但是，如果使用，添加的每个输入源服务都应该在*与它所应用的电视服务相同的*附件中定义，并且***必须***使用 `addLink()` 链接到该电视服务。如果“家庭”应用发现任何未链接到电视服务的输入源服务，则会出现异常行为。
 
-Input Sources can appear in two places within the Home App.  The first is in the Input Source "Selector" that is shown below the On/Off power button when you open the controls for a TV (i.e. long-press the Accessory Tile).  This is how you change the Input Source for the TV.  The second place that Input Sources appear is on the Settings page for a TV Accessory.  This is where you can change the name of an Input Source, as well as configure whether to include or exclude a particular Input Source from the Input Source Selector.
+输入源可以出现在“家庭”应用中的两个位置。第一个位于输入源“选择器”中，当你打开电视的控件（即长按附件拼贴）时，该输入源“选择器”显示在开/关电源按钮下方。这是你更改电视输入源的方法。输入源出现的第二个位置是电视附件的设置页面。你可以在此处更改输入源的名称，以及配置是在输入源选择器中包含还是排除特定输入源。
 
-The overall idea is that your sketch should implement a TV Accessory containing a full list of all potential inputs, using names that match the labels on the TV, such as "HDMI 1", "Component 1", "HDMI 2", etc.  If your TV Remote has dedicated buttons for Netflix, HBO Max, Amazon Prime, etc. you can add these to the list as well. Once this generic list is created, you can then rename and enable each Input Source directly from within the Home App.  For example you might rename "HDMI 1" to "Comcast Cable", and "HDMI 2" to "Sony Blue-Ray".  If you have nothing connected to the "Component 1", you can exclude it from the Input Source Selector.  This makes it easy to configure and re-configure your TV Input Sources without ever having to change or update your HomeSpan sketch.
+总体思路是，你的草图应该实现一个包含所有潜在输入的完整列表的电视附件，使用与电视标签匹配的名称，例如 "HDMI 1"、"Component 1"、"HDMI 2" 等。如果你的电视遥控器有 Netflix、HBO Max、Amazon Prime 等专用按钮，你也可以将它们添加到列表中。创建此通用列表后，你可以直接从 家庭 应用中重命名和启用每个输入源。例如，你可以将 "HDMI 1" 重命名为 "Comcast Cable"，将 "HDMI 2" 重命名为 "Sony Blue-Ray"。如果你没有连接到 "Component 1"，你可以将其从输入源选择器中排除。这使得配置和重新配置你的电视输入源变得容易，而无需更改或更新你的 HomeSpan 草图。
 
-All of this is accomplished by using a combination of some, or all, of the following Characteristics:
+所有这些都是通过使用以下一些或全部特征的组合来实现的：
 
-* `Characteristic::ConfiguredName()` - similar to how its used when applied to `Service::Television()`, this Characteristic allows you set the default name for an Input Source. Note that if you change the name of an Input Source in the Home App, an update will be sent to HomeSpan with the new name for you to use in your sketch if needed.  This is very different from the usual `Characteristic::Name()` used for many other Services, and for which name changes performed in the Home App are never communicated back to the Accessory
+* `Characteristic::ConfiguredName()` - 类似于应用于 `Service::Television()` 时的使用方式，此特征允许你设置输入源的默认名称。请注意，如果你在 家庭 应用中更改输入源的名称，则会向 HomeSpan 发送带有新名称的更新，供你在需要时在草图中使用。这与用于许多其他服务的通常的 `Characteristic::Name()` 非常不同，并且在“家庭”应用中执行的名称更改永远不会传回给附件。
 
-* `Characteristic::Identifier()` - this numerical Characteristic sets an ID for each Input Source.  Any unsigned 32-bit number can be used as an ID, provided it is *unique* and not used by any other Input Source in the same TV Service.  When you use the Input Source Selector in the Home App to choose a particular Input Source, the `Characteristic::ActiveIdentifier()` from the Television Service (see above) will be updated with a value that matches the ID corresponding to the chosen Input Source.  Within HomeSpan you simply use the `update()` method to determine when `Characteristic::ActiveIdentifer()` is updated, and, based on its value, which Input Source was chosen.  HomeKit does not seem to require `Characteristic::Identifier()` be defined for an Input Source.  However, if it not set, the Home App will not allow it to be displayed as a choice in the Input Source Selector, which defeats the purpose of creating an Input Source!
+*  `Characteristic::Identifier()` -该数字特征为每个输入源设置一个 ID.任何无符号的 32 位数字都可以用作 ID，前提是它*唯一的*未被同一电视服务中的任何其他输入源使用。当你使用 家庭 应用中的输入源选择器选择特定输入源时，电视服务（见上文）中的 `Characteristic::ActiveIdentifier()` 将更新为与所选输入源对应的 ID 相匹配的值。在 HomeSpan 中，你只需使用该 `update()` 方法来确定何时 `Characteristic::ActiveIdentifer()` 更新，并根据其值来确定选择了哪个输入源。HomeKit 似乎不需要 `Characteristic::Identifier()` 为输入源定义。但是，如果未设置，家庭 应用将不允许将其显示为输入源选择器中的选项，这就违背了创建输入源的目的。
 
-* `Characteristic::IsConfigured()` - this Characteristic determines whether an Input Source is allowed to appear as a choice in the Input Source Selector of the Home App.  If IsConfigured() is defined and set to 0, the Input Source will appear in the Settings page, but it will be excluded as a choice from the Input Source Selector.  If IsConfigured() is defined and set to 1, the Input Source will appear in the Settings page, and will also be included as a choice in the Input Source Selector.  If `Characteristic::IsConfigured()` is not defined  for an Input Source, that source will still appear as a choice in the Input Source Selector, but it will *not* appear in the list of Input Sources found on the Settings page.  This means you will not be able to rename the Input Source from the Home App, nor toggle it as an allowable choice in the Input Selector (see below)
+*  `Characteristic::IsConfigured()` -此特性决定是否允许输入源在 家庭 应用的输入源选择器中显示为选项。如果定义了 isConfigured（）并将其设置为 0，则输入源将显示在设置页面中，但它将作为输入源选择器中的一个选项被排除。如果定义了 isConfigured（）并将其设置为 1，则输入源将显示在设置页面中，并且还将作为输入源选择器中的一个选项。如果 `Characteristic::IsConfigured()` 未为输入源定义，则该源仍将作为输入源选择器中的一个选项出现，但它将*不*出现在“设置”页面上的输入源列表中。这意味着你将无法从 家庭 应用重命名输入源，也无法将其作为输入选择器中的允许选项进行切换（见下文）。
 
-* `Characteristic::CurrentVisibilityState()` and `Characteristic::TargetVisibilityState()` - these two Characteristics work in tandem much like any current-state/target-state pair.  When these are defined for an Input Source, a checkbox toggle appears next to the name of the Input Source on the Settings page, provided `Characteristic::IsConfigured()` has also been defined.  Clicking the checkbox causes the Home App to toggle the TargetVisibilityState between 0 to 1, where 0 ironically means the checkbox is *checked*, and 1 means it is *unchecked* (the reverse of what you might expect!).  If you read this update in HomeSpan you can then use `setVal()` to change the CurrentVisibiltyState() to match the TargetVisibilityState().  Setting CurrentVisibilityState() to 0 means the Input Source appears as a choice in the Input Source Selector.  Setting CurrentVisibilityState() to 1 means it does not appear as a selection.  Note these features only operate if an ID has been set for the Input Source with `Characteristic::Identifier()`, and IsConfigured() has been defined and set to 1
+* `Characteristic::CurrentVisibilityState()` 和 `Characteristic::TargetVisibilityState()` - 这两个特征协同工作，就像任何当前状态/目标状态对一样。当为输入源定义这些时，如果还定义了 `Characteristic::IsConfigured()`，则设置页面上输入源名称旁边会出现一个复选框切换。单击该复选框会导致“家庭”应用在 0 到 1 之间切换 TargetVisibilityState，其中 0 具有讽刺意味的是，该复选框是*选中*，而 1 表示它是*未选中*（与你的预期相反！）。如果你在 HomeSpan 中阅读此更新，则可以使用 `setVal()` 更改 CurrentVisibiltyState() 以匹配 TargetVisibilityState()。将 CurrentVisibilityState() 设置为 0 意味着输入源在输入源选择器中显示为一个选项。将 CurrentVisibilityState() 设置为 1 意味着它不会显示为选择。请注意，这些功能仅在使用 `Characteristic::Identifier()` 为输入源设置 ID 并且 IsConfigured() 已定义并设置为 1 时才起作用。
 
-### `Service::TelevisionSpeaker()`
+###  `Service::TelevisionSpeaker()`
 
-This Service allows you to change the volume of a television using the iPhone's physical volume control buttons when operating the TV via the iPhone's Remote Control widget (found in the iPhone Control Center).  Similar the Input Source Service above, the Television Speaker Service ***must*** be linked to a Television Service using `addLink()`.  The Television Speaker Service requires the following two Characteristics:
+此服务允许你在通过 iPhone 的远程控制小工具（可在 iPhone 控制中心找到）操作电视时，使用 iPhone 的物理音量控制按钮更改电视的音量。类似于上面的输入源业务，电视扬声器业务链***必须***接到使用 `addLink()` 的一个电视业务。电视扬声器服务需要以下两个特性：
 
-* `Characteristic::VolumeControlType()` - this read-only Characteristic seems to be required but there is uncertainty as to its purpose. In the example HomeSpan sketches I initialized this Characteristic with a value of 3 based on what others have done in scripts based on [HomeBridge](https://developers.homebridge.io/#/service/TelevisionSpeaker)
+*  `Characteristic::VolumeControlType()` -此只读特性似乎是必需的，但其用途尚不确定。在示例 HomeSpan Sketches 中，我根据 [HomeBridge](https://developers.homebridge.io/#/service/TelevisionSpeaker) 其他人在脚本中所做的工作，将此特性的值初始化为 3。
 
-* `Characteristic::VolumeSelector()` - this write-only Characterstic is updated whenever the user is operating the TV via the iPhone's Remote Control widget and the physical volume control buttons are pressed.  The Home App sends a value of 0 when the up-volume button is pressed, and value of 1 when the down-volume button is pressed.  These values can be read the usual way by creating an `update()` method for a class that is derived from the Television Speaker Service
+*  `Characteristic::VolumeSelector()` -每当用户通过 iPhone 的远程控制小工具操作电视并按下物理音量控制按钮时，此只写字符就会更新。当按下音量增大按钮时，家庭 应用发送的值为 0，当按下音量减小按钮时，发送的值为 1. 通过为从电视扬声器服务派生的类创建 `update()` 方法，可以以通常的方式读取这些值。
 
-### Examples
+### 示例
 
-* Please see [*File → Examples → HomeSpan → Other Examples → Television*](../examples/Other%20Examples/Television) for a complete worked example demonstrating the effects of using different combinations of the above Characteristics
-* For details on how to use TLV8 records with the DisplayOrder Characteristic, see [Tutorial Example 22 - TLV8 Characteristics](../examples/22-TLV8_Characteristics)
-* For more advanced use case, see the Television Example on the [HomeSpan Reference Sketches](https://github.com/HomeSpan/HomeSpanReferenceSketches) page
-* Also, don't forget to check out the [HomeSpan Projects](https://github.com/topics/homespan) page for some real-world examples of TV sketches and controllers.
-
-### Credits
-
-Much thanks to @unreality for the PR to include Television codes and associated functionality!
+* 请参阅 [*文件→示例→HomeSpan→其他示例→电视*](../examples/Other%20Examples/Television/Television.ino) 以获得完整的工作示例，以展示使用上述特征的不同组合的效果。此外，不要忘记查看 [HomeSpan 项目](https://github.com/topics/homespan)，了解一些真实的电视草图和遥控示例。
+* 有关如何将 TLV8 记录与 DisplayOrder 特性结合使用的详细信息，请参阅教程示例 [22 - TLV8 特性](../examples/22-TLV8_Characteristics%20/22-TLV8_Characteristics.ino)
+* 有关更高级的用例，请参阅 [参考草图](https://github.com/HomeSpan/HomeSpanReferenceSketches) 页面上的电视示例
+* 另外，不要忘记查看 [HomeSpan 项目](https://github.com/topics/homespan) 页面，了解一些电视草图和控制器的真实示例。
 
 
+### 感谢
 
+非常感谢 @unreality 让 PR 包含了电视代码和相关功能！
 
 
 ---
 
-[↩️](../README.md) Back to the Welcome page
+[↩️](../README.md#resources) 返回欢迎页面
