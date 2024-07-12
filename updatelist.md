@@ -7,19 +7,19 @@
   * 利用标准 C++ 迭代器轻松访问读取和写入 TLV8 记录
   * 添加了新的 `Characteristic` 方法 `getTLV()`、`getNewTLV()` 和 `setTLV()`
   * 添加了新的 `CUSTOM_CHAR_TLV8()`，允许轻松创建自定义 TLV8 特性
-  * 包括新的教程  [示例 22 - TLV8 特性](examples/22-TLV8_Characteristics%20/22-TLV8_Characteristics.ino)，演示了 `TLV8()` 类和 TLV8 特性的使用
+  * 包括新的教程  [示例 22 - TLV8 特性](examples/22-TLV8_Characteristics/22-TLV8_Characteristics.ino)，演示了 `TLV8()` 类和 TLV8 特性的使用
   * 请参阅新的 [TLV8 特性](docs/TLV8.md) 页面了解完整内容详细信息和文档
      
 * **新的 *DisplayOrder* TLV8 特性**
 
   * 利用 HomeSpan 的新 `TLV8()` 库
   * 允许您指定电视服务输入源在“家庭”应用中显示的确切顺序
-  * 请参阅教程 [示例 22 - TLV8 特性](examples/22-TLV8_Characteristics%20/22-TLV8_Characteristics.ino) 了解详情
+  * 请参阅教程 [示例 22 - TLV8 特性](examples/22-TLV8_Characteristics/22-TLV8_Characteristics.ino) 了解详情
  
 * **新 *AccessoryIdentifier* 教程**
 
   * 演示如何触发配件的标识符特征，可选择用于在初始配对期间帮助识别设备
-  * 参见教程 [示例 21 - 配件标识符](examples/21-AccessoryIdentifier%20/21-AccessoryIdentifier.ino)
+  * 参见教程 [示例 21 - 配件标识符](examples/21-AccessoryIdentifier/21-AccessoryIdentifier.ino)
 
 * **增加了对自定义 Pixel 芯片的支持**
 
@@ -32,7 +32,7 @@
   * 添加了新方法 `boolean isRGBW()`
     * 如果 Pixel 被构建为 RGBW，则返回 *true*；如果仅被构建为 RGB（即没有白色 LED），则返回 *false*
   * 添加了新的 [PixelTester](examples/Other%20Examples/PixelTester/PixelTester.ino) 草图（位于 *Other Examples* 下），以帮助确定任何 LED 灯带的 *pixelType*
-  * 有关详细信息，请参阅 [Aaddressable RGB LEDs](docs/Pixels.md) 页面
+  * 有关详细信息，请参阅 [灯带](docs/Pixels.md) 页面
     
 * **新增读取和设置服务和特征的 IID 的功能**
 
@@ -110,7 +110,7 @@
     * 非常有用，因为 Apple 不再发布其非商业 HAP 文档，该文档提供了每个特性的状态列表和描述
     * 示例：`if(target.getNewVal()==target.ARM_STAY) {...}`
   * 添加了使用新 **Characteristic::ConfiguredName()** 正确命名单个配件中各个服务的能力
-    * 有关详细信息，请参阅修订后的 [示例  11 - 服务名称](../examples/11-ServiceNames/11-ServiceNames.ino)
+    * 有关详细信息，请参阅修订后的 [示例  11 - 服务名称](examples/11-ServiceNames/11-ServiceNames.ino)
   * 新的 [服务和特性](docs/ServiceList.md) 页面现在提供 HomeSpan 支持的每个服务和特性的功能描述和详细规范，包括可用的枚举常量列表对于每个特征
    
 * **新增使用 *反转按钮* 和 *触摸传感器* 作为控制按钮的功能**
@@ -150,7 +150,7 @@
 * **添加了禁用 SpanPoint 加密的功能**
 
   * 如果不加密，则允许的最大 SpanPoint 设备数量从 7 个增加到 20 个
-  * 请参阅 [SpanPoint](docs/NOW.md) 了解详情
+  * 请参阅 [Span 热点](docs/NOW.md) 了解详情
  
 * **此版本中包含的其他新 *homeSpan* 方法：**
 
@@ -298,7 +298,7 @@
   * 新的专用类 SpanPoint，可促进多个 ESP32 设备之间的双向设备到设备通信
   * 提供 WiFi 信道的自动校准，以确保与 HomeSpan 的正常 WiFi 连接兼容
   * 包括详细的示例草图，演示如何使用 SpanPoint 实现电池供电的远程传感器
-  * 有关完整详细信息，请参阅专用的 [HomeSpan Span 热点](docs/NOW.md) 教程页面
+  * 有关完整详细信息，请参阅专用的 [Span 热点](docs/NOW.md) 教程页面
 * NeoPixels 现在可以用作状态 LED
 
   * 添加 `homeSpan.setStatusPixel()` 方法
@@ -325,7 +325,7 @@
 * 新功能可在不重启设备的情况下动态添加/删除附件
 
   * 添加 `homeSpan.deleteAccessory()` 和 `homeSpan.updateDatabase()` 方法
-  * 包括新的  [示例 20 - 高级技术](../examples/20-AdvancedTechniques/20-AdvancedTechniques.ino)，以演示如何使用这些方法创建动态桥接
+  * 包括新的  [示例 20 - 高级技术](examples/20-AdvancedTechniques/20-AdvancedTechniques.ino)，以演示如何使用这些方法创建动态桥接
   * 有关详细信息，请参阅 [API 参考](docs/Reference.md) 
 * 对触摸板的新支持
 
@@ -346,7 +346,7 @@
 * 新的可编程集线器示例
 
   * 演示如何实现 Web 界面，该界面允许用户在桥接设备上动态添加、删除和配置最多 12 个单独的灯具配件
-  * 扩展了 [示例 20 - 高级技术](../examples/20-AdvancedTechniques/20-AdvancedTechniques.ino) 中使用的许多方法
+  * 扩展了 [示例 20 - 高级技术](examples/20-AdvancedTechniques/20-AdvancedTechniques.ino) 中使用的许多方法
 * 其他更新包括：
 
   * 新的 "m" CLI 命令，用于打印堆内存中剩余的空闲字节——可用于在动态添加配件时监控内存使用情况
@@ -362,12 +362,12 @@
   * HomeSpan 现在可以托管用于消息日志记录的 Web 日志页面
   * 新的 `WEBLOG()` 宏使创建用户定义的日志消息变得容易
   * 提供可选的 NTP 时间服务器来设置设备时钟，以便所有消息都可以正确加盖时间戳
-  * 有关完整详细信息，请参阅 [HomeSpan 消息记录](docs/Logging.md)
+  * 有关完整详细信息，请参阅 [消息记录](docs/Logging.md)
 * `LOG()` 宏的新 `printf` 样式格式
 
   * 添加 `LOG0()`、`LOG1()` 和 `LOG2()` 宏的可变形式，以便它们可以以与标准 C printf 函数相同的方式使用
   * 大大简化了日志消息的创建
-  * 有关完整详细信息，请参阅 [HomeSpan 消息记录](docs/Logging.md)
+  * 有关完整详细信息，请参阅 [消息记录](docs/Logging.md)
 * 新的 `CUSTOM_SERV()` 宏
 
   * 允许创建自定义服务
@@ -378,7 +378,7 @@
 
   * HomeSpan 可以检查以确保通过 OTA 上传的新草图是另一个 HomeSpan 草图。如果不是，则上传失败
   * 在 OTA 更新后重新启动时，HomeSpan 会检查以确保在更新的草图中启用了 OTA。如果没有，HomeSpan 会回滚到草图的先前版本
-  * 有关完整详细信息，请参阅 [HomeSpan OTA](docs/OTA.md)
+  * 有关完整详细信息，请参阅 [OTA](docs/OTA.md)
 * 其他更新包括：
 
   * `SpanUserCommand()` 的新（可选）参数，允许将指针传递给任意数据结构
@@ -396,7 +396,7 @@
 
     * `Pixel()` 用于控制单线 RGB 和 RGBW LED 及 LED 灯带，例如此 NeoPixel RGBW LED
     * `Dot()` 用于控制双线 RGB LED 和 LED 灯带，例如此 DotStar RGB 灯带
-  * 有关完整详细信息，请参阅 [HomeSpan 灯带](docs/Pixels.md)，其中包括详细的教程草图，演示了使用 `Pixel()` 和 `Dot()` 类的不同方式，以及高级 HomeSpan "HolidayLights" 项目，展示了如何开发自定义特效！
+  * 有关完整详细信息，请参阅 [灯带](docs/Pixels.md)，其中包括详细的教程草图，演示了使用 `Pixel()` 和 `Dot()` 类的不同方式，以及高级 HomeSpan "HolidayLights" 项目，展示了如何开发自定义特效！
 "
 * 将同时连接的控制器最大数量从 8 个增加到 14 个（适用于 Arduino-ESP32 2.0.1 版及更高版本）
 
@@ -423,7 +423,7 @@
 
   * 将 `getLinks()` 添加为 SpanService 的新方法。返回指向已使用 `addLink()` 方法链接到另一个服务的 SpanServices 的指针向量。可用于循环遍历所有链接的服务，例如检查淋浴系统中的所有阀门 - 请参阅 HomeSpan Reference Shower 以获取示例
 
-  * 将 `setPerms()`、`addPerms()` 和 `removePerms()` 添加为 SpanCharacteristic 的新方法。允许用户修改（设置/添加/删除）任何特性的默认权限。可用于添加/删除某些特性的写入权限 - 请参阅 [HomeSpan 电视服务](docs/TVServices.md) 
+  * 将 `setPerms()`、`addPerms()` 和 `removePerms()` 添加为 SpanCharacteristic 的新方法。允许用户修改（设置/添加/删除）任何特性的默认权限。可用于添加/删除某些特性的写入权限 - 请参阅 [电视服务](docs/TVServices.md) 
 
   * 向全局 homeSpan 对象添加了 `setPairingCode()` 方法，允许以编程方式配置草图内的配对设置代码。请参阅 [API 参考](docs/Reference.md) 了解使用此功能时的重要安全注意事项！
 
@@ -431,7 +431,7 @@
 
 ## ❗最新更新 - HomeSpan 1.4.1 (10/31/2021)
 
-* 电视服务和特性已添加到 HomeSpan！有关完整详情，请参阅 [HomeSpan 电视服务](docs/TVServices.md)
+* 电视服务和特性已添加到 HomeSpan！有关完整详情，请参阅 [电视服务](docs/TVServices.md)
 * RFControl 库已更新，允许生成适合控制红外 LED 的调制载波。这允许您使用 HomeSpan 创建支持 HomeKit 的电视遥控器。请参阅 [HomeSpan 项目](https://github.com/topics/homespan)，了解一些实际示例！
 * 可以使用新宏将用户定义的自定义特性添加到 HomeSpan。有关详细信息，请参阅 [HomeSpan API](docs/Reference.md)（仅限高级用户）
 
@@ -492,7 +492,7 @@ HomeSpan 1.4.0 还包含以下新功能和增强功能：
 
 ## 最新更新 (2/18/2021)
 
-* HomeSpan 1.2.0 - HomeSpan 现在支持直接从 Arduino IDE 进行无线 [OTA](docs/OTA.md) 更新（无需串口连接）！此版本还增加了对链接服务的支持，并包含一个新的教程 [示例 7 - 附件名称](../examples/07-AccessoryNames/07-AccessoryNames.ino)，演示如何使用链接服务实现多头水淋浴。其他新功能包括设置草图版本号的能力（在使用 OTA 更新时很有用），以及一种在建立 WiFi 连接后指定要回调的用户定义函数的方法。
+* HomeSpan 1.2.0 - HomeSpan 现在支持直接从 Arduino IDE 进行无线 [OTA](docs/OTA.md) 更新（无需串口连接）！此版本还增加了对链接服务的支持，并包含一个新的教程 [示例 7 - 附件名称](examples/07-AccessoryNames/07-AccessoryNames.ino)，演示如何使用链接服务实现多头水淋浴。其他新功能包括设置草图版本号的能力（在使用 OTA 更新时很有用），以及一种在建立 WiFi 连接后指定要回调的用户定义函数的方法。
 
 有关此更新中包含的所有更改和错误修复的详细信息，请参阅 [发布](https://github.com/HomeSpan/HomeSpan/releases)。
 ## 最新更新 (1/24/2021)
