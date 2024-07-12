@@ -1,144 +1,145 @@
-# Stepper Motor Control
+<!-- 原文时间：2024.2.18，翻译时间：2024.5.7，校对时间：2024.7.12 -->
 
-HomeSpan includes dedicated classes that provide for easy control of a stepper motor connected to an ESP32 via a stepper motor driver board.  These classes allow one or more stepper motors to operate smoothly and asynchronously in the background while HomeSpan continues to run in the foreground.  On devices with dual processors, stepper-motor control can be run either on the same or a different processor from HomeSpan.
+# 步进电机控制
 
-The HomeSpan class that contains all the methods to control a stepper motor is called **StepperControl**.  However, this is an abstract class and cannot be instantiated directly.  Instead you instantiate stepper motor objects using driver-specific child-classes (derived from **StepperControl**) that contain all the logic to configure and operate a particular driver board.  Each child class supports one or more constructors allowing you to specify which output pins on your ESP32 device will be connected to the required pins on your driver board.
+HomeSpan 包括专门的类，用于轻松控制通过步进电机驱动器板连接到 ESP32 的步进电机。这些类允许一个或多个步进电机在后台平稳异步运行，同时 HomeSpan 继续在前台运行。在具有双处理器的设备上，步进电机控制可以在与 HomeSpan 相同或不同的处理器上运行。
 
-The following drivers are currently included in HomeSpan:
+调用 **StepperControl** 包含控制步进电机的所有方法的 HomeSpan 类。但是，这是一个抽象类，不能直接实例化。相反，你可以使用特定于驱动程序的子类（派生自 **StepperControl**）来实例化步进电机对象，这些子类包含用于配置和操作特定驱动板的所有逻辑。每个子类都支持一个或多个构造函数，允许你指定 ESP32 设备上的哪些输出引脚将连接到驱动板上所需的引脚。
+
+HomeSpan 中当前包含以下驱动程序：
 
 * **[Stepper_TB6612](StepperDrivers/Stepper_TB6612.md)**
-  * This class is used to operate stepper motors driven by a [Toshiba TB6612](https://cdn-shop.adafruit.com/datasheets/TB6612FNG_datasheet_en_20121101.pdf) (or equivalent) chip
-  * Can be used either with or without ESP32 PWM pins
-  * See, for example, the [Adafruit TB6612 1.2A DC/Stepper Motor Driver Breakout Board](https://www.adafruit.com/product/2448)
+  * 该类用于操作由 [东芝 TB6612](https://cdn-shop.adafruit.com/datasheets/TB6612FNG_datasheet_en_20121101.pdf) 芯片（或等效芯片）驱动的步进电机
+  * 可以与 ESP32 PWM 引脚一起使用，也可以不与 ESP32 PWM 引脚一起使用
+  * 例如，[Adafruit TB6612 1.2A DC/步进电机驱动器分线板](https://www.adafruit.com/product/2448) 请参见
    
 * **[Stepper_A3967](StepperDrivers/Stepper_A3967.md)**
-  * This class is used to operate stepper motors driven by an [Allegro A3967](https://cdn.sparkfun.com/datasheets/Robotics/A3967-Datasheet.pdf) (or equivalent) chip
-  * See, for example, the [Sparkfun EasyDriver Stepper Motor Board](https://www.sparkfun.com/products/12779)
+  * 该类用于操作由 [Allegro A3967](https://cdn.sparkfun.com/datasheets/Robotics/A3967-Datasheet.pdf) 芯片（或等效芯片）驱动的步进电机
+  * 例如，[Sparkfun EasyDriver 步进电机板](https://www.sparkfun.com/products/12779) 请参见
 
 * **[Stepper_ULN2003A](StepperDrivers/Stepper_ULN2003A.md)**
-  * This class is used to operate stepper motors driven by a [Texas Instruments ULN2003A](https://www.ti.com/lit/ds/symlink/uln2003a.pdf) (or equivalent) chip
-  * See, for example, the [Opencircuit ULN2003 Stepper Motor Driver Board](https://opencircuit.shop/product/uln2003-stepper-motor-driver-module)
+  * 该类用于操作由 [Texas Instruments ULN2003A](https://www.ti.com/lit/ds/symlink/uln2003a.pdf) 芯片（或等效芯片）驱动的步进电机
+  * 例如，[Stepper_ULN2003 步进电机驱动板](https://opencircuit.shop/product/uln2003-stepper-motor-driver-module) 请参见
 
 * **[Stepper_UNIPOLAR](StepperDrivers/Stepper_UNIPOLAR.md)**
-  * This class provides a generic driver for use with any center-tapped unipolar stepper motor
-  * Use requires a driver board that can convert the low-voltage/low-current digital signals from 4 pins on the ESP32 to higher-voltage/higher-current signals suitable for operating the stepper motor
+  * 此类提供用于任何中心抽头单极步进电机的通用驱动程序
+  * 使用要求驱动板能够将来自 ESP32 上 4 个引脚的低电压/低电流数字信号转换为适合操作步进电机的更高电压/更高电流信号
   
-Click on any of the driver-specific classes above for complete details on how to wire and configure a particular driver board.
+单击上面的任何特定于驱动程序的类，了解有关如何连接和配置特定驱动程序板的完整详细信息。
 
-## StepperControl Methods
+## 步进控制方法
 
-The **StepperControl** class provides the following methods to operate and control a stepper motor object instantiated with one of the driver-specific classes described above:
+该类 **StepperControl** 提供以下方法来操作和控制使用上述特定于驱动程序的类之一实例化的步进电机对象：
 
-* `StepperControl *enable()`
-  * enables current flow to the stepper motor coils, actively holding the motor in its position
-  * returns pointer to itself so methods can be daisy-chained
-    * example: `myMotor=(new Stepper_TB6612(23,32,22,14,33,27))->enable();`
+*  `StepperControl *enable()`
+    * 使电流流向步进电机线圈，有效地将电机保持在其位置
+    * 返回指向自身的指针，因此方法可以以 daisy 链形式连接。
+    * 例如： `myMotor=(new Stepper_TB6612(23,32,22,14,33,27))->enable();`
       
-* `StepperControl *disable()`
-  * disables current flow to the stepper motor coils and leaves them in a state of high impedence, allowing the motor to turn freely
-  * returns pointer to itself so methods can be daisy-chained
-    * example: `myMotor=(new Stepper_TB6612(23,32,22,14,33,27))->disable();`
+*  `StepperControl *disable()`
+    * 禁用流向步进电机线圈的电流，使其处于高阻抗状态，从而允许电机自由转动
+    * 返回指向自身的指针，因此方法可以以 daisy 链形式连接。
+    * 例如： `myMotor=(new Stepper_TB6612(23,32,22,14,33,27))->disable();`
 
-* `StepperControl *brake()` 
-  * disables current flow to the stepper motor coils but leaves them in a state of low impedence, preventing the motor from freely turning
-  * applicable only for driver chips that support a "short brake" mode, otherwise has no effect
-  * returns pointer to itself so methods can be daisy-chained
-    * example: `myMotor=(new Stepper_TB6612(23,32,22,14,33,27))->brake();`
+*  `StepperControl *brake()`
+    * 禁用流向步进电机线圈的电流，但使其处于低阻抗状态，防止电机自由转动
+    * 仅适用于支持“短制动”模式的驱动芯片，否则无效
+    * 返回指向自身的指针，因此方法可以以 daisy 链形式连接。
+    * 例如： `myMotor=(new Stepper_TB6612(23,32,22,14,33,27))->brake();`
 
-* `void move(int nSteps, uint32_t msDelay, endAction_t endAction=NONE)`
-  * enables the stepper motor and turns it *nSteps* steps.  Note this is a **non-blocking** function and returns immediately after being called while the motor turns for *nSteps* steps in the background
+*  `void move(int nSteps, uint32_t msDelay, endAction_t endAction=NONE)`
+    * 启用步进电机并使其 *nSteps* 步进。请注意，这是一个 **non-blocking** 函数，在被调用后立即返回，同时电机在后台转动 *nSteps*。
     
-    * *nSteps* - the number of steps to turn.  A positive number turns the motor in one direction; a negative number turns the motor in the opposite direction; a value of zero causes the motor to *stop* if it is already turning
-    * *msDelay* - the delay, in milliseconds, to pause between steps.  Must be greater than zero.  The lower the number, the faster the motor turns, subject to limitations of the motor itself
-    * *endAction* - an optional action to be performed *after* the motor has finished moving *nSteps* steps.  Choices include:
+      * *msDelay*-要转动的步数。正数使电机向一个方向转动；负数使电机反向转动；如果值为零，则会导致电机转动（*stop*如果已转动
+      * *msDelay*-步骤之间暂停的延迟（以毫秒为单位）。必须大于零。数字越小，电机转得越快，受电机本身的限制
+      * *endAction*-电机完成移动*nSteps*步骤时要执行*之后*的可选操作。选择包括：
     
-      *  **StepperControl::NONE** - no action is taken; the stepper motor is left in the enabled state (this is the default)
-      *  **StepperControl::DISABLE** - current to the stepper motor is disabled
-      *  **StepperControl::BRAKE** - the stepper motor is placed in a brake state
-  * if this method is called while the stepper motor is already turning, the number of steps to turn will be reset to the new *nSteps* value.  It is okay to change the sign of *nSteps* to reverse the direction of motor while it is turning, though this may not be desireable depending on what your motor is connected to in the real world
-  * calling this method with a value of *nSteps=0* causes the motor to stop, if it is already turning.  If the motor is not turning, calling this method with *nSteps=0* simply enables the motor and the immediately performs the *endAction* (if specified).
-  * example: `myMotor.move(200,5,StepperControl::BRAKE);` starts the motor turning for 200 steps with a delay of 5ms between steps.  When the motor has completed all 200 steps, it is placed in the brake state. 
+        *  **StepperControl::NONE** - 不采取任何行动；步进电机处于启用状态（这是默认设置）
+        *  **StepperControl::DISABLE** - 到步进电机的电流被禁用
+        *  **StepperControl::BRAKE** - 步进电机处于制动状态
+    * 如果在步进电机已经转动时调用此方法，则要转动的步数将重置为新*nSteps*值。当电机转动时，可以改变的*nSteps*符号来反转电机的方向，但这可能并不理想，这取决于你的电机在现实世界中连接到什么
+    * 如果电机已在转动，则使用值 *nSteps = 0* 调用此方法会导致电机停止。如果电机未转动，则使用*nSteps =0*调用此方法只会启用电机，并立即执行 *endAction*（如果已指定）。
+    * 示例： `myMotor.move(200,5,StepperControl::BRAKE);` 启动电机转动 200 步，每步之间延迟 5ms.当电机完成所有 200 步时，将其置于制动状态。
     
-* `int stepsRemaining()`
-  * returns the number of steps remaining to turn
-  * may be positive or negative depending on the direction the motor is turning
-  * returns zero if the motor is not turning
-  * example: `myMotor.move(200,5); while(myMotor.stepsRemaining()!=0); myMotor.move(-300,5);` starts the motor turning, waits until it completes all 200 steps, and then turns the motor in the opposite direction for 300 steps
+*  `int stepsRemaining()`
+    * 返回要旋转的剩余步数
+    * 可以是正的或负的，这取决于电机转动的方向
+    * 如果电机不转动，则返回零
+    * 示例： `myMotor.move(200,5); while(myMotor.stepsRemaining()!=0); myMotor.move(-300,5);` 启动电机转动，等待其完成所有 200 步，然后以相反方向转动电机 300 步
 
-* `int position()`
-  * returns the absolute position of the stepper motor, which is defined as the cumulative sum of the all positive and negative steps turned since initial start-up
-  * can be called when the stepper motor is turning or when it is stopped
-  * example: `myMotor.move(-800,5); while(myMotor.stepsRemaining()); myMotor.move(200,5); while(myMotor.stepsRemaining()); Serial.print(myMotor.position())` would print a value of -600 after the motor finishes turning (first one direction for 800 steps, and then the other for 200 steps)
+*  `int position()`
+    * 返回步进电机的绝对位置，该位置定义为自初始启动后转动的所有正负步进的累积和
+    * 可以在步进电机转动或停止时调用
+    * 示例： `myMotor.move(-800,5); while(myMotor.stepsRemaining()); myMotor.move(200,5); while(myMotor.stepsRemaining()); Serial.print(myMotor.position())` 将在电机完成转动后打印-600 的值（首先一个方向为 800 步，然后另一个方向为 200 步）
  
-* `void setPosition(int pos)`
-  * resets the current position counter to *pos*
-  * this method does *not* turn the motor; it only resets the internal position counter as returned by `position()`
-  * this method is only effective when the motor is **not** turning (if called when the motor is turning the internal position counter remainms unchanged)
-  * example: `myMotor.move(300,5); while(myMotor.stepsRemaining()); myMotor.setPosition(-200); myMotor.move(600,5); while(myMotor.stepsRemaining()); Serial.print(myMotor.position())` would print a value of +400 after the motor finishes turning
+*  `void setPosition(int pos)`
+    * 将当前位置计数器重置为 *pos*
+    * 这种方法确实可以*不*转动电机；它只重置由返回 `position()` 的内部位置计数器。
+    * 此方法仅在电机**不**转动时有效（如果在电机转动时调用，则内部位置计数器保持不变）
+    * 示例： `myMotor.move(300,5); while(myMotor.stepsRemaining()); myMotor.setPosition(-200); myMotor.move(600,5); while(myMotor.stepsRemaining()); Serial.print(myMotor.position())` 在电机完成转动后，将打印 +400 的值
     
-* `void moveTo(int nPosition, uint32_t msDelay, endAction_t endAction=NONE)`
-  * enables the stepper motor and turns it to the position *nPosition*.  Note this is a **non-blocking** function and returns immediately after being called while the stepper motor turns until it reaches *nPosition*
+*  `void moveTo(int nPosition, uint32_t msDelay, endAction_t endAction=NONE)`
+    * 启用步进电机并将其转到位置 *nPosition*。请注意，这是一个 **non-blocking** 函数，在被调用后立即返回，同时步进电机转动，直到达到*nPosition*
     
-    * *nPosition* - the position to which the stepper move should turn, where position is defined as the cumulative number of positive and negative steps the motor has turned since initial start-up, as returned by `position()`
-    * *msDelay* - the delay, in milliseconds, to pause between steps.  Must be greater than zero.  The lower the number, the faster the motor turns, subject to limitations of the motor itself
-    * *endAction* - an optional action to be performed *after* the motor has reached *nPosition*.  Choices include:
+      * *nPosition* - 步进器应转向的位置，其中，位置定义为自初始启动以来电动机转动的正向和负向步进的累积步数，返回值为 `position()`
+      * *msDelay* - 在两步之间暂停的延迟，以毫秒为单位。必须大于零。数字越小，电机转速越快，但受电机本身的限制
+      * *endAction* - 电机已达到要*之后*执行的可选动作*nPosition*。选项包括：
       
-      *  **StepperControl::NONE** - no action is taken; the stepper motor is left in the enabled state (this is the default)
-      *  **StepperControl::DISABLE** - current to the stepper motor is disabled
-      *  **StepperControl::BRAKE** - the stepper motor is placed in a brake state
-  * it is okay to call this method while the stepper motor is already turning; the motor will either continue turning in the same direction, or reverse direction, until it reaches the *nPosition* specified
-  * calls to `stepsRemaining()` after calling `moveTo()` work as expected - the value returned will be the number of steps remaining until the motor reaches the *nPosition* specified
-  * note that `moveTo(nPosition)` is mathematically the same as `move(nPosition-position())`, but the `moveTo()` method is more accurate since it computes the position of the motor directly inside the task that is actually controlling the motor
+        *  **StepperControl::NONE** - 未采取任何操作；步进电机处于启用状态（这是默认设置）
+        *  **StepperControl::DISABLE** - 到步进电机的电流被禁用
+        *  **StepperControl::BRAKE** - 步进电机处于制动状态
+    * 当步进电机已经转动时，可以调用此方法；电机将继续以相同方向或相反方向转动，直到达到规定的*nPosition*
+    * 调用后 `moveTo()` 的 `stepsRemaining()` 调用按预期工作-返回的值将是电机达到*nPosition*指定之前的剩余步数
+    * 请注意，`moveTo(nPosition)` 在数学上与 `move(nPosition-position())` 相同，但该 `moveTo()` 方法更精确，因为它直接在实际控制电机的任务中计算电机的位置
  
-* `StepperControl *setAccel(float accelSize, float accelSteps)`
-  * adds an additional set of delays between steps so that the motor gradually accelerates when it starts and decelerates when it stops
+*  `StepperControl *setAccel(float accelSize, float accelSteps)`
+    * 在步骤之间添加一组额外的延迟，以便电机在启动时逐渐加速，在停止时逐渐减速
   
-    * *accelSize* - the maximum size of the additional delay, expressed as a factor to be multiplied by the *msDelay* parameter used in `move()` and `moveTo()`.  Must be a value greater or equal to 0.  The larger the value, the greater the magnitude of the acceleration and deceleration. A value of zero yields no acceleration/deceleration
+      * *accelSize* - 附加延迟的最大大小，表示为要与和 `moveTo()` 中 `move()` 使用的 *msDelay* 参数相乘的系数。必须是大于或等于 0 的值。值越大，加速和减速的幅度越大。零值不产生加速/减速
       
-    * *accelSteps* - the number of steps over which the *accelSize* factor exponentially decays, at which point  he motor begins turning at the full speed specified by the *msDelay* parameter.  Must be a value greater or equal to 1.  The larger the value, the longer the acceleration and deceleration period
+      * *accelSteps* - *accelSize* 系数指数淡化的步数，此时电机开始以 *msDelay* 参数指定的全速转动。必须是大于或等于 1 的值。值越大，加速和减速周期越长
       
-  * the total delay between steps (when *stepsRemaining* is not zero) is given by the following formula:
-  $$totalDelay = msDelay \times (1 + accelSize \times (e^{\frac{-\mid nSteps-stepsRemaining \mid}{accelSteps}} + e^{\frac{-(\mid stepsRemaining \mid - 1)}{accelSteps}}))$$
-    
-  * example: `myMotor.setAccel(10,20); myMotor.move(200,5);`
-    * yields a 55ms delay after the first step, a 52ms delay after the second step, a 50ms delay after the third step, and so forth, until at step 82 the additional delay has fully decayed such that the delay between steps remains fixed at the 5ms *msDelay* parameter specified.  Then, starting at step 118 (with 82 steps remaining) the delay increases to 6ms; at step 134 it further increases to 7ms, and so forth, until the delay reaches its maxmimum of 55ms once again at step 199 just before the motor stops turning at step 200
+    * 步骤之间的总延迟（*stepsRemaining* 当不为零时）由以下公式给出：
+    $$totalDelay = msDelay \times (1 + accelSize \times (e^{\frac{-\mid nSteps-stepsRemaining \mid}{accelSteps}} + e^{\frac{-(\mid stepsRemaining \mid - 1)}{accelSteps}}))$$
+    * 例如：`myMotor.setAccel(10,20);myMotor.move(200,5);`
+      * 在第一步之后产生 55ms 延迟，在第二步之后产生 52ms 延迟，在第三步之后产生 50ms 延迟等等，直到在步骤 82，附加延迟已经完全淡化，使得步骤之间的延迟保持固定在规定的 5ms *msDelay* 参数。然后，从步骤 118 开始（剩余 82 步），延迟增加到 6ms；在步骤 134，它进一步增加到 7ms，依此类推，直到在步骤 200 电动机停止转动之前，在步骤 199 延迟再次达到其最大值 55ms
 
-  * returns pointer to itself so methods can be daisy-chained
-    * example: `myMotor=(new Stepper_TB6612(23,32,22,14,33,27))->setAccel(10,20);`
+    * 返回指向自身的指针，因此方法可以以 daisy 链形式连接。
+      * 例如： `myMotor=(new Stepper_TB6612(23,32,22,14,33,27))->setAccel(10,20);`
           
-* `StepperControl *setStepType(int mode)`
-  * sets the step type of the motor to one of the following *mode* enumerations:
+*  `StepperControl *setStepType(int mode)`
+    * 将电动机的步进类型设置为以下 *mode* 枚举之一：
       
-    * **StepperControl::FULL_STEP_ONE_PHASE** (0)      
-    * **StepperControl::FULL_STEP_TWO_PHASE** (1)
-    * **StepperControl::HALF_STEP** (2)
-    * **StepperControl::QUARTER_STEP** (4)
-    * **StepperControl::EIGHTH_STEP** (8)      
-  * *mode* can be specified using either the name of the enumeration or its integer equivalent
-  * returns pointer to itself so methods can be daisy-chained
-    * example: `myMotor=(new Stepper_TB6612(23,32,22,14,33,27))->setStepType(StepperControl::HALF_STEP);`
-  * smaller step types provide for smoother operation of the motor, but require more steps to turn a complete revolution
-    * not all *modes* are supported by all driver chips
-    * the quarter- and eighth-step modes require microstepping PWM functionality
-  * it is possible, though not recommended, to change the step type *mode* while the motor is turning
-  * see [Stepper Motor Modes](StepperModes.md) for a brief primer on how stepper motors are typically driven
+      * **StepperControl::FULL_STEP_ONE_PHASE** (0)      
+      * **StepperControl::FULL_STEP_TWO_PHASE** (1)
+      * **StepperControl::HALF_STEP** (2)
+      * **StepperControl::QUARTER_STEP** (4)
+      * **StepperControl::EIGHTH_STEP** (8) 
+    *  *mode* 可以使用枚举的名称或其等效整数来指定
+    * 返回指向自身的指针，因此方法可以以 daisy 链形式连接。
+      * 例如： `myMotor=(new Stepper_TB6612(23,32,22,14,33,27))->setStepType(StepperControl::HALF_STEP);`
+    * 步进类型越小，电机运行越平稳，但转一整圈所需的步数越多
+      * 并非 *modes* 所有驱动程序芯片都支持
+      * 四分之一和八分之一步模式需要微步进 PWM 功能
+    * 可以在电机转动时更改步进类型 *modes*，但不建议这样做
+    * 有关步进电机通常如何驱动的简介，请参见 [步进电机模式](StepperModes.md)
 
-### CPU and Task Priority
+### CPU 和任务优先级
 
-All **StepperControl** constructors support an *optional* final parameter consisting of a *brace-enclosed* pair of numbers (not shown above).  The first number in the braces specifies the *priority* of the background task used to control the stepper motor.  The second number in the braces specifies the CPU (0 or 1) that **StepperControl** will use to run the background control task (this number is ignored for single-processor chips).  The default (and recommended) value of this optional final parameter is {1,0}.  Example:
+所有**StepperControl** 构造函数都支持 *optional* 由一对 *brace-enclosed* 数字组成的 final 参数（上面未显示）。大括号中的第一个数字指定用于控制步进电机的后台任务的*优先权*。大括号中的第二个数字指定将用于运行后台控制任务的 CPU（0 或 1）**StepperControl**（单处理器芯片忽略此数字）。这个可选的 final 参数的默认值（也是建议值）是 {1，0}。示例：
 
-* `new Stepper_TB6612(23,32,22,14,{0,1})` instantiates control of a stepper motor driven by a TB6612 chip, where ESP32 pins 23, 32, 22, and 14 are connected to the AIN1, AIN2, BIN1, and BIN2 pins on the TB6612, respectively; the priority of the background task is set to 0; and the task will be run on cpu 1 (applicable only for a dual-processor chip) 
+*  `new Stepper_TB6612(23,32,22,14,{0,1})` 实例化由 TB6612 芯片驱动的步进电机的控制，其中 ESP32 引脚 23、32、22 和 14 分别连接到 TB6612 上的 AIN1、AIN2、BIN1 和 BIN2 引脚；后台任务的优先级设置为 0；并且任务将在 CPU 1 上运行（仅适用于双处理器芯片）
 
-## Example Sketches
+## 示例草图
 
-Below is a simple sketch demonstrating the above methods:
+下面是演示上述方法的简单草图：
 
 ```C++
-// StepperControl Example using TB6612-based Driver Board with HALF STEP PWM MODE
+// 使用基于 TB6612 的驱动板和半步 PWM 模式的步进控制示例
 
-#include "HomeSpan.h"         // HomeSpan includes all the StepperControl classes
+#include "HomeSpan.h"         // HomeSpan 包含所有 StepperControl 类
 
-StepperControl *motor;        // create a global pointer to StepperControl so it can be accessed in both setup() and loop()
+StepperControl *motor;        // 创建指向 StepperControl 的全局指针，以便可以在 setup() 和 loop() 中访问它
 
 ///////////////////
 
@@ -148,21 +149,22 @@ void setup() {
   delay(1000);
   Serial.printf("\nHomeSpan Stepper Control\n\n");
 
-  motor=new Stepper_TB6612(23,32,22,14,33,27);      // instantiate the motor object with optional PWM pin specified (33 and 27)
+  motor=new Stepper_TB6612(23,32,22,14,33,27);      // 使用指定的可选 PWM 引脚实例化电机对象（33 和 27）
 
-  motor->setStepType(StepperControl::HALF_STEP);    // set the mode to HALF STEP, which means 400 steps are needed for a complete revolution of a 200-step motor
-  motor->setAccel(10,20);                           // add acceleration parameters: extra delay is 10x, decaying over 20 steps
+  motor->setStepType(StepperControl::HALF_STEP);    // 将模式设置为半步，这意味着 200 步电机旋转一圈需要 400 步
+  motor->setAccel(10,20);                           // 添加加速参数：额外延迟为 10 倍，衰减 20 步
 
   Serial.printf("Moving motor 400 steps and waiting until motor stops...\n");
   
-  motor->move(-400,5);              // move the motor -400 steps (1 revolution), with 5ms between steps.
-  while(motor->stepsRemaining());   // wait until there no remaining steps
+  motor->move(-400,5);              // 使电机移动 400 步（1 转），每步间隔 5 毫秒。
+
+  while(motor->stepsRemaining());   // 等到没有剩余步骤
 
   Serial.printf("Moving motor to absolute position of +1200 (i.e reverse direction for 1600 steps, or 4 revolutions) without waiting...\n");
   
-  motor->moveTo(1200,2,StepperControl::BRAKE);    // move the motor to an absolute position of 1200 steps with 2ms between steps; enter brake state when done
+  motor->moveTo(1200,2,StepperControl::BRAKE);    // 将电机移动到 1200 步的绝对位置，每步间隔 2ms；完成后进入制动状态
 
-  // Motor will continue moving in background even once setup() exits and loop() below starts
+  // 即使 setup() 退出并且下面的 loop() 开始，电机仍会在后台继续移动
 }
 
 ///////////////////
@@ -171,7 +173,7 @@ void loop(){
   
   Serial.printf("Motor has %d remaining steps\n",motor->stepsRemaining());
   
-  delay(1000);      // motor is unaffected by delay()
+  delay(1000);      // 电机不受 delay（）的影响
   
   if(motor->position()==1200){
     Serial.printf("Motor has reached final position and is now stopped.\n");
@@ -180,23 +182,23 @@ void loop(){
 }
 ```
 
-### Motorized Window Shade Example
+### 电动窗帘示例
 
-A fully worked example showing how to use the *StepperControl* class within a complete HomeSpan sketch to control a Motorize Window Shade using both the TB6612 and A3967 driver boards can be found in the Arduino IDE under [*File → Examples → HomeSpan → Other Examples → MotorizedWindowShade*](../examples/Other%20Examples/MotorizedWindowShade).
+在 [*文件→示例→HomeSpan→其他示例→MotorizedWindowShade*](../examples/Other%20Examples/MotorizedWindowShade/MotorizedWindowShade.ino) 的 Arduino IDE 中有一个完整的示例，显示了如何在完整的 HomeSpan 草图中使用 *StepperControl* 该类来控制使用 TB6612 和 A3967 驱动板的电动窗帘。
 
-## Creating your own **StepperControl** Driver
+## 创建自己的 *StepperControl* 驱动程序
 
-If none of the above motor driver classes works for your specific chip or driver board, it is relatively straightfoward to create a new driver to use in your sketch.  This is because all the logic to operate a stepper motor in the background is already embedded in the abstract **StepperControl** class.  To create your own driver, start by creating a child class derived from **StepperControl**.  Next, add a constructor that defines the pins and performs any initializations if needed.  Finally, define the following methods that **StepperControl** calls to operate the motor:
+如果上述电机驱动程序类都不适用于你的特定芯片或驱动板，则创建一个新的驱动程序以在草图中使用是相对简单的。这是因为在后台操作步进电机的所有逻辑都已经嵌入到抽象类 *StepperControl* 中。要创建自己的驱动程序，首先要创建一个从 *StepperControl* 派生的子类。接下来，添加一个定义管脚并在需要时执行任何初始化的构造函数。最后，定义以下调用以操作电机的方法 *StepperControl* ：
 
-* `void onStep(boolean direction)` - contains the logic to advance the motor by a single step based on the *direction* parameter
-* `void onEnable()` - contains the logic that enables the motor driver
-* `void onDisable()` - contains the logic that disables the motor driver
-* `void onBrake()` - contains the logic that puts the motor into a short brake state
-* `StepperControl *setStepType(int mode)` - contains the logic to set the step type mode based on the *mode* parameter
+*  `void onStep(boolean direction)` - 包含根据 *direction* 参数以单步推进电机的逻辑
+*  `void onEnable()` - 包含启用电机驱动器的逻辑
+*  `void onDisable()` - 包含禁用电机驱动器的逻辑
+*  `void onBrake()` - 包含将电机置于短路制动状态的逻辑
+*  `StepperControl *setStepType(int mode)` - 包含根据*mode*参数设置步骤类型模式的逻辑
 
-Only the first method, `onStep()`, is required to be defined.  You can leave any of the other methods undefined if they are not applicable for your specific driver board.  You can of course create additional methods to reflect any other features your driver board may support.
+只需要定义第一个方法 `onStep()`。如果其他方法不适用于你的特定驱动板，你可以不定义这些方法。当然，你可以创建其他方法来反映你的驱动板可能支持的任何其他功能。
 
-As an example, below is the complete code for the **Stepper_A3967** class:
+作为示例，下面是 **Stepper_A3967** 该类的完整代码：
 
 ```C++
 #include "HomeSpan.h"
@@ -280,4 +282,4 @@ struct Stepper_A3967 : StepperControl {
 
 ---
 
-[↩️](../README.md) Back to the Welcome page
+[↩️](../README.md#resources) 返回欢迎页面
