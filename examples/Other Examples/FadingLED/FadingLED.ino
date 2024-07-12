@@ -1,43 +1,31 @@
 /*********************************************************************************
- *  MIT License
+ *  MIT 许可证
  *  
- *  Copyright (c) 2020-2023 Gregg E. Berman
+ *  Copyright (c) 2020-2024 Gregg E. Berman
  *  
  *  https://github.com/HomeSpan/HomeSpan
  *  
- *  Permission is hereby granted, free of charge, to any person obtaining a copy
- *  of this software and associated documentation files (the "Software"), to deal
- *  in the Software without restriction, including without limitation the rights
- *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- *  copies of the Software, and to permit persons to whom the Software is
- *  furnished to do so, subject to the following conditions:
+ *  特此授予获得此软件和相关文档文件（“软件”）副本的任何人免费许可，以无限制方式处理软件，
+ *  包括但不限于使用、复制、修改、合并、发布、分发、再许可和/或销售软件副本的权利，并允许
+ *  向其提供软件的人员这样做，但须遵守以下条件：
  *  
- *  The above copyright notice and this permission notice shall be included in all
- *  copies or substantial portions of the Software.
+ *  上述版权声明和本许可声明均应包含在软件的所有副本或重要部分中。
  *  
- *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- *  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- *  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- *  SOFTWARE.
+ *  软件按“原样”提供，不作任何明示或暗示的保证，包括但不限于适销性、特定用途的适用性和不
+ *  侵权性的保证。在任何情况下，作者或版权持有者均不对因软件或使用或其他处理软件而引起的
+ *  或与之相关的任何索赔、损害或其他责任承担责任，无论是合同行为、侵权行为还是其他行为。
  *  
  ********************************************************************************/
 
-// HomeSpan Fading-LED Example.  Demonstrates use of:
+//HomeSpan 渐变 LED 示例。演示了以下用法：
 //
-//    LedPin::fade() and LedPin::fadeStatus() methods
+// LedPin::fade() 和 LedPin::fadeStatus() 方法
 //
-// In this sketch we control a single dimmable LED using the Home App as well as a SpanButton.
-// You can control the brightness of the LED from the Home App, but the SpanButton only turns the
-// LED either fully on (if it's off) or fully off (if it's already on).
+// 在此草图中，我们使用 “家庭”应用以及 SpanButton 控制单个可调光 LED。
+// 您可以从 “家庭”应用控制 LED 的亮度，但 SpanButton 只会将 LED 完全打开（如果已关闭）或完全关闭（如果已打开）。
 //
-// Rather than set the LED to a specific brightness, this sketch uses the ESP32's hardware-based fading
-// functionality to fade the LED from one level to the next.  We set the timing for each fade to be 2000 ms,
-// proportional to the difference between the current brightness and the desired brightness.  This means it
-// will take a full 2 seconds to fade the LED from 0-100, but only 1 second to fade from half-brightness to
-// off.
+// 此草图并未将 LED 设置为特定亮度，而是使用 ESP32 基于硬件的渐变功能将 LED 从一个级别渐变到下一个级别。我们将每次渐变的时间设置为 2000 毫秒，
+// 与当前亮度和所需亮度之间的差异成比例。这意味着 LED 从 0 渐变到 100 需要整整 2 秒，但从半亮渐变到熄灭仅需 1 秒。
 
 #include "HomeSpan.h" 
 
@@ -45,9 +33,9 @@
 
 struct FadingLED : Service::LightBulb {
   
-  LedPin *ledPin;                                   // reference to Led Pin
-  SpanCharacteristic *power;                        // reference to the On Characteristic
-  SpanCharacteristic *level;                        // reference to the Brightness Characteristic
+  LedPin *ledPin;                                   // 引用 Led Pin
+  SpanCharacteristic *power;                        // 引用 On 特性
+  SpanCharacteristic *level;                        // 参考亮度特征
   
   FadingLED(int _ledPin, int _buttonPin) : Service::LightBulb(){
 
@@ -60,8 +48,8 @@ struct FadingLED : Service::LightBulb {
 
   boolean update(){
     
-    ledPin->fade(power->getNewVal()*level->getNewVal(),2000,LedPin::PROPORTIONAL);      // use fade() to set new level; timing=2 seconds, proportional scale
-    while(ledPin->fadeStatus()==LedPin::FADING);                                        // wait until fading is completed
+    ledPin->fade(power->getNewVal()*level->getNewVal(),2000,LedPin::PROPORTIONAL);      // 使用 fade() 设置新级别；计时 = 2 秒，比例缩放
+    while(ledPin->fadeStatus()==LedPin::FADING);                                        // 等待淡出完成
 
     return(true);
   
@@ -69,16 +57,15 @@ struct FadingLED : Service::LightBulb {
 
   void button(int pin, int pressType) override {
 
-    // Below we turn LED fully on or off depending on whether power is on
-    // Unlike above, we will NOT wait for the fading to complete, but will return immediately
+    // 下面我们根据电源是否打开来完全打开或关闭 LED，与上面不同，我们不会等待淡入淡出完成，而是立即返回
     
-    if(ledPin->fade(100-(power->getVal())*100,2000,LedPin::PROPORTIONAL)!=0)            // use fade to either turn fully on or fully off; check return status to see if call was successful
+    if(ledPin->fade(100-(power->getVal())*100,2000,LedPin::PROPORTIONAL)!=0)            // 使用淡入淡出来完全打开或完全关闭；检查返回状态以查看调用是否成功
       Serial.printf("Button Press Ignored\n");
   }
 
   void loop() override {
 
-    // Below we set power and level once fading from a button press is completed
+    // 下面我们设置按钮按下完成后的功率和级别
     
     if(ledPin->fadeStatus()==LedPin::COMPLETED){
       power->setVal(1-power->getVal());
@@ -100,7 +87,7 @@ void setup() {
     new Service::AccessoryInformation();
       new Characteristic::Identify(); 
     
-    new FadingLED(26,4);             // first argument is LED Pin, second argument is PushButton Pin
+    new FadingLED(26,4);             // 第一个参数是 LED 引脚，第二个参数是 PushButton 引脚
  
 }
 
