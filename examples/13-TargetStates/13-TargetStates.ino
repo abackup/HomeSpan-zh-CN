@@ -1,39 +1,31 @@
 /*********************************************************************************
- *  MIT License
+ *  MIT 许可证
  *  
- *  Copyright (c) 2020-2024 Gregg E. Berman
+ *  Copyright (c) 2020-2022 Gregg E. Berman
  *  
  *  https://github.com/HomeSpan/HomeSpan
  *  
- *  Permission is hereby granted, free of charge, to any person obtaining a copy
- *  of this software and associated documentation files (the "Software"), to deal
- *  in the Software without restriction, including without limitation the rights
- *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- *  copies of the Software, and to permit persons to whom the Software is
- *  furnished to do so, subject to the following conditions:
+ *  特此授予获得此软件和相关文档文件（“软件”）副本的任何人免费许可，以无限制方式处理软件，
+ *  包括但不限于使用、复制、修改、合并、发布、分发、再许可和/或销售软件副本的权利，并允许
+ *  向其提供软件的人员这样做，但须遵守以下条件：
  *  
- *  The above copyright notice and this permission notice shall be included in all
- *  copies or substantial portions of the Software.
+ *  上述版权声明和本许可声明均应包含在软件的所有副本或重要部分中。
  *  
- *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- *  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- *  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- *  SOFTWARE.
+ *  软件按“原样”提供，不作任何明示或暗示的保证，包括但不限于适销性、特定用途的适用性和不
+ *  侵权性的保证。在任何情况下，作者或版权持有者均不对因软件或使用或其他处理软件而引起的
+ *  或与之相关的任何索赔、损害或其他责任承担责任，无论是合同行为、侵权行为还是其他行为。
  *  
  ********************************************************************************/
  
 ////////////////////////////////////////////////////////////
 //                                                        //
-//    HomeSpan: A HomeKit implementation for the ESP32    //
+//              HomeSpan：ESP32 的 HomeKit 实现           //
 //    ------------------------------------------------    //
 //                                                        //
-// Example 13: Target States and Current States           //
-//             * implementing a Garage Door Opener        //
-//             * implementing a motorized Window Shade    //
-//                                                        //
+//              示例 13：目标状态和当前状态                //
+//                     * 实现车库门开启器                 //
+//                     * 实现电动窗帘                     //
+//                                                       //
 ////////////////////////////////////////////////////////////
 
 #include "HomeSpan.h" 
@@ -41,38 +33,26 @@
 
 void setup() {
 
-  // In Example 12 we saw how to implement the loop() method for a Service to continuously monitor our device and periodically report
-  // changes in one or more Characteristics back to HomeKit using setVal() and timeVal().  In that example we implemented passive sensors
-  // that operated independently and required no input from the user, which meant we did not need to implement any update() methods.
+  // 在示例 12 中，我们了解了如何为服务实现 loop() 方法，以持续监控我们的设备并使用 setVal() 和 timeVal() 定期将一个或多个特性的变化报告给 HomeKit。
+ // 在该示例中，我们实现了独立运行且不需要用户输入的被动传感器，这意味着我们不需要实现任何 update() 方法。
 
-  // In this Example 13 we demonstrate the simultaneous use of both the update() and loop() methods by implementing two new Services:
-  // a Garage Door Opener and a motorized Window Shade.  Both examples showcase HomeKit's Target-State/Current-State framework.
-  // For physical devices that take time to operate (such as closing a door), HomeKit Services typically use:
-  
-  //    * one Characteristic that HomeKit sets via update() requests to HomeSpan, and that represent a desired target state,
-  //      such as opened, closed, or in some cases a percentage opened or closed; and
-  
-  //    * one read-only Characteristic that HomeSpan use to track the current state of the device in the loop() method, as well as
-  //      report back changes to HomeKit using setVal().
-  
-  // Not all HomeKit Services utilize the same Characteristics to define target and current states.  Some Services use Characteristics
-  // that are specific to that one Service, whereas others use more generic Characteristics.  The common theme seems to be that HomeKit
-  // guesses the actions a device is taking, and updates it tile's icon accordingly, by comparing the value of the target state
-  // Characteristic it sets, and the current state Characteristic it receives in the form of Event Notifications.  When they are the same,
-  // HomeKit assumes the physical device has reached the required position.  When they differ, HomeKit assumes something will be opening,
-  // closing, raising, lowering, etc. Sometimes a little experimenting and a lot of trial and error is required to fully understand how
-  // each Service responds to different combinations of Characteristic values.
-  
-  // As always, we won't be connecting our ESP32 to an actual garage door or window shade but will instead simulate their responses and
-  // actions for illustrative purposes. In some ways the code is more complicated because of the need to simulate values - it might be
-  // easier if we actually were connecting to a garage door or window shade!
-  
-  // Fully commented code for both of our derived Services can be found in DEV_DoorsWindows.h.  These examples do not introduce any new
-  // HomeSpan functions, but you will see how to use HomeSpan's ENUMERATED CONSTANTS, instead of just plain integers, to set the values
-  // of Characteristics where the values represent discrete states (e.g. "lowering", "opening").
-  
-  // Please see HomeSpan's Services and Characteristics page for a complete list of the enumerated constants available for Characteristics
-  // where they are applicable.
+ // 在此示例 13 中，我们通过实现两个新服务（车库门开启器和电动窗帘）演示了 update() 和 loop() 方法的同时使用。这两个示例都展示了 HomeKit 的目标状态/当前状态框架。
+ // 对于需要时间操作的物理设备（例如关门），HomeKit 服务通常使用：
+
+ //     * HomeKit 通过向 HomeSpan 发出 update() 请求设置的一个特性，该特性表示所需的目标状态，例如打开、关闭，或者在某些情况下是打开或关闭的百分比；和
+
+ //     * 一个只读特性，HomeSpan 使用它在 loop() 方法中跟踪设备的当前状态，并使用 setVal() 将更改报告给 HomeKit。
+
+ // 并非所有 HomeKit 服务都使用相同的特性来定义目标状态和当前状态。一些服务使用特定于该服务的特性，而其他服务则使用更通用的特性。
+ // 共同的主题似乎是 HomeKit 猜测设备正在采取的操作，并相应地更新其图块的图标，方法是比较它设置的目标状态特性的值和它以事件通知形式接收的当前状态特性的值。
+ // 当它们相同时，HomeKit 假定物理设备已到达所需位置。当它们不同时，HomeKit 假定某些东西将被打开、关闭、升起、降低等。每个服务的此过程的详细信息在 HAP 文档中概述，
+ // 但请注意，该文档并不总是与 HomeKit 应用程序的最新版本保持同步。有时需要进行一些实验和反复试验才能完全理解每个服务如何响应不同的特征值组合。
+
+ // 与往常一样，我们不会将 ESP32 连接到实际的车库门或窗帘，而是模拟它们的响应和动作以进行说明。在某些方面，由于需要模拟值，
+ // 代码会更复杂 - 如果我们真的连接到车库门或窗帘，可能会更容易！
+
+ // 我们两个派生服务的完整注释代码可以在 DEV_DoorsWindows.h 中找到。这些示例不引入任何新的 HomeSpan 函数或特性。相反，
+ // 我们将迄今为止学到的一切结合到两个相当复杂的服务中。您可能需要参考这两个父服务的 HAP 文档，以充分了解每个服务特征的不同值设置的含义。
   
   Serial.begin(115200);
 
@@ -86,15 +66,15 @@ void setup() {
     new Service::AccessoryInformation();
       new Characteristic::Identify(); 
       new Characteristic::Name("Garage Door");
-    new DEV_GarageDoor();                                                               // Create a Garage Door Opener (see DEV_DoorsWindows.h for definition)
+    new DEV_GarageDoor();                                                               // 创建车库门开启器（请参阅 DEV_DoorsWindows.h 了解定义）
 
   new SpanAccessory();                                                          
     new Service::AccessoryInformation();
       new Characteristic::Identify(); 
       new Characteristic::Name("Window Shade");
-    new DEV_WindowShade();                                                              // Create a motorized Window Shade (see DEV_DoorsWindows.h for definition)
+    new DEV_WindowShade();                                                             // 创建电动窗帘（请参阅 DEV_DoorsWindows.h 了解定义）
 
-} // end of setup()
+} // setup() 结束
 
 //////////////////////////////////////
 
@@ -102,4 +82,4 @@ void loop(){
   
   homeSpan.poll();
   
-} // end of loop()
+} // loop() 结束
