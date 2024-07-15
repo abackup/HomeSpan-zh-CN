@@ -31,7 +31,7 @@
     * 用户应切换到新的构造函数，以避免与 HomeSpan 未来版本的潜在兼容性问题
   * 添加了新方法 `boolean isRGBW()`
     * 如果 Pixel 被构建为 RGBW，则返回 *true*；如果仅被构建为 RGB（即没有白色 LED），则返回 *false*
-  * 添加了新的 [PixelTester](examples/Other%20Examples/PixelTester/PixelTester.ino) 草图（位于 *Other Examples* 下），以帮助确定任何 LED 灯带的 *pixelType*
+  * 添加了新的 [灯带测试](examples/Other%20Examples/PixelTester/PixelTester.ino) 草图（位于 *Other Examples* 下），以帮助确定任何 LED 灯带的 *pixelType*
   * 有关详细信息，请参阅 [灯带](docs/Pixels.md) 页面
     
 * **新增读取和设置服务和特征的 IID 的功能**
@@ -53,10 +53,10 @@
  
 * **HomeSpan 现在支持 *write-response ("WR")* 协议**
   * 添加了对 HomeKits 的 *write-response ("WR")* 协议的自动处理*
-    * 对于 HomeSpan 目前支持的任何 Characteristics 都不需要，但对于实验和使用自定义 Characteristics 很有用
+    * 对于 HomeSpan 目前支持的任何特征都不需要，但对于实验和使用自定义特征很有用
   * 使用 `setVal()` 时添加了额外的检查
-    * 如果在“家庭”应用发送该值的更新请求的同时，在 `update()` 方法中调用 `setVal()` 来更改 Characteristic 的值，则串口监视器上会输出警告消息
-    * 如果在 `update()` 中调用 `setVal()` 来更改 Characteristic 的值以响应来自“家庭”应用的 *write-response* 请求，则不适用
+    * 如果在“家庭”应用发送该值的更新请求的同时，在 `update()` 方法中调用 `setVal()` 来更改特征的值，则串口监视器上会输出警告消息
+    * 如果在 `update()` 中调用 `setVal()` 来更改特征的值以响应来自“家庭”应用的 *write-response* 请求，则不适用
    
 * **将 `getLinks()` SpanService 方法转换为模板函数**
   * 允许用户自动将返回向量的元素转换为任何特定的服务类型
@@ -77,12 +77,12 @@
   * 使用 CLI 'S' 命令或通过接入点设置配对代码的过程保持不变——确认消息仍会输出到串口监视器，并且错误不会导致草图停止
 
 * **修复了 1.9.0 中引入的内存泄漏问题，该问题会导致无法释放验证新连接时创建的一小块临时内存块**
-  * 使用 家庭中心时没有实际影响，因为 Home Kit 仅创建少量永久连接
-  * 不使用 家庭中心时会产生重大影响，因为“家庭”应用会反复断开并重新建立连接，导致堆内存缓慢消耗，然后在几天后出现设备内存不足故障（请注意，不正式支持在没有 家庭中心的情况下使用 HomeSpan）
+  * 使用家庭中心时没有实际影响，因为 HomeKit 仅创建少量永久连接
+  * 不使用家庭中心时会产生重大影响，因为“家庭”应用会反复断开并重新建立连接，导致堆内存缓慢消耗，然后在几天后出现设备内存不足故障（请注意，不正式支持在没有 家庭中心的情况下使用 HomeSpan）
 
 * **修复了 SpanPoint 中的潜在错误**
-  * 如果 SpanPoint 的任何实例具有 *receiveSize=0*，则在将 **SpanPoint** 配置信息打印到串口监视器（"i" CLI 命令）时，HomeSpan 会崩溃
-  * 此错误之前从未出现过，因为所有 **SpanPoint 示例** 都是基于接收数据的，因此具有非零的 *receiveSize*
+  * 如果 Span 热点的任何实例具有 *receiveSize=0*，则在将 **Span 热点** 配置信息打印到串口监视器（"i" CLI 命令）时，HomeSpan 会崩溃
+  * 此错误之前从未出现过，因为所有 **Span 热点** 都是基于接收数据的，因此具有非零的 *receiveSize*
  
 * **删除了 `homeSpan.setMaxConnections()`，该函数在很多版本之前就被弃用了**
 
@@ -95,7 +95,7 @@
 
 * **HomeSpan 已优化，使用更少的 RAM！**
 
-  * 使用相同数量的内存支持大约 **两倍** 数量的配件
+  * 使用相同数量的内存支持大约**两倍**数量的配件
   * 最小化内存使用也意味着用户有更多空间将非 HomeSpan 功能添加到他们的草图中而不会耗尽内存，特别是当非 HomeSpan 代码消耗大量堆栈空间时
   * HomeSpan 现在会自动检测 **PSRAM** (SPIRAM) 的存在，并将最大程度地利用这些额外内存，为某些需要内部 RAM 的 HomeSpan 功能和 ESP32 功能（例如 WiFi）保持内部 RAM 可用。同时为任何不使用（或不能使用）PSRAM 的非 HomeSpan 代码保持内部 RAM 可用
   * 将 HomeSpan 的 41 个配件限制增加到 150 个配件限制（由 HAP 指定），因为现在可以创建具有超过 41 个配件的设备而不会耗尽内存，特别是如果使用 PSRAM
@@ -158,7 +158,7 @@
   * `Span& setWifiCallbackAll()` - 每次连接或重新连接 WiFi 时提供可选回调
   * `TaskHandle_t getAutoPollTask​​()` - 返回 HomeSpan 自动轮询任务的任务句柄
 
-* **删除了对各种“额外”`#include` 文件的依赖**
+* **删除了对各种“额外” `#include` 文件的依赖**
   * 以下 \#include 文件现在嵌入在 *HomeSpan.h* 中，**不应在任何草图中指定：**
     * *extras/Pixel.h*
     * *extras/RFControl.h*
@@ -268,7 +268,7 @@
 
   * **添加了电视扬声器服务**
  
-  * 通过 Apple 的远程应用控制电视音量
+  * 通过苹果的远程应用控制电视音量
   * 请参阅 [电视服务](docs/TVServices.md) 页面了解详情和示例
 
 * **添加了对字节数组（"DATA"）特性的支持**
