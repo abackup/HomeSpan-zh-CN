@@ -668,8 +668,8 @@ void saveConfig(const char *buf, void *obj){ ... do something with myConfigurati
 
 * *name* - 自定义特性的名称。这将被添加到 Characteristic 命名空间，以便可以像任何 HomeSpan Characteristic 一样对其进行访问。对非 ASCII 字符使用 UTF-8 编码字符串。
 * *uuid* - 制造商定义的特性的 UUID。必须是：
-* *正好* 36 个字符，格式为 XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX，其中 *X* 代表有效的十六进制数字，或
-* 单个十六进制数，格式为 XXXXXXXX，*8 位或更少*，没有前导零
+  * *正好* 36 个字符，格式为 XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX，其中 *X* 代表有效的十六进制数字，或
+  * 单个十六进制数，格式为 XXXXXXXX，*8 位或更少*，没有前导零
 * *perms* - 附加权限列表。有效值为 PR、PW、EV、AA、TW、HD 和 WR（例如 PR+PW+EV）
 * *format* - 对于数值特性，指定数字格式。有效值为 BOOL、UINT8、UINT16、UNIT32、UINT64、INT 和 FLOAT。不适用于 STRING、DATA 或 TLV8 特性宏
 * *defaultValue* - 指定在实例化期间未定义特性的默认值。不适用于 DATA 或 TLV7 特征宏。
