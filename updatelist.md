@@ -1,3 +1,38 @@
+## ❗Latest Update - HomeSpan 2.0.0-rc.1 (9/27/2024)
+
+* **Compability with version 3 of the [Arduino-ESP32 Board Manager](https://github.com/espressif/arduino-esp32)**
+
+  * version 3 of the Arduino-ESP32 Board Manager is based on Espressif's IDF-5, which is **not backwards compatible with version 2** of the Arduino-ESP32 Board Manager that was based on Espressif's IDF-4
+  * the primary focus of HomeSpan 2.0.0-rc.1 is to (minimally) refactor HomeSpan 1.9.1 only as needed to allow it to operate under version 3 of the Arduino-ESP32 board manager ---
+    * while **preserving backwards compatibility for all HomeSpan sketches written under HomeSpan 1.9.1**
+    * in spite of the many [breaking changes](https://docs.espressif.com/projects/esp-idf/en/stable/esp32/migration-guides/release-5.x/5.0/index.html) that Espressif made between IDF-4 and IDF-5,
+    * and numerous additional breaking changes introduced between versions 2 and 3 of the Arduino-ESP32 Board Manager
+    * **requires Arduino-ESP32 Board Manager 3.0.2 or greater**
+      
+* **Support for the ESP32-C6**
+  
+  * version 3 of the Arduino-ESP32 Board Manager added support for Espressif's ESP32-C6 and ESP32-H2 chips
+    * HomeSpan supports the use of the C6 chip since it contains a WiFi radio, as currently required by HomeSpan
+    * HomeSpan does *not* support the use of the H2 chip since it lacks a WiFi radio (contains only a Thread radio)
+ 
+* **Expanded functionality for the HomeSpan Pixel and RFControl libraries**
+
+  * as a result of Espressif deprecating the IDF4-version of the RMT library and replacing it with a completely new library in IDF-5, the HomeSpan **Pixel** and **RFControl** libraries have been completely written and upgraded:
+  * you can now instantiate both **Pixel** and **RFControl** objects in the same sketch (previously these classes were incompatible with eachother and could not be used in the same sketch)
+  * the **Pixel** class also adds a variety of new functionality supporting even more types of Pixel devices, including
+    * an upgraded [PixelTester](examples/Other%20Examples/PixelTester) sketch that steps users through selecting and testing the correct *pixelType* for their device
+    * a new [Pixel-RGBWC](examples/Other%20Examples/Pixel-RGBWC) example demonstrating how to implement an RGBWC Pixel light-strip with separate Home App controls for the RGB and WC LED
+    * see the [Addressable RGB LEDs](docs/Pixels.md) page for full details
+
+* ❗**SIZE ALERT** ❗
+  * version 3 of the Arduino-ESP32 Board Manager has a **much** larger footprint than version 2
+  * **the same HomeSpan sketch compiled under 1.9.1 will be approximately 200K larger under HomeSpan 2.0.0-rc.1**
+  * HomeSpan sketches will no longer fit into the *Default* partition scheme, which only allocates about 1.3MB to each OTA partition
+  * sketches must be compiled under a larger partition scheme, such as *Minimal SPIFFS*, which provides for 1.9MB OTA partitions
+  * **this has implications for upgrading sketches via OTA (see Release Notes for details)**
+
+See [Releases](https://github.com/HomeSpan/HomeSpan/releases) for details on all changes and bug fixes included in this update.
+
 ## ❗最新更新 - HomeSpan 1.9.1 (07/03/2024)
 
 * **HomeSpan 现在支持 *标签长度值 ("TLV8")* 特性！**
