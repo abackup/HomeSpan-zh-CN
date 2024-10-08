@@ -104,6 +104,11 @@ HomeSpan 包括以下文档：
 除了 HomeSpan 资源之外，刚接触 HomeKit 编程的开发人员可能会发现苹果公司的 HomeKit 配件协议规范非商业版本 R2 ([HAP-R2](../master/docs/HAP-R2.pdf)) 的第 8 章和第 9 章非常有用。不幸的是，苹果公司不再提供这份文件（也许是因为它最后一次更新是在 2019 年 7 月，现在已经有些过时了）。但是，你可以在网络上的其他地方找到此文档的副本。请注意，苹果并未将 HAP-R2 文档替换为用于非商业用途的任何其他版本，并且苹果公司的开源 [HomeKit ADK](https://github.com/apple/HomeKitADK) 仅反映了原始的 HAP-R2 规格（而不是用于商业设备的 HomeKit 中提供的所有最新服务和特征）。
 
  --- 
+ ### Matter and Thread
+
+There are no plans to make HomeSpan compatible with Matter since HomeSpan was structured entirely around HAP R2.  In addition, both Apple and Espressif have released Matter SDKs for public use, reducing the need for yet another Matter SDK.
+
+Connecting HomeSpan directly to HomeKit via Thread is not planned (and might not even be possible).  However, Thread may be useful for inter-device communication similar to how HomeSpan uses ESP-NOW to implement remote, battery-operated devices.  This may be added at some point in a future release.
 
 ### 反馈或问题？
 
