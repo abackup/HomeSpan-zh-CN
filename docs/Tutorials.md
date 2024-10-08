@@ -137,7 +137,10 @@ HomeSpan 库包括许多逐渐复杂的教程草图，带你了解 HomeSpan 的�
 HomeKit *未认证*电视服务的示例，展示了如何使用不同的特征来控制电视的电源、输入源和其他一些功能。请参阅 [电视服务](TVServices.md) 了解完整详情
 
 ### [灯带](../examples/Other%20Examples/Pixel/Pixel.ino)
-演示如何使用 HomeSpan 的 *Pixel* 和 *Dot* 类来控制单线和两线可寻址全彩和 RGBW LED。有关完整详细信息，请参阅 [灯带](Pixels.md) 
+演示如何使用 HomeSpan 的 *Pixel* 和 *Dot* 类来控制单线和两线可寻址全彩和 RGB/W/C LED。有关完整详细信息，请参阅 [灯带](Pixels.md) 
+
+### [Pixel-RGBWC](../examples/Other%20Examples/Pixel-RGBWC)
+An additional Pixel example demonstrating how to implement an RGBWC Pixel light-strip with separate Home App controls for the RGB and WC LEDs
 
 ### [像素测试仪](../examples/Other%20Examples/PixelTester/PixelTester.ino)
 帮助确定任何 RGB(W) LED 灯带的 *pixelType* 的草图。请参阅 [灯带](Pixels.md) 页面了解完整详情
