@@ -11,9 +11,17 @@ HomeSpan 提供以微控制器为中心的苹果 HomeKit 配件协议规范版�
 
 HomeSpan 需要 [Arduino-ESP32 开发板管理](https://github.com/espressif/arduino-esp32)  的 2 版本。HomeSpan 可以在原版的乐鑫 ESP32 以及 ESP32-S2、ESP32-C3 和 ESP32-S3 芯片上运行。
 
-HomeSpan 目前与 Arduino-ESP32 开发板管理的 3.X 版本不兼容，因为版本 3 包含许多重大更改，并且不向后兼容 Arduino-ESP32开发板管理的版本 2.X。目前 HomeSpan 只能在开发板管理的 2.X 版本下编译。
+HomeSpan has recently had its first generational update, transitioning from **version 1.9.1** to **version 2.0.0** (currently available as 2.0.0-rc.1).  This transition was the result of a major, non-backwards-compatible update by Espressif of their core IoT Development Framework (from&nbsp;[IDF-4 to IDF-5](https://docs.espressif.com/projects/esp-idf/en/stable/esp32/migration-guides/release-5.x/5.0/index.html)) and a subsequent update of their [Arduino-ESP32 Board Manager](https://github.com/espressif/arduino-esp32) (from version 2 to version 3) to use the new IDF-5.
 
-> [!NOTE] 
+Requirements to run HomeSpan depend on which version you choose:
+
+|HomeSpan Version | Arduino-ESP32 Board Manager | Partition Scheme | Supported Chips|
+|:---:|:---:|:---:|---|
+|1.9.1 or earlier | v2.0.0 - v2.0.17 | *Default* (1.3MB APP) | ESP32, S2, S3, C3 |
+|2.0.0 or later | v3.0.2 or later | *Minimal SPIFFS* (1.9MB APP) | ESP32, S2, S3, C3, *and C6* |
+
+**ADDITIONAL REQUIREMENTS**:  Apple's HomeKit architecture [requires the use of a Home Hub](https://support.apple.com/en-us/HT207057) (either a HomePod or Apple TV) for full and proper operation of any HomeKit device, including those based on HomeSpan.  Use of HomeSpan without a Home Hub is NOT supported.
+
 苹果公司的新 HomeKit 架构 [需要使用家庭中心](https://support.apple.com/en-us/HT207057)（HomePod 或 Apple TV）才可用于任何 HomeKit 设备的完整地和正确地操作，包括基于 HomeSpan 的设备。如果没有家庭中心，HomeSpan 将无法向“家庭”应用发送通知——按钮和温度传感器等将无法向“家庭”应用发送更新。不建议在没有家庭中心的情况下使用 HomeSpan。
 
 ### HomeSpan 亮点
