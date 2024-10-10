@@ -139,11 +139,11 @@ HomeKit *未认证*电视服务的示例，展示了如何使用不同的特征�
 ### [灯带](../examples/Other%20Examples/Pixel/Pixel.ino)
 演示如何使用 HomeSpan 的 *Pixel* 和 *Dot* 类来控制单线和两线可寻址全彩和 RGB/W/C LED。有关完整详细信息，请参阅 [灯带](Pixels.md) 
 
-### [Pixel-RGBWC](../examples/Other%20Examples/Pixel-RGBWC)
-An additional Pixel example demonstrating how to implement an RGBWC Pixel light-strip with separate Home App controls for the RGB and WC LEDs
-
 ### [像素测试仪](../examples/Other%20Examples/PixelTester/PixelTester.ino)
 帮助确定任何 RGB(W) LED 灯带的 *pixelType* 的草图。请参阅 [灯带](Pixels.md) 页面了解完整详情
+
+### [Pixel-RGBWC](../examples/Other%20Examples/Pixel-RGBWC)
+附加 Pixel 示例，演示如何实现 RGBWC Pixel 灯带，并为 RGB 和 WC LED 设置单独的家庭应用控件
 
 ### [自定义服务](../examples/Other%20Examples/CustomService/CustomService.ino)
 演示如何在 HomeSpan 中创建自定义服务和自定义特征，以实现 *Eve 应用*识别的大气压力传感器。有关完整详细信息，请参阅 [自定义特征和自定义服务宏](Reference.md#custom)
