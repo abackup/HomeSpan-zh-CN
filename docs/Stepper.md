@@ -11,15 +11,15 @@ HomeSpan 中当前包含以下驱动程序：
 * **[Stepper_TB6612](StepperDrivers/Stepper_TB6612.md)**
   * 该类用于操作由 [东芝 TB6612](https://cdn-shop.adafruit.com/datasheets/TB6612FNG_datasheet_en_20121101.pdf) 芯片（或等效芯片）驱动的步进电机
   * 可以与 ESP32 PWM 引脚一起使用，也可以不与 ESP32 PWM 引脚一起使用
-    * 例如，[Adafruit TB6612 1.2A DC/步进电机驱动器分线板](https://www.adafruit.com/product/2448) 请参见
+  * 例如，[Adafruit TB6612 1.2A DC/步进电机驱动器分线板](https://www.adafruit.com/product/2448) 请参见
    
 * **[Stepper_A3967](StepperDrivers/Stepper_A3967.md)**
   * 该类用于操作由 [Allegro A3967](https://cdn.sparkfun.com/datasheets/Robotics/A3967-Datasheet.pdf) 芯片（或等效芯片）驱动的步进电机
-    * 例如，[Sparkfun EasyDriver 步进电机板](https://www.sparkfun.com/products/12779) 请参见
+  * 例如，[Sparkfun EasyDriver 步进电机板](https://www.sparkfun.com/products/12779) 请参见
 
 * **[Stepper_ULN2003A](StepperDrivers/Stepper_ULN2003A.md)**
   * 该类用于操作由 [Texas Instruments ULN2003A](https://www.ti.com/lit/ds/symlink/uln2003a.pdf) 芯片（或等效芯片）驱动的步进电机
-    * 例如，[Stepper_ULN2003 步进电机驱动板](https://opencircuit.shop/product/uln2003-stepper-motor-driver-module) 请参见
+  * 例如，[Stepper_ULN2003 步进电机驱动板](https://opencircuit.shop/product/uln2003-stepper-motor-driver-module) 请参见
 
 * **[Stepper_UNIPOLAR](StepperDrivers/Stepper_UNIPOLAR.md)**
   * 此类提供用于任何中心抽头单极步进电机的通用驱动程序
@@ -34,18 +34,18 @@ HomeSpan 中当前包含以下驱动程序：
 *  `StepperControl *enable()`
     * 使电流流向步进电机线圈，有效地将电机保持在其位置
     * 返回指向自身的指针，因此方法可以以 daisy 链形式连接。
-    * 例如： `myMotor=(new Stepper_TB6612(23,32,22,14,33,27))->enable();`
+      * 例如： `myMotor=(new Stepper_TB6612(23,32,22,14,33,27))->enable();`
       
 *  `StepperControl *disable()`
     * 禁用流向步进电机线圈的电流，使其处于高阻抗状态，从而允许电机自由转动
     * 返回指向自身的指针，因此方法可以以 daisy 链形式连接。
-    * 例如： `myMotor=(new Stepper_TB6612(23,32,22,14,33,27))->disable();`
+      * 例如： `myMotor=(new Stepper_TB6612(23,32,22,14,33,27))->disable();`
 
 *  `StepperControl *brake()`
     * 禁用流向步进电机线圈的电流，但使其处于低阻抗状态，防止电机自由转动
     * 仅适用于支持“短制动”模式的驱动芯片，否则无效
     * 返回指向自身的指针，因此方法可以以 daisy 链形式连接。
-    * 例如： `myMotor=(new Stepper_TB6612(23,32,22,14,33,27))->brake();`
+      * 例如： `myMotor=(new Stepper_TB6612(23,32,22,14,33,27))->brake();`
 
 *  `void move(int nSteps, uint32_t msDelay, endAction_t endAction=NONE)`
     * 启用步进电机并使其 *nSteps* 步进。请注意，这是一个 **non-blocking** 函数，在被调用后立即返回，同时电机在后台转动 *nSteps*。
