@@ -19,94 +19,145 @@
 
 /////////////////////// 彩灯测试仪 //////////////////////////
 
-// 该草图旨在帮助识别 NeoPixel、NeoPixel Strip 或任何包含一个或多个单线可寻址 RGB 或 RGBW LED 的设备（“像素设备”）的正确设置。
+// 此草图旨在帮助确定用于 NeoPixel、NeoPixel Strip 或任何包含一个或多个单线可寻址 RGB 型 LED 的设备的正确设置。
 
-// 编译之前，将 PIXEL_PIN 设置为连接到像素设备的 ESP32 引脚，并将 NPIXELS 设置为像素设备中的像素数量。请注意，对于某些灯带，
-// 单个芯片控制多个 LED，在这种情况下，应将 NPIXELS 设置为控制芯片的数量，而不是 LED 的数量。
-
-// 首先，下面 testPixel 对象的 Pixel 构造函数的第二个参数应保持设置为 PixelType::RGBW
-
-// 运行时，草图将重复循环颜色，方法是先将设备中的所有像素设置为红色，然后是绿色，然后是蓝色，最后是白色。短暂暂停后，循环重复。
-
-// 对于每种颜色，亮度都会从 0 增加到 MAX_BRIGHTNESS，然后再回到 0。如果您想限制像素的亮度，可以将 MAX_BRIGHTNESS 更改为低于 255 的值。
-
-// 对于具有多个像素的像素设备，诊断如下：
-//
-// * 如果所有 4 种颜色按照预期的顺序重复闪烁，则表示 PixelType::RGBW 的基本设置是正确的！
-//
-// * 如果不是将每个像素设置为相同的颜色，而是条带中的像素分别以不同的颜色点亮（或根本没有颜色），则意味着您拥有的是 RGB LED，
-// 而不是 RGBW LED。将构造函数的第二个参数更改为 PixelType::RGB 并重新运行草图。
-//
-// * 如果所有像素都设置为相同的颜色，但顺序不是红色、绿色、蓝色，则更改构造函数的第二个参数，以使 PixelType 颜色的顺序与像素设
-// 备上显示的颜色顺序相匹配。例如，如果您的 RGBW 像素设备闪烁绿色、红色、蓝色，然后是白色，请使用 PixelType::GRBW。
-
-// 对于仅有一个像素的像素设备，诊断如下：
-
-// * 如果所有 4 种颜色按照预期的顺序重复闪烁，则表示 PixelType::RGBW 的基本设置是正确的！
-//
-// * 如果像素设置为白色时根本不亮，则意味着您有一个 RGB LED，而不是 RGBW LED。将构造函数的第二个参数更改为 PixelType::RGB 并重新运行草图。
-//
-// * 如果所有像素都设置为相同的颜色，但顺序不是红色、绿色、蓝色，则更改构造函数的第二个参数，以使 PixelType 颜色的顺序
-// 与 Pixel Device 上显示的颜色顺序相匹配。例如，如果您的 RGB Pixel Device 闪烁绿色、红色，然后闪烁蓝色，请使用 PixelType::GRB。
+// 说明：运行草图并按照屏幕上的说明进行操作。
 
 //////////////////////////////////////
 
 #include "HomeSpan.h"
 
+#define MAX_BRIGHTNESS  255     // lower this value (max=255) if pixels LEDs are too bright to look at when perfoming this test
+
+int pin=-1;
+int nPixels=0;
+
+Pixel::Color colors[5]={
+  Pixel::RGB(MAX_BRIGHTNESS,0,0,0,0),
+  Pixel::RGB(0,MAX_BRIGHTNESS,0,0,0),
+  Pixel::RGB(0,0,MAX_BRIGHTNESS,0,0),
+  Pixel::RGB(0,0,0,MAX_BRIGHTNESS,0),
+  Pixel::RGB(0,0,0,0,MAX_BRIGHTNESS)
+};
+
+Pixel *testPixel;
+
 //////////////////////////////////////
 
-#define MAX_BRIGHTNESS  255           // RGBW闪烁时最大亮度[0-255]
-
-#define PIXEL_PIN 26                  // 将其设置为您正在使用的任何密码 - 注意密码不能是“仅输入”
-#define NPIXELS   8                   // 设置为条带中的像素数
-
-Pixel testPixel(PIXEL_PIN, PixelType::RGBW);      // 改变第二个参数直到设备以正确的颜色运行
-
-//////////////////////////////////////
-
-void setup() {
- 
-  Serial.begin(115200);
-  delay(1000);
-
-  Serial.printf("\n\nPixel Test on pin %d with %d pixels\n\n",PIXEL_PIN,NPIXELS);
+char *getSerial(){
+  static char buf[9];
+  strcpy(buf,"");
+  return(Utils::readSerial(buf,8));
 }
 
 //////////////////////////////////////
 
-void flashColor(boolean r, boolean g, boolean b, boolean w){
+void setup() {
+   
+  Serial.begin(115200);
+  delay(1000);
   
-  for(int i=0;i<MAX_BRIGHTNESS;i++){
-    testPixel.set(Pixel::RGB(i*r,i*g,i*b,i*w),NPIXELS);
-    delay(4);
+  Serial.printf("\n\n*************** PIXEL TESTER **********************\n\n");
+  Serial.printf("This sketch helps you identity your Pixel Type\n\n");
+
+  while(pin<0){
+    Serial.printf("Enter PIN number to which NeoPixel is connected: ");
+    sscanf(getSerial(),"%d",&pin);
+    if(pin<0)
+      Serial.printf("(invalid entry)\n");
+    else
+      Serial.printf("%d\n",pin);    
   }
-    
-  for(int i=MAX_BRIGHTNESS;i>=0;i--){
-    testPixel.set(Pixel::RGB(i*r,i*g,i*b,i*w),NPIXELS);
-    delay(4);
+
+  testPixel=new Pixel(pin,"01234");
+
+  while(nPixels<=0){
+    Serial.printf("Enter number of PIXELS in NeoPixel device: ");
+    sscanf(getSerial(),"%d",&nPixels);
+    if(nPixels<=0)
+      Serial.printf("(invalid entry)\n");
+    else
+      Serial.printf("%d\n",nPixels);    
   }
+
+  Serial.printf("\nFor each test below, specify COLORS shown using the following characters:\n\n");
+  if(nPixels==1){
+    Serial.printf("  'R' = Red\n");
+    Serial.printf("  'G' = Green\n");
+    Serial.printf("  'B' = Blue\n");
+    Serial.printf("  'W' = White (or Warm-White)\n");
+    Serial.printf("  'C' = Cool White\n");
+    Serial.printf("  '-' = Pixel is NOT lit\n");
+  }
+  else{
+    Serial.printf("  'R' = FIRST Pixel is Red\n");
+    Serial.printf("  'G' = FIRST Pixel is Green\n");
+    Serial.printf("  'B' = FIRST Pixel is Blue\n");
+    Serial.printf("  'W' = FIRST Pixel is White (or Warm-White)\n");
+    Serial.printf("  'C' = FIRST Pixel is Cool White\n");
+    Serial.printf("  '-' = neither FIRST nor SECOND Pixel is lit\n");
+    Serial.printf("  'X' = FIRST Pixel is not lit, but SECOND Pixel is lit (any color)\n");
+  }
+  Serial.printf("\nNote: entries are case-insensitive.\n\n");
+
+  char pType[6]="";
+  
+  for(int i=0;i<5;i++){
+    testPixel->set(colors[i]);
+    while(strlen(pType)==i){
+      Serial.printf("Test #%d - enter COLOR: ",i+1);
+      if(nPixels==1)
+        sscanf(getSerial(),"%1[RGBWCrgbwc-]",pType+i);
+      else
+        sscanf(getSerial(),"%1[RGBWCrgbwcxX-]",pType+i);
+      if(strlen(pType)==i)
+        Serial.printf("(invalid entry)\n");
+      else{
+        pType[i]=toupper(pType[i]);
+        Serial.printf("'%s'\n",pType+i);
+      }
+    }
+    if(pType[i]=='X')
+      break;
+  }
+
+  while(strlen(pType)>3 && ((pType[strlen(pType)-1]=='-' && nPixels==1) || pType[strlen(pType)-1]=='X'))
+      pType[strlen(pType)-1]='\0';
+      
+  Serial.printf("\nTest Concluded.  Best match for your Pixel Type is '%s'\n\n",pType);
+  testPixel=new Pixel(pin,pType);
+  testPixel->set(Pixel::RGB(0,0,0,0,0),nPixels);
+  Serial.printf("Hit ENTER to verify with flashing test\n\n");
+  getSerial();
+
 }
 
 //////////////////////////////////////
 
 void loop(){
+  
+  char c[]="RGBWC";
 
-  Serial.printf("Red...");
-  flashColor(1,0,0,0);
-
-  Serial.printf("Green...");
-  flashColor(0,1,0,0);
-
-  Serial.printf("Blue...");
-  flashColor(0,0,1,0);
-
-  if(testPixel.isRGBW()){
-    Serial.printf("White...");
-    flashColor(0,0,0,1);
+  for(int i=0;i<5;i++){
+    if(testPixel->hasColor(c[i])){
+      Serial.printf("Color '%c'...",c[i]);
+      
+      for(int v=0;v<MAX_BRIGHTNESS;v++){
+        testPixel->set(Pixel::RGB(i==0?v:0,i==1?v:0,i==2?v:0,i==3?v:0,i==4?v:0),nPixels);
+        delay(4*255/MAX_BRIGHTNESS);
+      }
+        
+      for(int v=MAX_BRIGHTNESS;v>=0;v--){
+        testPixel->set(Pixel::RGB(i==0?v:0,i==1?v:0,i==2?v:0,i==3?v:0,i==4?v:0),nPixels);
+        delay(4*255/MAX_BRIGHTNESS);
+      }
+    }
   }
-
-  Serial.printf("Pausing.\n");
-  delay(1000);
+  testPixel->set(Pixel::RGB(0,0,0,0,0),nPixels);
+  Serial.printf("Done.\n");
+  Serial.printf("Hit ENTER to repeat with flashing test, or type 'R' to restart program...\n");
+  if(toupper(getSerial()[0])=='R')
+    ESP.restart();
 }
 
 //////////////////////////////////////
