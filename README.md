@@ -104,7 +104,7 @@ HomeSpan 包括以下文档：
  --- 
  ### Matter 和 Thread
 
-由于 HomeSpan 完全围绕 HAP R2 构建，因此没有计划使 HomeSpan 与 Matter 兼容。此外，Apple 和 Espressif 都发布了供公众使用的 Matter SDK，从而减少了对另一个 Matter SDK 的需求。
+由于 HomeSpan 完全围绕 HAP R2 构建，因此没有计划使 HomeSpan 与 Matter 兼容。此外，苹果和乐鑫都发布了供公众使用的 Matter SDK，从而减少了对另一个 Matter SDK 的需求。
 
 通过 Thread 将 HomeSpan 直接连接到 HomeKit 尚未计划（甚至可能不可能）。但是，Thread 对于设备间通信可能很有用，类似于 HomeSpan 如何使用 ESP-NOW 来实现远程电池供电设备。这可能会在未来版本的某个时候添加。
 
