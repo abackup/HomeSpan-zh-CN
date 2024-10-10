@@ -11,18 +11,16 @@ HomeSpan 提供以微控制器为中心的苹果 HomeKit 配件协议规范版�
 
 HomeSpan 需要 [Arduino-ESP32 开发板管理](https://github.com/espressif/arduino-esp32)  的 2 版本。HomeSpan 可以在原版的乐鑫 ESP32 以及 ESP32-S2、ESP32-C3 和 ESP32-S3 芯片上运行。
 
-HomeSpan has recently had its first generational update, transitioning from **version 1.9.1** to **version 2.0.0** (currently available as 2.0.0-rc.1).  This transition was the result of a major, non-backwards-compatible update by Espressif of their core IoT Development Framework (from&nbsp;[IDF-4 to IDF-5](https://docs.espressif.com/projects/esp-idf/en/stable/esp32/migration-guides/release-5.x/5.0/index.html)) and a subsequent update of their [Arduino-ESP32 Board Manager](https://github.com/espressif/arduino-esp32) (from version 2 to version 3) to use the new IDF-5.
+HomeSpan 最近进行了第一代更新，从 **版本 1.9.1** 过渡到 **版本 2.0.0**（目前为 2.0.0-rc.1）。  这一转变是乐鑫对其核心物联网开发框架进行重大非向后兼容更新的结果（从 [IDF-4 到 IDF-5](https://docs.espressif.com/projects/esp-idf/en/stable/esp32/migration-guides/release-5.x/5.0/index.html)) 及其 [Arduino-ESP32 开发板管理](https://github.com/espressif/arduino-esp32) 的后续更新（从版本 2 到版本 3）以使用新的 IDF-5。
 
-Requirements to run HomeSpan depend on which version you choose:
+运行 HomeSpan 的要求取决于您选择的版本：
 
-|HomeSpan Version | Arduino-ESP32 Board Manager | Partition Scheme | Supported Chips|
+|HomeSpan 版本 | Arduino-ESP32 开发板管理 | 分区方案 | 支持芯片|
 |:---:|:---:|:---:|---|
-|1.9.1 or earlier | v2.0.0 - v2.0.17 | *Default* (1.3MB APP) | ESP32, S2, S3, C3 |
-|2.0.0 or later | v3.0.2 or later | *Minimal SPIFFS* (1.9MB APP) | ESP32, S2, S3, C3, *and C6* |
+|1.9.1 或更早 | v2.0.0 - v2.0.17 | *默认* (1.3MB APP) | ESP32, S2, S3, C3 |
+|2.0.0 或更后 | v3.0.2 或更后 | *最小 SPIFFS* (1.9MB APP) | ESP32, S2, S3, C3, *还有 C6* |
 
-**ADDITIONAL REQUIREMENTS**:  Apple's HomeKit architecture [requires the use of a Home Hub](https://support.apple.com/en-us/HT207057) (either a HomePod or Apple TV) for full and proper operation of any HomeKit device, including those based on HomeSpan.  Use of HomeSpan without a Home Hub is NOT supported.
-
-苹果公司的新 HomeKit 架构 [需要使用家庭中心](https://support.apple.com/en-us/HT207057)（HomePod 或 Apple TV）才可用于任何 HomeKit 设备的完整地和正确地操作，包括基于 HomeSpan 的设备。如果没有家庭中心，HomeSpan 将无法向“家庭”应用发送通知——按钮和温度传感器等将无法向“家庭”应用发送更新。不建议在没有家庭中心的情况下使用 HomeSpan。
+**其他要求**：Apple 的 HomeKit 架构 [需要使用 Home Hub](https://support.apple.com/en-us/HT207057)（HomePod 或 Apple TV）才能完整、正确地操作任何 HomeKit 设备，包括基于 HomeSpan 的设备。 不支持在没有 Home Hub 的情况下使用 HomeSpan。
 
 ### HomeSpan 亮点
 
@@ -104,11 +102,11 @@ HomeSpan 包括以下文档：
 除了 HomeSpan 资源之外，刚接触 HomeKit 编程的开发人员可能会发现苹果公司的 HomeKit 配件协议规范非商业版本 R2 ([HAP-R2](../master/docs/HAP-R2.pdf)) 的第 8 章和第 9 章非常有用。不幸的是，苹果公司不再提供这份文件（也许是因为它最后一次更新是在 2019 年 7 月，现在已经有些过时了）。但是，你可以在网络上的其他地方找到此文档的副本。请注意，苹果并未将 HAP-R2 文档替换为用于非商业用途的任何其他版本，并且苹果公司的开源 [HomeKit ADK](https://github.com/apple/HomeKitADK) 仅反映了原始的 HAP-R2 规格（而不是用于商业设备的 HomeKit 中提供的所有最新服务和特征）。
 
  --- 
- ### Matter and Thread
+ ### Matter 和 Thread
 
-There are no plans to make HomeSpan compatible with Matter since HomeSpan was structured entirely around HAP R2.  In addition, both Apple and Espressif have released Matter SDKs for public use, reducing the need for yet another Matter SDK.
+由于 HomeSpan 完全围绕 HAP R2 构建，因此没有计划使 HomeSpan 与 Matter 兼容。此外，Apple 和 Espressif 都发布了供公众使用的 Matter SDK，从而减少了对另一个 Matter SDK 的需求。
 
-Connecting HomeSpan directly to HomeKit via Thread is not planned (and might not even be possible).  However, Thread may be useful for inter-device communication similar to how HomeSpan uses ESP-NOW to implement remote, battery-operated devices.  This may be added at some point in a future release.
+通过 Thread 将 HomeSpan 直接连接到 HomeKit 尚未计划（甚至可能不可能）。但是，Thread 对于设备间通信可能很有用，类似于 HomeSpan 如何使用 ESP-NOW 来实现远程电池供电设备。这可能会在未来版本的某个时候添加。
 
 ### 反馈或问题？
 
