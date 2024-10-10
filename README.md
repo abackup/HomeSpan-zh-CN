@@ -18,7 +18,7 @@ HomeSpan 最近进行了第一代更新，从 **版本 1.9.1** 过渡到 **版�
 |HomeSpan 版本 | Arduino-ESP32 开发板管理 | 分区方案 | 支持芯片|
 |:---:|:---:|:---:|---|
 |1.9.1 或更早 | v2.0.0 - v2.0.17 | *默认* (1.3MB APP) | ESP32, S2, S3, C3 |
-|2.0.0 或更后 | v3.0.2 或更后 | *最小 SPIFFS* (1.9MB APP) | ESP32, S2, S3, C3, *还有 C6* |
+|2.0.0 或以后 | v3.0.2 或以后 | *最小 SPIFFS* (1.9MB APP) | ESP32, S2, S3, C3, *还有 C6* |
 
 **其他要求**：Apple 的 HomeKit 架构 [需要使用 Home Hub](https://support.apple.com/en-us/HT207057)（HomePod 或 Apple TV）才能完整、正确地操作任何 HomeKit 设备，包括基于 HomeSpan 的设备。 不支持在没有 Home Hub 的情况下使用 HomeSpan。
 
