@@ -100,7 +100,7 @@ HomeSpan 中当前包含以下驱动程序：
       * *accelSteps* - *accelSize* 系数指数淡化的步数，此时电机开始以 *msDelay* 参数指定的全速转动。必须是大于或等于 1 的值。值越大，加速和减速周期越长
       
     * 步骤之间的总延迟（*stepsRemaining* 当不为零时）由以下公式给出：
-    * 
+    
     $$totalDelay = msDelay \times (1 + accelSize \times (e^{\frac{-\mid nSteps-stepsRemaining \mid}{accelSteps}} + e^{\frac{-(\mid stepsRemaining \mid - 1)}{accelSteps}}))$$
 
     * 例如：`myMotor.setAccel(10,20);myMotor.move(200,5);`
