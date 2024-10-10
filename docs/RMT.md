@@ -86,14 +86,17 @@ rf.start(pulseTrain,3,4,1000);  // 使用相同的参数开始传输
 
 **RFControl** 类根据使用 Arduino IDE 编译草图时选择的*核心调试级别*将 *Warning \[W\]* 消息输出到串口监视器。当通道资源不足阻止创建新的 RFControl 对象时，会生成非致命警告消息。对于未能正确创建的对象，对 `start()` 方法的调用将被静默忽略。
 
-#### Resource Usage
-The **RFControl** class relies on the ESP32's RMT peripheral to create the precise pulse trains required.  Since each instantiation of **RFControl** consumes an RMT channel, the number of **RFControl** objects you can instantiate (each controlling a separate transmitter attached to a specific pin) is limited to the number of RMT channels available as follows:
-* ESP32 - 8 channels;
-* ESP32-S2 - 4 channels;
-* ESP32-S3 - 4 channels;
-* ESP32-C3 - 2 channels;
-* ESP32-C6 - 2 channels;
-Note the **Pixel** class also uses the ESP32's RMT peripheral so any instances of **Pixel** will consume RMT channels as well (for example, on an ESP32-C3 you could create two Pixels, two RFControls, or one Pixel and one RFControl).
+#### 资源使用情况
+
+**RFControl** 类依赖于 ESP32 的 RMT 外设来创建所需的精确脉冲序列。由于 **RFControl** 的每个实例化都会消耗一个 RMT 通道，因此您可以实例化的 **RFControl** 对象的数量（每个对象控制连接到特定引脚的单独发射器）受限于可用的 RMT 通道数量，如下所示：
+
+* ESP32 - 8 通道;
+* ESP32-S2 - 4 通道;
+* ESP32-S3 - 4 通道;
+* ESP32-C3 - 2 通道;
+* ESP32-C6 - 2 通道;
+
+请注意，**Pixel** 类也使用 ESP32 的 RMT 外围设备，因此 **Pixel** 的任何实例也将消耗 RMT 通道（例如，在 ESP32-C3 上，您可以创建两个像素、两个 RFControls，或一个像素和一个 RFControl）。
 
 ## 射频控制草图示例
 
