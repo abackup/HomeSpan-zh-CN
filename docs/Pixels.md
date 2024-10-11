@@ -202,7 +202,7 @@ HomeSpan 包括两个专用类，用于轻松控制“可寻址” RGB LEDs。**
 
 ### 示例草图
 
-一个完整的示例展示了如何在 HomeSpan 草图中使用 Pixel 库来控制 RGB Pixel 设备、RGBW Pixel 设备和 RGB DotStar 设备（所有这些都来自 iPhone 上的“家庭”应用），可以在 Arduino IDE 中找到 [*文件→示例→HomeSpan→其他示例→像素*](../examples/Other%20Examples/Pixel/Pixel.ino)。第二个示例演示了如何使用 RGB 和 WC LED 的独立 Home App 控件来实现 RGBWC Pixel 灯条，可以在 Arduino IDE 中找到 [*File → Examples → HomeSpan → Other Examples → Pixel*](../examples/Other%20Examples/Pixel-RGBWC/Pixel-RGBWC.ino).
+一个完整的示例展示了如何在 HomeSpan 草图中使用 Pixel 库来控制 RGB Pixel 设备、RGBW Pixel 设备和 RGB DotStar 设备（所有这些都来自 iPhone 上的“家庭”应用），可以在 Arduino IDE 中找到 [*文件→示例→HomeSpan→其他示例→像素*](../examples/Other%20Examples/Pixel/Pixel.ino)。第二个示例演示了如何使用 RGB 和 WC LED 的独立 Home App 控件来实现 RGBWC Pixel 灯条，可以在 Arduino IDE 中找到 [*文件→示例→HomeSpan→其他示例→PixelTester*](../examples/Other%20Examples/PixelTester/PixelTester.ino).
 
 如需更完整地展示 Pixel 库，请查看 [HomeSpan 项目](https://github.com/topics/homespan)上的 [节日灯](https://github.com/HomeSpan/HolidayLights)。此草图演示了如何使用 Pixel 库通过 60 像素 RGBW 条生成各种特殊效果。该草图还展示了使用 HomeSpan 的 [自定义特征宏](Reference.md#custom) 来实现在 Eve 应用中使用的特效“选择器”按钮。
 
