@@ -1,37 +1,37 @@
-## ❗Latest Update - HomeSpan 2.0.0-rc.1 (9/27/2024)
+## ❗最新更新 - HomeSpan 2.0.0-rc.1 (9/27/2024)
 
-* **Compability with version 3 of the [Arduino-ESP32 Board Manager](https://github.com/espressif/arduino-esp32)**
+* **与 [Arduino-ESP32 开发板管理](https://github.com/espressif/arduino-esp32) 版本 3 兼容**
 
-  * version 3 of the Arduino-ESP32 Board Manager is based on Espressif's IDF-5, which is **not backwards compatible with version 2** of the Arduino-ESP32 Board Manager that was based on Espressif's IDF-4
-  * the primary focus of HomeSpan 2.0.0-rc.1 is to (minimally) refactor HomeSpan 1.9.1 only as needed to allow it to operate under version 3 of the Arduino-ESP32 board manager ---
-    * while **preserving backwards compatibility for all HomeSpan sketches written under HomeSpan 1.9.1**
-    * in spite of the many [breaking changes](https://docs.espressif.com/projects/esp-idf/en/stable/esp32/migration-guides/release-5.x/5.0/index.html) that Espressif made between IDF-4 and IDF-5,
-    * and numerous additional breaking changes introduced between versions 2 and 3 of the Arduino-ESP32 Board Manager
-    * **requires Arduino-ESP32 Board Manager 3.0.2 or greater**
+  * Arduino-ESP32 主板管理器第 3 版基于乐鑫的 IDF-5，与基于乐鑫的 IDF-4 的 Arduino-ESP32 主板管理器第 2 版不向后兼容
+  * HomeSpan 2.0.0-rc.1 的主要重点是（最低限度地）重构 HomeSpan 1.9.1，以使其能够在 Arduino-ESP32 板管理器第 3 版下运行 ---
+    * 同时**保留所有在 HomeSpan 1.9.1 下编写的 HomeSpan 草图的向后兼容性**
+    * 尽管乐鑫在 IDF-4 和 IDF-5 之间做出了许多重大变更，
+    * Arduino-ESP32 开发板管理 2 版和 3 版之间引入了许多其他重大变更
+    * **需要 Arduino-ESP32 开发板管理 3.0.2 或更高版本**
       
-* **Support for the ESP32-C6**
+* **支持 ESP32-C6**
   
-  * version 3 of the Arduino-ESP32 Board Manager added support for Espressif's ESP32-C6 and ESP32-H2 chips
-    * HomeSpan supports the use of the C6 chip since it contains a WiFi radio, as currently required by HomeSpan
-    * HomeSpan does *not* support the use of the H2 chip since it lacks a WiFi radio (contains only a Thread radio)
+  * Arduino-ESP32 Board Manager 版本 3 增加了对乐鑫的 ESP32-C6 和 ESP32-H2 芯片的支持
+    * HomeSpan 支持使用 C6 芯片，因为它包含 WiFi 无线电，这是 HomeSpan 目前的要求
+    * HomeSpan 不支持使用 H2 芯片，因为它没有 WiFi 无线电（仅包含 Thread 无线电）
  
-* **Expanded functionality for the HomeSpan Pixel and RFControl libraries**
+* **HomeSpan Pixel 和 RFControl 库的扩展功能**
 
-  * as a result of Espressif deprecating the IDF4-version of the RMT library and replacing it with a completely new library in IDF-5, the HomeSpan **Pixel** and **RFControl** libraries have been completely written and upgraded:
-  * you can now instantiate both **Pixel** and **RFControl** objects in the same sketch (previously these classes were incompatible with eachother and could not be used in the same sketch)
-  * the **Pixel** class also adds a variety of new functionality supporting even more types of Pixel devices, including
-    * an upgraded [PixelTester](examples/Other%20Examples/PixelTester) sketch that steps users through selecting and testing the correct *pixelType* for their device
-    * a new [Pixel-RGBWC](examples/Other%20Examples/Pixel-RGBWC) example demonstrating how to implement an RGBWC Pixel light-strip with separate Home App controls for the RGB and WC LED
-    * see the [Addressable RGB LEDs](docs/Pixels.md) page for full details
+  * 由于乐鑫弃用了 IDF4 版本的 RMT 库，并在 IDF-5 中将其替换为一个全新的库，HomeSpan **Pixel** 和 **RFControl** 库已完全编写和升级：
+  * 您现在可以在同一个草图中实例化 **Pixel** 和 **RFControl** 对象（以前这些类彼此不兼容，不能在同一个草图中使用）
+  * **Pixel** 类还添加了各种新功能，支持更多类型的 Pixel 设备，包括
+    * 升级版 [PixelTester](examples/Other%20Examples/PixelTester) 草图，引导用户选择并测试适合其设备的正确 *pixelType*
+    * 新的 [Pixel-RGBWC](examples/Other%20Examples/Pixel-RGBWC) 示例，演示如何实现 RGBWC Pixel 灯带，并为 RGB 和 WC LED 设置单独的 Home App 控件
+    * 请参阅 [可寻址 RGB LED](docs/Pixels.md) 页面了解完整详情
 
-* ❗**SIZE ALERT** ❗
-  * version 3 of the Arduino-ESP32 Board Manager has a **much** larger footprint than version 2
-  * **the same HomeSpan sketch compiled under 1.9.1 will be approximately 200K larger under HomeSpan 2.0.0-rc.1**
-  * HomeSpan sketches will no longer fit into the *Default* partition scheme, which only allocates about 1.3MB to each OTA partition
-  * sketches must be compiled under a larger partition scheme, such as *Minimal SPIFFS*, which provides for 1.9MB OTA partitions
-  * **this has implications for upgrading sketches via OTA (see Release Notes for details)**
+* ❗**存储警告** ❗
+  * Arduino-ESP32 Board Manager 版本 3 的占用空间**比版本 2 大得多**
+  * **在 1.9.1 下编译的相同 HomeSpan 草图在 HomeSpan 2.0.0-rc.1 下将大约大 200K**
+  * HomeSpan 草图将不再适合 *默认* 分区方案，该方案仅为每个 OTA 分区分配约 1.3MB
+  * 草图必须在更大的分区方案下编译，例如 *Minimal SPIFFS*，它提供 1.9MB OTA 分区
+  * **这对通过 OTA 升级草图有影响（有关详细信息，请参阅发行说明）**
 
-See [Releases](https://github.com/HomeSpan/HomeSpan/releases) for details on all changes and bug fixes included in this update.
+有关此更新中包含的所有更改和错误修复的详细信息，请参阅 [发布](https://github.com/HomeSpan/HomeSpan/releases)。
 
 ## ❗最新更新 - HomeSpan 1.9.1 (07/03/2024)
 
@@ -474,7 +474,7 @@ See [Releases](https://github.com/HomeSpan/HomeSpan/releases) for details on all
 
 ## ❗最新更新 - HomeSpan 1.4.0 (10/9/2021)
 
-HomeSpan 现在与 Arduino-ESP32 Board Manager 2.0.0 版完全兼容，并将在以下 Espressif 芯片上运行：
+HomeSpan 现在与 Arduino-ESP32 Board Manager 2.0.0 版完全兼容，并将在以下乐鑫芯片上运行：
 
 * ESP32
 * ESP32-S2
