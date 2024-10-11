@@ -1,4 +1,4 @@
-<!-- 原文时间：2024.9.26，翻译时间：2024.10.10，校对时间：2024 -->
+<!-- 原文时间：2024.9.26，翻译时间：2024.10.10，校对时间：2024。10.11 -->
 
 # 可寻址全彩 LEDs
 
@@ -127,9 +127,9 @@ HomeSpan 包括两个专用类，用于轻松控制“可寻址” RGB LEDs。**
     * *high1* 和 *low1* 指定编码一位的脉冲的高相位和低相位的持续时间（以微秒为单位）；和
     * *lowReset* 指定表示脉冲流结束的延迟（以微秒为单位）
   * 作为参考，**Pixel** 类使用以下默认值：*high0 为 0.32𝛍s, low0 为 0.88𝛍s, high1 为 0.64𝛍s, low1 为 0.56𝛍s, lowReset 为 80.0𝛍s* 
-  *  returns a pointer to the **Pixel** object
+  * 返回指向 **Pixel** 对象的指针
 
-### 资源使用
+### 资源使用情况
 
  **Pixel** 类依赖 ESP32 的 RMT 外设来创建控制单线可寻址全彩 LED 所需的精确脉冲序列。由于 **Pixel** 的每个实例化都会消耗一个 RMT 通道，因此你可以实例化的 **Pixel** 对象的数量（每个对象控制连接到特定引脚的单独的多像素全彩 LED 设备）仅限于可用的 RMT 通道数量，如下所示：
 
@@ -202,7 +202,7 @@ HomeSpan 包括两个专用类，用于轻松控制“可寻址” RGB LEDs。**
 
 ### 示例草图
 
-一个完整的示例展示了如何在 HomeSpan 草图中使用 Pixel 库来控制 RGB Pixel 设备、RGBW Pixel 设备和 RGB DotStar 设备（所有这些都来自 iPhone 上的“家庭”应用），可以在 Arduino IDE 中找到 [*文件→示例→HomeSpan→其他示例→像素*](../examples/Other%20Examples/Pixel/Pixel.ino)。 A second example demonstrating how to implement an RGBWC Pixel light-strip with separate Home App controls for the RGB and WC LEDs can be found in the Arduino IDE under [*File → Examples → HomeSpan → Other Examples → Pixel*](../examples/Other%20Examples/Pixel-RGBWC).
+一个完整的示例展示了如何在 HomeSpan 草图中使用 Pixel 库来控制 RGB Pixel 设备、RGBW Pixel 设备和 RGB DotStar 设备（所有这些都来自 iPhone 上的“家庭”应用），可以在 Arduino IDE 中找到 [*文件→示例→HomeSpan→其他示例→像素*](../examples/Other%20Examples/Pixel/Pixel.ino)。第二个示例演示了如何使用 RGB 和 WC LED 的独立 Home App 控件来实现 RGBWC Pixel 灯条，可以在 Arduino IDE 中找到 [*File → Examples → HomeSpan → Other Examples → Pixel*](../examples/Other%20Examples/Pixel-RGBWC/Pixel-RGBWC.ino).
 
 如需更完整地展示 Pixel 库，请查看 [HomeSpan 项目](https://github.com/topics/homespan)上的 [节日灯](https://github.com/HomeSpan/HolidayLights)。此草图演示了如何使用 Pixel 库通过 60 像素 RGBW 条生成各种特殊效果。该草图还展示了使用 HomeSpan 的 [自定义特征宏](Reference.md#custom) 来实现在 Eve 应用中使用的特效“选择器”按钮。
 
