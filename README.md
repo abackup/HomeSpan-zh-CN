@@ -18,7 +18,7 @@ HomeSpan 最近进行了第一代更新，从**版本 1.9.1** 过渡到**版本 
 |1.9.1 或更早 | v2.0.0 - v2.0.17 | *默认* (1.3MB APP) | ESP32, S2, S3, C3 |
 |2.0.0 或以后 | v3.0.2 或以后<sup>*</sup> | *最小 SPIFFS* (1.9MB APP) | ESP32, S2, S3, C3, *还有 C6* |
 
-<sup>*</sup>HomeSpan has been tested through **version 3.0.5** of the Arduino-ESP32 Board Manager.  Later releases may work fine, but have not (yet) been tested.  Note HomeSpan does not support the use of alpha, beta, or pre-release candidates of the Arduino-ESP32 Board Manager - testing is only done on production releases of the Board Manager.
+<sup>*</sup>HomeSpan 已通过 Arduino-ESP32 开发板管理 3.0.5 版本的测试。后续版本可能可以正常工作，但尚未经过测试。注意 HomeSpan 不支持使用 Arduino-ESP32 开发板管理的 alpha、beta 或预发布候选版本 - 仅在开发板管理的生产版本上进行测试。
 
 **其他要求**：苹果的 HomeKit 架构 [需要使用 Home Hub](https://support.apple.com/en-us/HT207057)（HomePod 或苹果 TV）才能完整、正确地操作任何 HomeKit 设备，包括基于 HomeSpan 的设备。***不支持在没有 Home Hub 的情况下使用 HomeSpan***。
 
