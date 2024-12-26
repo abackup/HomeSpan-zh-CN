@@ -1,6 +1,6 @@
   <!--原文时间：2024.9.28，翻译时间：2024.10.10，校对时间：2024.10.12；文件版本号：2.0.0 -->
 
-个人翻译的 [HomeSpan](https://github.com/HomeSpan/HomeSpan)（家庭空间），喜欢的请去 [下载](https://github.com/HomeSpan/HomeSpan/releases) 学习。
+个人翻译的 [HomeSpan 2.0.0](https://github.com/HomeSpan/HomeSpan)（家庭空间），喜欢的请去 [下载](https://github.com/HomeSpan/HomeSpan/releases) 学习。
 
 # 欢迎！
 
