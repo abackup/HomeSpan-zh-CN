@@ -28,6 +28,10 @@ HomeSpan 日志消息通常以三种可能的详细级别直接输出到 Arduino
 
 * `LOGn(const char *fmt, ...)` - 当指定多个参数时，HomeSpan 使用 ESP32 `Serial.printf(fmt, ...)` 方法输出消息，该方法允许你格式化消息使用标准 C++ *printf* 约定具有可变数量的参数。例如，`int n=255; LOG2("The value is 0x%X",n);` 向 Arduino 串口监视器输出消息 "The value is 0xFF"，前提是 *Log Level* 设置为 2。
 
+* calling the Web Log from your browser with an optional query string, *refresh=N*, will cause the Web Log to auto-refresh in your browser every *N* seconds.  It does this by adding an HTTP "Refresh" response header to the HTML it serves up to the browser.  For example *http<nolink>://homespan-4e8eb8504e59.local/myLog?refresh=10* refreshes the Web Log page in your browser every 10 seconds.  If *refresh* is set to less than 1, or if the query string is not well-formed, HomeSpan will not add a Refresh response header to the HTML and no refreshing occurs
+* 
+* HomeSpan is case-insensitive with regard to intepreting Web Log requests from the browser.  For example *http<nolink>://homespan-4e8eb8504e59.local/MYLOG?REFRESH=10* works fine in the example above 
+
 有关演示这些宏的教程草图，请参阅 [示例 9 - 消息日志](Tutorials.md#示例-9---消息日志)。
  
 ## 网络日志
