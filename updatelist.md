@@ -1,3 +1,78 @@
+## ❗Latest Update - HomeSpan 2.1.0 (12/27/2024)
+
+* **Integrated Support for Ethernet Connectivity!**
+
+  * no new homeSpan methods are required.  Instead, during start-up HomeSpan checks if you've instructed the ESP32 to establish an Ethernet connection, and if so it will switch into "Ethernet mode" and not attempt to connect to your network via WiFi
+  * once in Ethernet mode, HomeSpan customizes some of the output to the Serial Monitor and Web Log so it is clear Ethernet, and not WiFi, connectivity is being used
+  * HomeSpan handles all reporting of connects/disconnects/reconnects just as it normally does for WiFi connections
+  * to establish Ethernet connectivity, simply use the Arduino-ESP32's ETH library by calling `ETH.begin()` in your sketch with the appropriate parameters for your Ethernet board (assuming the Arduino-ESP32 library supports your board)
+    * you must call `ETH.begin()` before calling `homeSpan.begin()`
+    * you do **not** need to include `ETH.h` in your sketch
+    * note the Arduino-ESP32 ETH library supports both direct-connect PHY as well as standalone SPI-based Ethernet boards
+  * adds new homeSpan method `setConnectionCallback()`, which is a renamed version of the `setWifiCallbackAll()` method (now deprecated, see below) to reflect the fact that this method can be used with both Ethernet and WiFi connections
+
+* **WiFi Enhancements and New WiFi Management Methods**
+
+  * when connecting to a WiFi mesh network with multiple access points, HomeSpan now **automatically connects to the access point with the strongest WiFi signal** (i.e. the greatest RSSI)
+    * previously HomeSpan would simply connect to the first access point it found that matched the SSID specified by the user, even if other access points with the same SSID had stronger signals
+    * the BSSID (6-byte MAC address) of the access point to which HomeSpan is currently connected is provided in the Web Log as well as in the Serial Monitor in response to the 's' CLI command
+
+  * added new homeSpan method `setConnectionTimes()` that allows users to fine-tune how long HomeSpan waits for each connection attempt when trying to connect to a WiFi network
+  
+  * added new homeSpan method `setWifiBegin()` that allows users to create an alternative function HomeSpan calls **instead of** `WiFi.begin()` when attempting to connect to a WiFi network
+
+    * provides ability to create customizations, such as connecting to an enterprise network, or changing the WiFi power while connectivity is being established (required for some ESP32 boards with a misconfigured WiFi radio)
+    
+  * added new homeSpan method `enableWiFiRescan()` that causes HomeSpan to periodically re-scan for all access points matching the configured SSID and automatically switches to the access point with the strongest signal
+     * useful after a mesh network is rebooted and HomeSpan initially reconnects to a more distance access point because a closer one with a stronger signal has not yet fully rebooted
+       
+  * added new homeSpan method `addBssidName()` that allows users to create optional display names for each access point in a WiFi mesh network according to their 6-byte BSSID addresses
+     * when defined, HomeSpan will display both this name and the BSSID of an access point whenever presenting info on the Serial Monitor or writing to the Web Log
+       
+  * see the [API Reference](docs/Reference.md) page for full details, as well as the new [HomeSpan WiFi and Ethernet Connectivity](docs/Networks.md) page for a high-level discussion of HomeSpan's connectivity options
+
+* **DEPRECATIONS**
+  * `setWifiCallbackAll()` has been deprecated and renamed to `setConnectionCallback()` to reflect the fact this callback can be used for both WiFi and Ethernet connections
+  * `setWifiCallback()` has been deprecated --- the more generic `setConnectionCallback()` should be used instead
+    * requires any existing callbacks to be upgraded to add a single integer argument representing the number of connection attempts, similar to how `setWifiCallbackAll()`, and now `setConnectionCallback()`, work
+  * both `setWifiCallbackAll()` and `setWifiCallback()` will be removed in a future version of HomeSpan.  Please update your sketches to avoid incompatibility with these future versions 
+
+* **New CLI Commands**
+  
+  * 'D' - forces HomeSpan to disconnect and then automatically re-connect to the configured WiFi network
+  * 'Z' - scans a user's WiFi network environment and displays information about each SSID (including each BSSID for mesh networks with multiple access points broadcasting the same SSID) on the Serial Monitor
+  * see the [Command Line Interface (CLI)](docs/CLI.md) page for full details
+
+* **New Multi-Threading Management**
+
+  * made Web Log writing/reading thread-safe
+    * fixes a latent bug related to a race condition between displaying the web log and writing a log record when the separate thread HomeSpan creates at start-up to handle initial contact with an NTP server records the time found
+
+  * made HomeSpan autopolling thread-safe
+    * adds two new macros, `homeSpanPAUSE` and `homeSpanRESUME`, that allow users to temporarily suspend the HomeSpan polling task once it completes its current run
+    * allows users to make modifications to HomeSpan Characteristics and perform any other HomeSpan functions from a separate thread without worrying about inconsistencies if HomeSpan polling was being run at the same time
+    * typically used when your sketch calls `homeSpan.autoPoll()` to run HomeSpan polling in a separate background task *and* you also want to make separate modifications to existing HomeSpan Characteristics by using `getVal()` and `setVal()` from within the main Arduino `loop()` (instead of, or in addition to, modifying these Characteristics from within their Service loops)
+      
+  * see the [API Reference](docs/Reference.md) page for full details, as well as a new [MultiThreading](examples/Other%20Examples/MultiThreading) Example that demonstrates the use of multi-threading using these macros
+
+* **Web Log Enhancements**
+
+  * Web Log can now auto-refresh from browser
+    * if a Web Log request from a browser includes the query string, *refresh=N*, HomeSpan will add an HTTP Refresh response header to the HTML it serves back to the browser to cause it to auto-refresh the Web Log request every *N* seconds
+    * example: *http<nolink>://homespan-4e8eb8504e59.local/status?refresh=10* 
+
+  * Web Log requests are now case-insensitive
+    * example: *http<nolink>://homespan-4e8eb8504e59.local/STATUS?REFRESH=10* is equivalent to above
+ 
+* **Bug Fixes**
+  * Fixes a latent bug that prevented compilation when the homeSpan methods `controllerListBegin()` and `controllerListEnd()` were used in a sketch
+ 
+* **Known Issues**
+  * Under v3.1.0 of the Arduino-ESP32 Board Manager, it is not possible to call an external NTP Server to set the time on C6 chips (all other chips unaffected).  See https://github.com/espressif/arduino-esp32/issues/10754 for details.
+      
+See [Releases](https://github.com/HomeSpan/HomeSpan/releases) for details on all changes and bug fixes included in this update.
+
+
 ## ❗最新更新 - HomeSpan 2.0.0-rc.1 (9/27/2024)
 
 * **与 [Arduino-ESP32 开发板管理](https://github.com/espressif/arduino-esp32) 版本 3 兼容**
