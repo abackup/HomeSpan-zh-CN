@@ -41,7 +41,7 @@ struct RemoteTempSensor : Service::TemperatureSensor {
   const char *name;
   float temperature;
   
-  RemoteTempSensor(const char *name, const char*macAddress) : Service::TemperatureSensor(){
+  RemoteTempSensor(const char *name, const char*macAddress, boolean is8266=false) : Service::TemperatureSensor(){
 
     this->name=name;
     
@@ -50,7 +50,7 @@ struct RemoteTempSensor : Service::TemperatureSensor {
 
     fault=new Characteristic::StatusFault(1);                // 设置初始 state = fault
 
-    remoteTemp=new SpanPoint(macAddress,0,sizeof(float));    // 创建一个 SpanPoint，其发送大小 size=0 ，接收大小 size=sizeof(float)
+    remoteTemp=new SpanPoint(macAddress,0,sizeof(float),1,is8266);    // 创建一个 SpanPoint，其发送大小 size=0 ，接收大小 size=sizeof(float)
 
   } // 结束构造函数
 
@@ -89,7 +89,7 @@ void setup() {
     new Service::AccessoryInformation();
       new Characteristic::Identify();
       new Characteristic::Name("Indoor Temp");
-    new RemoteTempSensor("Device 1","AC:67:B2:77:42:20");        // 传递远程设备的 MAC 地址
+    new RemoteTempSensor("Device 1","BC:FF:4D:40:8E:71",true);        // 传递远程设备的 MAC 地址
 
   new SpanAccessory();
     new Service::AccessoryInformation();
