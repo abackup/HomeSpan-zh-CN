@@ -19,36 +19,37 @@
 
   * 添加了新的 homeSpan 方法 `setConnectionTimes()`，允许用户微调 HomeSpan 在尝试连接 WiFi 网络时等待每次连接尝试的时间
   
-  * added new homeSpan method `setWifiBegin()` that allows users to create an alternative function HomeSpan calls **instead of** `WiFi.begin()` when attempting to connect to a WiFi network
+  * 添加了新的 homeSpan 方法 `setWifiBegin()`，允许用户在尝试连接到 WiFi 网络时创建 HomeSpan 调用的替代函数，**而不是** `WiFi.begin()`
 
-    * provides ability to create customizations, such as connecting to an enterprise network, or changing the WiFi power while connectivity is being established (required for some ESP32 boards with a misconfigured WiFi radio)
+    * 提供创建自定义项的能力，例如连接到企业网络，或在建立连接时更改 WiFi 功率（某些 ESP32 开发板的 WiFi 无线电配置错误时需要这样做）
     
-  * added new homeSpan method `enableWiFiRescan()` that causes HomeSpan to periodically re-scan for all access points matching the configured SSID and automatically switches to the access point with the strongest signal
-     * useful after a mesh network is rebooted and HomeSpan initially reconnects to a more distance access point because a closer one with a stronger signal has not yet fully rebooted
+  * 添加了新的 homeSpan 方法 `enableWiFiRescan()`，使 HomeSpan 定期重新扫描与配置的 SSID 匹配的所有接入点，并自动切换到信号最强的接入点
+     * 在重新启动网状网络并且 HomeSpan 最初重新连接到更远的接入点后很有用，因为更近且信号更强的接入点尚未完全重新启动
        
-  * added new homeSpan method `addBssidName()` that allows users to create optional display names for each access point in a WiFi mesh network according to their 6-byte BSSID addresses
-     * when defined, HomeSpan will display both this name and the BSSID of an access point whenever presenting info on the Serial Monitor or writing to the Web Log
+  * 添加了新的 homeSpan 方法 `addBssidName()`，允许用户根据其 6 字节 BSSID 地址为 WiFi 网状网络中的每个接入点创建可选的显示名称
+     * 定义后，HomeSpan 将同时显示此名称和 BSSID每次在串行监视器上显示信息或写入 Web 日志时，都会有一个接入点
+     
        
-  * see the [API Reference](docs/Reference.md) page for full details, as well as the new [HomeSpan WiFi and Ethernet Connectivity](docs/Networks.md) page for a high-level discussion of HomeSpan's connectivity options
+  * 请参阅 [API 参考](docs/Reference.md) 页面了解完整详情，以及新的 [HomeSpan WiFi 和以太网连接](docs/Networks.md) 页面了解 HomeSpan 连接选项的高级讨论
 
-* **DEPRECATIONS**
-  * `setWifiCallbackAll()` has been deprecated and renamed to `setConnectionCallback()` to reflect the fact this callback can be used for both WiFi and Ethernet connections
-  * `setWifiCallback()` has been deprecated --- the more generic `setConnectionCallback()` should be used instead
-    * requires any existing callbacks to be upgraded to add a single integer argument representing the number of connection attempts, similar to how `setWifiCallbackAll()`, and now `setConnectionCallback()`, work
-  * both `setWifiCallbackAll()` and `setWifiCallback()` will be removed in a future version of HomeSpan.  Please update your sketches to avoid incompatibility with these future versions 
+* **弃用**
+  * `setWifiCallbackAll()` 已被弃用并重命名为 `setConnectionCallback()`，以反映此回调可用于 WiFi 和以太网连接的事实
+  * `setWifiCallback()` 已被弃用 --- 应改用更通用的 `setConnectionCallback()`
+    * 要求升级任何现有回调以添加一个表示连接尝试次数的整数参数，类似于 `setWifiCallbackAll()` 和现在的 `setConnectionCallback()` 的工作方式
+  * `setWifiCallbackAll()` 和 `setWifiCallback()` 都将在 HomeSpan 的未来版本中删除。请更新您的草图以避免与这些未来版本不兼容
 
-* **New CLI Commands**
+* **新的 CLI 命令**
   
-  * 'D' - forces HomeSpan to disconnect and then automatically re-connect to the configured WiFi network
-  * 'Z' - scans a user's WiFi network environment and displays information about each SSID (including each BSSID for mesh networks with multiple access points broadcasting the same SSID) on the Serial Monitor
-  * see the [Command Line Interface (CLI)](docs/CLI.md) page for full details
+  * 'D' - 强制 HomeSpan 断开连接，然后自动重新连接到配置的 WiFi 网络
+  * 'Z' - 扫描用户的 WiFi 网络环境并在串行监视器上显示有关每个 SSID 的信息（包括具有多个接入点广播相同 SSID 的网状网络的每个 BSSID）
+  * 请参阅 [命令行界面 (CLI)](docs/CLI.md) 页面了解完整详细信息
 
-* **New Multi-Threading Management**
+* **新的多线程管理**
 
-  * made Web Log writing/reading thread-safe
-    * fixes a latent bug related to a race condition between displaying the web log and writing a log record when the separate thread HomeSpan creates at start-up to handle initial contact with an NTP server records the time found
+  * 使 Web 日志写入/读取线程安全
+    * 修复了与显示 Web 日志和写入日志记录之间的竞争条件相关的潜在错误，当 HomeSpan 在启动时创建单独的线程来处理与 NTP 服务器的初始联系时，记录找到的时间
 
-  * made HomeSpan autopolling thread-safe
+  * 使 HomeSpan 自动轮询线程安全
     * adds two new macros, `homeSpanPAUSE` and `homeSpanRESUME`, that allow users to temporarily suspend the HomeSpan polling task once it completes its current run
     * allows users to make modifications to HomeSpan Characteristics and perform any other HomeSpan functions from a separate thread without worrying about inconsistencies if HomeSpan polling was being run at the same time
     * typically used when your sketch calls `homeSpan.autoPoll()` to run HomeSpan polling in a separate background task *and* you also want to make separate modifications to existing HomeSpan Characteristics by using `getVal()` and `setVal()` from within the main Arduino `loop()` (instead of, or in addition to, modifying these Characteristics from within their Service loops)
