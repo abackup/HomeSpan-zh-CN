@@ -1,23 +1,23 @@
-## ❗Latest Update - HomeSpan 2.1.0 (12/27/2024)
+## ❗最新更新 - HomeSpan 2.1.0（2024 年 12 月 27 日）
 
-* **Integrated Support for Ethernet Connectivity!**
+* **集成对以太网连接的支持！**
 
-  * no new homeSpan methods are required.  Instead, during start-up HomeSpan checks if you've instructed the ESP32 to establish an Ethernet connection, and if so it will switch into "Ethernet mode" and not attempt to connect to your network via WiFi
-  * once in Ethernet mode, HomeSpan customizes some of the output to the Serial Monitor and Web Log so it is clear Ethernet, and not WiFi, connectivity is being used
-  * HomeSpan handles all reporting of connects/disconnects/reconnects just as it normally does for WiFi connections
-  * to establish Ethernet connectivity, simply use the Arduino-ESP32's ETH library by calling `ETH.begin()` in your sketch with the appropriate parameters for your Ethernet board (assuming the Arduino-ESP32 library supports your board)
-    * you must call `ETH.begin()` before calling `homeSpan.begin()`
-    * you do **not** need to include `ETH.h` in your sketch
-    * note the Arduino-ESP32 ETH library supports both direct-connect PHY as well as standalone SPI-based Ethernet boards
-  * adds new homeSpan method `setConnectionCallback()`, which is a renamed version of the `setWifiCallbackAll()` method (now deprecated, see below) to reflect the fact that this method can be used with both Ethernet and WiFi connections
+  * 不需要新的 homeSpan 方法。相反，在启动期间，HomeSpan 会检查您是否已指示 ESP32 建立以太网连接，如果是，它将切换到“以太网模式”，而不是尝试通过 WiFi 连接到您的网络
+  * 一旦进入以太网模式，HomeSpan 就会自定义串行监视器和 Web 日志的一些输出，以便清楚地看到正在使用以太网而非 WiFi 连接
+  * HomeSpan 处理所有连接/断开/重新连接的报告，就像它通常处理 WiFi 连接一样
+  * 要建立以太网连接，只需使用 Arduino-ESP32 的 ETH 库，在草图中调用 `ETH.begin()`，并使用适合您的以太网板的参数（假设 Arduino-ESP32 库支持您的主板）
+    * 你必须在调用 `homeSpan.begin()` 之前调用 `ETH.begin()`
+    * 你**不需要**在草图中包含 `ETH.h`
+    * 请注意，Arduino-ESP32 ETH 库支持直接连接 PHY 以及独立的基于 SPI 的以太网板
+  * 添加了新的 homeSpan 方法 `setConnectionCallback()`，它是 `setWifiCallbackAll()` 方法的重命名版本（现已弃用，见下文），以反映此方法可以用于以太网和 WiFi 连接的事实
 
-* **WiFi Enhancements and New WiFi Management Methods**
+* **WiFi 增强功能和新的 WiFi 管理方法**
 
-  * when connecting to a WiFi mesh network with multiple access points, HomeSpan now **automatically connects to the access point with the strongest WiFi signal** (i.e. the greatest RSSI)
-    * previously HomeSpan would simply connect to the first access point it found that matched the SSID specified by the user, even if other access points with the same SSID had stronger signals
-    * the BSSID (6-byte MAC address) of the access point to which HomeSpan is currently connected is provided in the Web Log as well as in the Serial Monitor in response to the 's' CLI command
+  * 当连接到具有多个接入点的 WiFi 网状网络时，HomeSpan 现在**自动连接到具有最强 WiFi 信号**（即最大 RSSI）的接入点
+    * 以前，HomeSpan 只会连接到它找到的第一个与用户指定的 SSID 匹配的接入点，即使具有相同 SSID 的其他接入点信号更强
+    * HomeSpan 当前连接的接入点的 BSSID（6 字节 MAC 地址）在 Web 日志以及串行监视器中提供，以响应“s”CLI 命令
 
-  * added new homeSpan method `setConnectionTimes()` that allows users to fine-tune how long HomeSpan waits for each connection attempt when trying to connect to a WiFi network
+  * 添加了新的 homeSpan 方法 `setConnectionTimes()`，允许用户微调 HomeSpan 在尝试连接 WiFi 网络时等待每次连接尝试的时间
   
   * added new homeSpan method `setWifiBegin()` that allows users to create an alternative function HomeSpan calls **instead of** `WiFi.begin()` when attempting to connect to a WiFi network
 
