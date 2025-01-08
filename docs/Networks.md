@@ -8,20 +8,20 @@ HomeSpan 可以通过 WiFi 或以太网连接到您的家庭网络。 HomeSpan �
 
 1. **通过串行监视器输入您的 WiFi 凭证**
 
-  * 如果您的设备通过 USB 连接到计算机，您可以在串行监视器命令行界面（“CLI”）中键入“W”。 HomeSpan 将扫描您的 WiFi 环境并显示找到的所有网络 SSID。然后，您可以选择要使用的 SSID，或键入您自己的 SSID，并提供其密码。 HomeSpan 将此信息存储在 NVS 中，重新启动，然后使用这些 WiFi 凭据连接到您的网络。
+    * 如果您的设备通过 USB 连接到计算机，您可以在串行监视器命令行界面（“CLI”）中键入“W”。 HomeSpan 将扫描您的 WiFi 环境并显示找到的所有网络 SSID。然后，您可以选择要使用的 SSID，或键入您自己的 SSID，并提供其密码。 HomeSpan 将此信息存储在 NVS 中，重新启动，然后使用这些 WiFi 凭据连接到您的网络。
 1. **通过 HomeSpan 设置接入点输入您的 WiFi 凭证**
 
-  * 如果您的设备未连接到计算机，但您已添加 HomeSpan 控制按钮和 HomeSpan 状态 LED，则可以激活 HomeSpan 命令模式（有关详细信息，请参阅[用户指南](UserGuide.md)）并启动 HomeSpan 设置接入点。这将在您的设备上启动一个强制 WiFi 接入点，该接入点托管 HomeSpan 设置 Web 表单，您可以在其中输入家庭网络的 WiFi 凭据。进入 HomeSpan 后，将使用这些凭据连接到您的网络，如果成功，则将凭据保存在 NVS 中，重新启动，然后按照上述方式继续。需要注意的一些事项：
+    * 如果您的设备未连接到计算机，但您已添加 HomeSpan 控制按钮和 HomeSpan 状态 LED，则可以激活 HomeSpan 命令模式（有关详细信息，请参阅[用户指南](UserGuide.md)）并启动 HomeSpan 设置接入点。这将在您的设备上启动一个强制 WiFi 接入点，该接入点托管 HomeSpan 设置 Web 表单，您可以在其中输入家庭网络的 WiFi 凭据。进入 HomeSpan 后，将使用这些凭据连接到您的网络，如果成功，则将凭据保存在 NVS 中，重新启动，然后按照上述方式继续。需要注意的一些事项：
 
-    * 您也可以通过键入“A”从 CLI 启动 HomeSpan 设置接入点。但是，这主要用于测试目的，因为如果您的设备已通过 USB 连接到计算机，您不妨使用上面的“W”方法
-    * 您可以使用以下 homeSpan 方法更改 HomeSpan 设置接入点的名称、密码和超时： `setApSSID()` 、 `setApPassword()`和`setApTimeout()` （有关所有 homeSpan 方法的详细信息，请参阅[API 参考](Reference.md)页面）
-    * 如果您将 homeSpan `enableAutoStartAP()`方法添加到您的草图中，HomeSpan 将在启动时找不到存储在 NVS 中的任何 WiFi 凭证时_自动_启动其设置接入点
-    * 如果您确实不喜欢 HomeSpan 设置接入点的外观和感觉，您可以通过在草图中实现 homeSpan `setApFunction()`方法来创建自己的方法，让 HomeSpan 获取您的 WiFi 凭证
-    * 是的，Apple 确实有一种更强大的方法，可以让基于 WiFi 的 HomeKit 设备无缝地从您的 iPhone 获取 WiFi 凭证，但是，HomeSpan 无法使用此方法，因为 Apple 将此方法限制为仅适用于获得许可的商业 HomeKit 设备
-
+      * 您也可以通过键入“A”从 CLI 启动 HomeSpan 设置接入点。但是，这主要用于测试目的，因为如果您的设备已通过 USB 连接到计算机，您不妨使用上面的“W”方法
+      * 您可以使用以下 homeSpan 方法更改 HomeSpan 设置接入点的名称、密码和超时： `setApSSID()` 、 `setApPassword()`和`setApTimeout()` （有关所有 homeSpan 方法的详细信息，请参阅[API 参考](Reference.md)页面）
+      * 如果您将 homeSpan `enableAutoStartAP()`方法添加到您的草图中，HomeSpan 将在启动时找不到存储在 NVS 中的任何 WiFi 凭证时_自动_启动其设置接入点
+      * 如果您确实不喜欢 HomeSpan 设置接入点的外观和感觉，您可以通过在草图中实现 homeSpan `setApFunction()`方法来创建自己的方法，让 HomeSpan 获取您的 WiFi 凭证
+      * 是的，Apple 确实有一种更强大的方法，可以让基于 WiFi 的 HomeKit 设备无缝地从您的 iPhone 获取 WiFi 凭证，但是，HomeSpan 无法使用此方法，因为 Apple 将此方法限制为仅适用于获得许可的商业 HomeKit 设备
+      
 1. **在 HomeSpan 草图中对 WiFi 凭证进行硬编码**
 
-  * 如果上述方法都没有吸引力，您可以选择使用 homeSpan `setWifiCredentials()`方法将您的 WiFi 凭证直接硬编码到您的草图中，尽管出于安全原因这不被认为是一个好的做法。
+    * 如果上述方法都没有吸引力，您可以选择使用 homeSpan `setWifiCredentials()`方法将您的 WiFi 凭证直接硬编码到您的草图中，尽管出于安全原因这不被认为是一个好的做法。
 
 当 HomeSpan 尝试使用您的 WiFi 凭证连接到您的家庭网络时，它会发出请求，然后等待响应。如果在一段时间后没有连接，它会发出另一个请求并等待更长的时间以获得响应。每次尝试失败后，HomeSpan 都会使用指定的模式增加等待时间，然后重复该模式。默认模式是先等待 5 秒，然后等待 8、14、22、36 和 60 秒，之后该模式会在 5 秒后重新开始。如果需要，您可以使用 homeSpan `setConnectionTimes()`方法创建自己的请求/响应等待时间模式。
 
