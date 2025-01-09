@@ -26,9 +26,9 @@ enum HS_STATUS {
   HS_AP_STARTED,                          // HomeSpan 已启动接入点，但尚未有人连接
   HS_AP_CONNECTED,                        // 接入点已启动，且用户设备已连接
   HS_AP_TERMINATED,                       // HomeSpan 已终止接入点
-  HS_OTA_STARTED                          // HomeSpan 正在接收无线软件更新
-  HS_WIFI_SCANNING,                       // HomeSpan is in the process of scanning for WiFi networks
-  HS_ETH_CONNECTING                       // HomeSpan is trying to connect to an Ethernet network
+  HS_OTA_STARTED,                         // HomeSpan 正在接收无线软件更新
+  HS_WIFI_SCANNING,                       // HomeSpan 正在扫描 WiFi 网络
+  HS_ETH_CONNECTING                       // HomeSpan 正在尝试连接到以太网
 
 };
 ```
@@ -40,7 +40,7 @@ const char* Span::statusString(HS_STATUS s){
   switch(s){
     case HS_WIFI_NEEDED: return("WiFi Credentials Needed");
     case HS_WIFI_CONNECTING: return("WiFi Connecting");
-case HS_ETH_CONNECTING: return("Ethernet Connecting");
+    case HS_ETH_CONNECTING: return("Ethernet Connecting");
     case HS_PAIRING_NEEDED: return("Device not yet Paired");
     case HS_PAIRED: return("Device Paired");
     case HS_ENTERING_CONFIG_MODE: return("Entering Command Mode");
