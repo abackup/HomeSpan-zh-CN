@@ -24,6 +24,10 @@
 
 * 是的，多个 ESP32，每个运行一个单独的 HomeSpan 副本，可以在同一个 HomeKit 网络上使用，前提是每个设备都有一个唯一的*设备 ID* 、唯一的 *Host Name* 和唯一的 *Display Name*。通常，*设备 ID* 是 HomeSpan 在启动时随机生成的，因此在多个设备中将自动唯一。此外，除非你覆盖默认 *Host Name* 的后缀，否则它在多个设备中也是唯一的，因为 HomeSpan 使用 *设备 ID* 作为 *Host Name* 的后缀。你唯一需要确保的是为每个设备分配不同的*显示名称*。有关如何执行此操作的详细信息，请参阅 [API 参考](https://github.com/HomeSpan/HomeSpan/blob/master/docs/Reference.md)。
 
+#### Does HomeSpan require the use of a HomeKit Hub, such as a HomePod or Apple TV?
+
+* Yes. If you want HomeSpan to be able to send notifications, such as status updates if a contact sensor is opened, or updates from a temperature sensor, you must use a HomeKit Hub.  If your device can only be operated from the Home App (i.e. it has no local control buttons) and does not generate any status messages, than a HomeKit Hub *may* not be necessary.  Note you will also need a HomeKit Hub if you wish to control your device via the Internet when away from your local WiFi network.  These requirements and conditions are not specific to HomeSpan, but apply to all commercial HomeKit devices as a result of Apple updating its HomeKit Architecture (as of iOS 16.4).
+
 #### HomeSpan 是否支持视频和音频流？
 
 * 不，HomeSpan 不支持流媒体服务，例如音频流管理、数据流传输管理或摄像头 RTP 管理。有关 HomeSpan 支持的所有服务的完整列表，请参阅 [服务和特征](ServiceList.md)。
@@ -90,6 +94,13 @@ getLocalTime(&myTime);   // 用当前日期和时间填充 tm 结构
 Serial.printf("Current Date = %02d/%02d/%04d\n", myTime.tm_mon+1, myTime.tm_mday, myTime.tm_year+1900);
 Serial.printf("Current Time = %02d:%02d:%02d\n", myTime.tm_hour, myTime.tm_min, myTime.tm_sec);
 ```
+
+#### I am getting a "Sketch Too Big" error when I compile
+
+* As a result of increases in the size of the Arduino-ESP32 Board Manager, HomeSpan sketches will no longer fit into the Default partition scheme which only allocates 1.3MB to an App partition.  HomeSpan sketches must instead be compiled under a larger partition scheme, such as Minimal SPIFFS, which provides for 1.9MB partitions.  You can select this partition scheme (or any other that has an App or OTA partition that is large enough to fit your sketch) from with Tools menu in the Arduino IDE.
+
+* Note that it is NOT possible to change the partition scheme on remote devices via OTA.  The device MUST be connected via USB to your computer.  If you change the partition table on the Arduino IDE and upload your sketch via OTA to a remote device, the remote device will IGNORE the request to change the partition table and if the size of the sketch is too large for the previous partition table on the remote device, the new sketch will not be saved.  To solve this, you need to connect the device to your computer via USB, change the partition table, and then upload. Once the partition table is changed, you can then disconnect and use OTA again.
+  
 
 ---
 
