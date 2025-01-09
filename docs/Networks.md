@@ -43,4 +43,4 @@ HomeSpan 利用 Arduino-ESP32 库的全局`ETH`对象来管理以太网连接，
 
 ---
 
-[↩️](../README.md)返回欢迎页面
+[↩️](../README.md#resource)返回欢迎页面
