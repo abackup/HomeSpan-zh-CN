@@ -142,7 +142,7 @@ HomeKit *未认证*电视服务的示例，展示了如何使用不同的特征�
 ### [像素测试仪](../examples/Other%20Examples/PixelTester/PixelTester.ino)
 帮助确定任何 RGB(W) LED 灯带的 *pixelType* 的草图。请参阅 [灯带](Pixels.md) 页面了解完整详情
 
-### [Pixel-RGBWC](../examples/Other%20Examples/Pixel-RGBWC)
+### [Pixel-RGBWC](../examples/Other%20Examples/Pixel-RGBWC/Pixel-RGBWC.ino)
 附加 Pixel 示例，演示如何实现 RGBWC Pixel 灯带，并为 RGB 和 WC LED 设置单独的家庭应用控件
 
 ### [自定义服务](../examples/Other%20Examples/CustomService/CustomService.ino)
