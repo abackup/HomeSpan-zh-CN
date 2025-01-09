@@ -56,7 +56,7 @@
       
   * 请参阅 [API 参考](docs/Reference.md) 页面了解完整详情，以及新的 [多线程](examples/Other%20Examples/MultiThreading) 示例，该示例演示了如何使用这些宏来实现多线程
 
-* **WWeb 日志增强功能**
+* **Web 日志增强功能**
 
   * Web 日志现在可以从浏览器自动刷新
     * 如果来自浏览器的 Web 日志请求包含查询字符串 *refresh=N*，HomeSpan 将向其返回给浏览器的 HTML 添加一个 HTTP 刷新响应标头，使其每 *N* 秒自动刷新一次 Web 日志请求
