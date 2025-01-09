@@ -51,7 +51,7 @@ float temp=-10.0;         // 这个全局变量代表我们的“模拟”温度
 
 // 当 HomeSpan 首次启动时（以及每当您在 CLI 中输入“i”时），串行监视器将显示您在 ESP32 草图中实例化的每个 SpanPoint 对象的详细信息。此输出包括 SpanPoint 将监听来自远程设备的传入数据的 MAC 地址。显示的与此远程设备（即此草图）对应的 SpanPoint 实例的 MAC 地址是您应在下面使用的 MAC 地址。
  
-uint8_t main_mac[6]={0x84,0xCC,0xA8,0x11,0xB4,0x85};        // 这是 HomeSpan 串行监视器中报告的在 ESP32 上运行 HomeSpan 的主设备的 **AP MAC 地址**
+uint8_t main_mac[6]={0xAC,0x67,0xB2,0x77,0x42,0x21};        // 这是 HomeSpan 串行监视器中报告的在 ESP32 上运行 HomeSpan 的主设备的 **AP MAC 地址**
 
 // 接下来我们创建一个简单的、标准的 ESP-NOW 回调函数来报告每次数据传输的状态
 
@@ -68,7 +68,7 @@ void setup() {
   Serial.printf("\nMAC Address: %s\n",WiFi.macAddress().c_str());         // 将此 MAC 地址作为运行 HomeSpan 的 ESP32 上匹配的 SpanPoint 对象的第一个参数输入
   
   WiFi.mode(WIFI_STA);            // 将模式设置为站点
-  wifi_set_channel(6);            // 您还需要手动设置频道，以匹配 ESP32 连接到 WiFi 网络后使用的频道
+  wifi_set_channel(3);            // 您还需要手动设置频道，以匹配 ESP32 连接到 WiFi 网络后使用的频道
 
   // 提示：作为替代方案，您可以向此草图添加代码以连接到 HomeSpan 使用的相同 WiFi 网络。虽然此草图不会使用该 WiFi 网络，但通过建立连接，ESP8266 会自动配置通道，现在将与 ESP32 匹配。
   // Next, initialize ESP-NOW
