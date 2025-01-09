@@ -50,28 +50,28 @@
     * 修复了与显示 Web 日志和写入日志记录之间的竞争条件相关的潜在错误，当 HomeSpan 在启动时创建单独的线程来处理与 NTP 服务器的初始联系时，记录找到的时间
 
   * 使 HomeSpan 自动轮询线程安全
-    * adds two new macros, `homeSpanPAUSE` and `homeSpanRESUME`, that allow users to temporarily suspend the HomeSpan polling task once it completes its current run
-    * allows users to make modifications to HomeSpan Characteristics and perform any other HomeSpan functions from a separate thread without worrying about inconsistencies if HomeSpan polling was being run at the same time
-    * typically used when your sketch calls `homeSpan.autoPoll()` to run HomeSpan polling in a separate background task *and* you also want to make separate modifications to existing HomeSpan Characteristics by using `getVal()` and `setVal()` from within the main Arduino `loop()` (instead of, or in addition to, modifying these Characteristics from within their Service loops)
+    * 添加了两个新宏 `homeSpanPAUSE` 和 `homeSpanRESUME`，允许用户在 HomeSpan 轮询任务完成当前运行后暂时暂停该任务
+    * 允许用户修改 HomeSpan 特性并从单独的线程执行任何其他 HomeSpan 功能，而不必担心同时运行 HomeSpan 轮询时出现不一致的情况
+    * 通常用于当您的草图调用 `homeSpan.autoPoll()` 在单独的后台任务中运行 HomeSpan 轮询*并且*您还想通过在主 Arduino `loop()` 中使用 `getVal()` 和 `setVal()` 对现有的 HomeSpan 特性进行单独的修改时（而不是或除了在其服务循环中修改这些特性）
       
-  * see the [API Reference](docs/Reference.md) page for full details, as well as a new [MultiThreading](examples/Other%20Examples/MultiThreading) Example that demonstrates the use of multi-threading using these macros
+  * 请参阅 [API 参考](docs/Reference.md) 页面了解完整详情，以及新的 [多线程](examples/Other%20Examples/MultiThreading) 示例，该示例演示了如何使用这些宏来实现多线程
 
-* **Web Log Enhancements**
+* **WWeb 日志增强功能**
 
-  * Web Log can now auto-refresh from browser
-    * if a Web Log request from a browser includes the query string, *refresh=N*, HomeSpan will add an HTTP Refresh response header to the HTML it serves back to the browser to cause it to auto-refresh the Web Log request every *N* seconds
-    * example: *http<nolink>://homespan-4e8eb8504e59.local/status?refresh=10* 
+  * Web 日志现在可以从浏览器自动刷新
+    * 如果来自浏览器的 Web 日志请求包含查询字符串 *refresh=N*，HomeSpan 将向其返回给浏览器的 HTML 添加一个 HTTP 刷新响应标头，使其每 *N* 秒自动刷新一次 Web 日志请求
+    * 例如： *http<nolink>://homespan-4e8eb8504e59.local/status?refresh=10* 
 
-  * Web Log requests are now case-insensitive
-    * example: *http<nolink>://homespan-4e8eb8504e59.local/STATUS?REFRESH=10* is equivalent to above
+  * Web 日志请求现在不区分大小写
+    * 例如： *http<nolink>://homespan-4e8eb8504e59.local/STATUS?REFRESH=10* 相当于上面
  
-* **Bug Fixes**
-  * Fixes a latent bug that prevented compilation when the homeSpan methods `controllerListBegin()` and `controllerListEnd()` were used in a sketch
+* **问题修复**
+  * 修复了在草图中使用 homeSpan 方法 `controllerListBegin()` 和 `controllerListEnd()` 时阻止编译的潜在错误
  
-* **Known Issues**
-  * Under v3.1.0 of the Arduino-ESP32 Board Manager, it is not possible to call an external NTP Server to set the time on C6 chips (all other chips unaffected).  See https://github.com/espressif/arduino-esp32/issues/10754 for details.
+* **已知问题**
+  * 在 Arduino-ESP32 Board Manager v3.1.0 下，无法调用外部 NTP 服务器来设置 C6 芯片上的时间（所有其他芯片不受影响）。详情请参阅 https://github.com/espressif/arduino-esp32/issues/10754。
       
-See [Releases](https://github.com/HomeSpan/HomeSpan/releases) for details on all changes and bug fixes included in this update.
+有关此更新中包含的所有更改和错误修复的详细信息，请参阅 [发布](https://github.com/HomeSpan/HomeSpan/releases)。
 
 
 ## ❗最新更新 - HomeSpan 2.0.0-rc.1 (9/27/2024)
