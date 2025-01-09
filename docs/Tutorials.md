@@ -166,7 +166,7 @@ HomeKit *未认证*电视服务的示例，展示了如何使用不同的特征�
 ### [外部引用](../examples/Other%20Examples/ExternalReference/ExternalReference.ino)
 演示如何从这些服务外部访问服务的特征（例如在 Arduino 的 `loop()` 中访问）。在此草图中，我们重新创建了示例 5 中的两个 LED，并在 Arduino `loop()` 部分添加一个新功能，用于检查两个 LED 是否同时打开，如果是，则自动关闭
 
-### [多线程](../examples/Other%20Examples/MultiThreading)
+### [多线程](../examples/Other%20Examples/MultiThreading/MultiThreading.ino)
 演示如何在多线程环境中使用 HomeSpan。在此草图中，我们重新创建了示例 1 中的简单灯泡的多线程版本，但不是从主 Arduino `loop()` 调用 `poll()`，而是实现了每隔 10 秒休眠一次的逻辑（不会干扰 HomeSpan！），然后根据当前设置自动将灯泡的电源从 ON 切换为 OFF，或从 OFF 切换为 ON
 
 ---
