@@ -28,10 +28,6 @@ HomeSpan 日志消息通常以三种可能的详细级别直接输出到 Arduino
 
 * `LOGn(const char *fmt, ...)` - 当指定多个参数时，HomeSpan 使用 ESP32 `Serial.printf(fmt, ...)` 方法输出消息，该方法允许你格式化消息使用标准 C++ *printf* 约定具有可变数量的参数。例如，`int n=255; LOG2("The value is 0x%X",n);` 向 Arduino 串口监视器输出消息 "The value is 0xFF"，前提是 *Log Level* 设置为 2。
 
-* calling the Web Log from your browser with an optional query string, *refresh=N*, will cause the Web Log to auto-refresh in your browser every *N* seconds.  It does this by adding an HTTP "Refresh" response header to the HTML it serves up to the browser.  For example *http<nolink>://homespan-4e8eb8504e59.local/myLog?refresh=10* refreshes the Web Log page in your browser every 10 seconds.  If *refresh* is set to less than 1, or if the query string is not well-formed, HomeSpan will not add a Refresh response header to the HTML and no refreshing occurs
- 
-* HomeSpan is case-insensitive with regard to intepreting Web Log requests from the browser.  For example *http<nolink>://homespan-4e8eb8504e59.local/MYLOG?REFRESH=10* works fine in the example above 
-
 有关演示这些宏的教程草图，请参阅 [示例 9 - 消息日志](Tutorials.md#示例-9---消息日志)。
  
 ## 网络日志
@@ -64,6 +60,8 @@ HomeSpan网络日志页面本身包含两个部分：
  
   * 可以在你的草图中包含 WEBLOG() 消息，即使网络日志*未*启用。在这种情况下，HomeSpan 不会提供网络日志页面，但如果 *Log Level* 设置为 1 或更高，WEBLOG() 消息仍将输出到 Arduino 串口监视器
   * 消息**不**存储在 NVS 中，因此在重新启动之间**不**保存
+  * 使用可选查询字符串 *refresh=N* 从浏览器调用 Web 日志将导致 Web 日志每 *N* 秒自动刷新一次浏览器。它通过向提供给浏览器的 HTML 添加 HTTP“刷新”响应标头来实现此目的。例如，*http<nolink>://homespan-4e8eb8504e59.local/myLog?refresh=10* 每 10 秒刷新一次浏览器中的 Web 日志页面。如果 *refresh* 设置为小于 1，或者查询字符串格式不正确，HomeSpan 将不会向 HTML 添加刷新响应标头，也不会发生刷新
+  * HomeSpan 在解释来自浏览器的 Web 日志请求时不区分大小写。例如，*http<nolink>://homespan-4e8eb8504e59.local/MYLOG?REFRESH=10* 在上例中运行良好
  
 请参阅 [示例 19 - WebLog](Tutorials.md#示例-19---网页日志) 以获得演示使用 `homeSpan.enableWebLog()` 和 WEBLOG() 宏的教程草图。
 
