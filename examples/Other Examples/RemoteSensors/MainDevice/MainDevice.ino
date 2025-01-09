@@ -89,7 +89,7 @@ void setup() {
     new Service::AccessoryInformation();
       new Characteristic::Identify();
       new Characteristic::Name("Indoor Temp");
-    new RemoteTempSensor("Device 1","BC:FF:4D:40:8E:71",true);        // 传递远程设备的 MAC 地址
+    new RemoteTempSensor("Device 1","BC:FF:4D:40:8E:71",true);        // 传递远程设备的 MAC 地址，并标记它是 ESP8266
 
   new SpanAccessory();
     new Service::AccessoryInformation();
