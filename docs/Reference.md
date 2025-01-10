@@ -161,11 +161,8 @@ HomeSpan 库通过在 Arduino 草图中包含 *HomeSpan.h* 来调用，如下所
   * 调用此方法并将 *verbose* 设置为 *false* 会抑制这些消息
   * 第二次调用此方法并将 *verbose* 设置为 *true* 会重新激活这些消息（默认行为）
 
-* `Span& setWifiCallback(void (*func)())`
-  * 设置可选的用户定义回调函数 *func*，由 HomeSpan 在 WiFi 连接初步建立后启动时调用。此对 *func* 的一次性调用适用于正在将其他网络相关服务作为其草图的一部分实现的用户，但在建立 WiFi 连接之前无法启动这些服务。函数 *func* 必须是 *void* 类型，并且没有参数
-
-* `Span& setWifiCallbackAll(void (*func)(int count))`
-  * 类似于上面的 `setWiFiCallback()`，但用户定义的回调函数 *func* 每次在 WiFi 连接建立或断开连接后重新建立时都会被 HomeSpan 调用。函数 *func* 必须是 *void* 类型，并接受单个 *int* 参数 *count*，HomeSpan 将 WiFi 建立或重新建立的次数传递给该参数（即，在初始 WiFi 连接时 *count*=1；如果在第一次断开连接后重新建立，则 *count*=2，等等）
+* `Span& setConnectionCallback(void (*func)(int count))`
+  * sets an optional user-defined callback function, *func*, to be called by HomeSpan every time WiFi or Ethernet connectivity has been established or re-established after a disconnect.  The function *func* must be of type *void* and accept a single *int* argument, *count*, into which HomeSpan passes the number of times WiFi or Ethernet connectivity has been established or re-established (i.e. *count*=1 on initial WiFi or Ethernet connection; *count*=2 if re-established after the first disconnect, etc.)
 
 * `Span& setPairCallback(void (*func)(boolean status))`
   * 设置可选的用户定义回调函数 *func*，在完成与控制器的配对（*status=true*）或与控制器的配对（*status=false*）后由 HomeSpan 调用
